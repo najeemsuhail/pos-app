@@ -1,0 +1,83 @@
+.receipt-modal {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.receipt-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 20px;
+}
+
+.close-btn {
+  background-color: var(--surface-muted);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background-color: var(--surface-subtle);
+}
+
+.receipt-content {
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background-color: var(--surface-muted);
+  color: var(--text-primary);
+}
+
+.receipt-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.print-btn {
+  background: var(--accent-gradient);
+  color: var(--text-on-brand);
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.print-btn:hover {
+  filter: brightness(0.96);
+}
+
+.close-receipt-btn {
+  background-color: var(--success-color);
+  color: var(--text-on-success);
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.close-receipt-btn:hover {
+  filter: brightness(0.92);
+}

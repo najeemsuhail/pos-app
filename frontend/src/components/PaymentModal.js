@@ -5,11 +5,10 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
   const [payments, setPayments] = useState([
     { method: 'Cash', amount: total, reference_id: '' },
   ]);
-  const [selectedMethod, setSelectedMethod] = useState('Cash');
 
   const handleAddPayment = () => {
     if (payments[payments.length - 1].amount > 0) {
-      setPayments([...payments, { method: selectedMethod, amount: 0, reference_id: '' }]);
+      setPayments([...payments, { method: 'Cash', amount: 0, reference_id: '' }]);
     }
   };
 

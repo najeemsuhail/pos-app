@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../services/api';
 import { generatePDF } from '../../utils/reportPDF';
@@ -26,7 +26,7 @@ const ReportsTab = () => {
     color: 'var(--text-primary)'
   };
 
-  const fetchDailyReport = async () => {
+  const fetchDailyReport = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -40,9 +40,9 @@ const ReportsTab = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate]);
 
-  const fetchWeeklyReport = async () => {
+  const fetchWeeklyReport = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -56,9 +56,9 @@ const ReportsTab = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate]);
 
-  const fetchMonthlyReport = async () => {
+  const fetchMonthlyReport = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -73,9 +73,9 @@ const ReportsTab = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedMonth]);
 
-  const fetchRangeReport = async () => {
+  const fetchRangeReport = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -89,7 +89,7 @@ const ReportsTab = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate]);
 
   const handleExportPDF = () => {
     if (report) {
@@ -148,7 +148,7 @@ const ReportsTab = () => {
     } else {
       fetchRangeReport();
     }
-  }, [reportType]);
+  }, [reportType, fetchDailyReport, fetchWeeklyReport, fetchMonthlyReport, fetchRangeReport]);
 
   const getHourLabel = (hour) => {
     return `${String(hour).padStart(2, '0')}:00`;

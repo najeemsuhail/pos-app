@@ -22,6 +22,10 @@ export const OrderProvider = ({ children }) => {
     });
   }, []);
 
+  const removeItem = useCallback((itemId) => {
+    setItems((prevItems) => prevItems.filter((i) => i.id !== itemId));
+  }, []);
+
   const updateQuantity = useCallback((itemId, quantity) => {
     if (quantity <= 0) {
       removeItem(itemId);
@@ -31,11 +35,7 @@ export const OrderProvider = ({ children }) => {
     setItems((prevItems) =>
       prevItems.map((i) => (i.id === itemId ? { ...i, quantity } : i))
     );
-  }, []);
-
-  const removeItem = useCallback((itemId) => {
-    setItems((prevItems) => prevItems.filter((i) => i.id !== itemId));
-  }, []);
+  }, [removeItem]);
 
   const calculateTotals = useCallback(() => {
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);

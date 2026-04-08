@@ -8,7 +8,6 @@ const OrderHistoryTab = () => {
   const [error, setError] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [filterType, setFilterType] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

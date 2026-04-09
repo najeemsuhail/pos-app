@@ -1,0 +1,14 @@
+{
+  "name": "pos-app",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run start --workspace frontend",
+    "build": "npm run build --workspace frontend && node scripts/prepare-vercel-static.js",
+    "start": "npm run start --workspace backend"
+  }
+}

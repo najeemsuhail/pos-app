@@ -8,7 +8,6 @@
     "dev": "nodemon src/index.js",
     "migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
-    "seed": "node database/seed.js",
     "test": "jest",
     "prisma:gen": "prisma generate",
     "prisma:studio": "prisma studio"

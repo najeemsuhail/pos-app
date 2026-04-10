@@ -1,11 +1,40 @@
 const MenuItemService = require('../services/MenuItemService');
+const { getUploadedImageUrl } = require('../utils/cloudinary');
+
+function parseBoolean(value, defaultValue = true) {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true') {
+      return true;
+    }
+    if (normalized === 'false') {
+      return false;
+    }
+  }
+
+  if (value === undefined || value === null || value === '') {
+    return defaultValue;
+  }
+
+  return Boolean(value);
+}
 
 class MenuItemController {
   async create(req, res, next) {
     try {
       const { name, price, category_id, is_available } = req.body;
-      const imageUrl = req.file ? req.file.path : null;
-      const item = await MenuItemService.createMenuItem(name, price, category_id, is_available, imageUrl);
+      const imageUrl = getUploadedImageUrl(req.file);
+      const item = await MenuItemService.createMenuItem(
+        name,
+        price,
+        category_id,
+        parseBoolean(is_available, true),
+        imageUrl
+      );
       res.status(201).json(item);
     } catch (error) {
       next(error);
@@ -46,10 +75,18 @@ class MenuItemController {
       const { id } = req.params;
       const { name, price, category_id, is_available } = req.body;
       const existingItem = await MenuItemService.getMenuItemById(id);
+      const parsedAvailability = parseBoolean(is_available, existingItem.is_available);
       const imageUrl = req.file
-        ? req.file.path
+        ? getUploadedImageUrl(req.file)
         : (req.body.image_url !== undefined ? req.body.image_url : existingItem.image_url);
-      const item = await MenuItemService.updateMenuItem(id, name, price, category_id, is_available, imageUrl);
+      const item = await MenuItemService.updateMenuItem(
+        id,
+        name,
+        price,
+        category_id,
+        parsedAvailability,
+        imageUrl
+      );
       res.json(item);
     } catch (error) {
       next(error);
@@ -62,7 +99,7 @@ class MenuItemController {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
       }
-      const imageUrl = req.file.path;
+      const imageUrl = getUploadedImageUrl(req.file);
       const item = await MenuItemService.updateMenuItemImage(id, imageUrl);
       res.json(item);
     } catch (error) {
@@ -74,7 +111,7 @@ class MenuItemController {
     try {
       const { id } = req.params;
       const { is_available } = req.body;
-      const item = await MenuItemService.toggleAvailability(id, is_available);
+      const item = await MenuItemService.toggleAvailability(id, parseBoolean(is_available, true));
       res.json(item);
     } catch (error) {
       next(error);

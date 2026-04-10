@@ -29,4 +29,8 @@ router.get('/revenue-analytics', authenticate, (req, res, next) =>
   ReportController.getRevenueAnalytics(req, res, next)
 );
 
+router.get('/expenses', authenticate, (req, res, next) =>
+  ReportController.getExpenseSummary(req, res, next)
+);
+
 module.exports = router;

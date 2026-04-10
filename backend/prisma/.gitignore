@@ -1,3 +1,5 @@
 # Prisma
 .env
 .env*.local
+*.db
+*.db-journal

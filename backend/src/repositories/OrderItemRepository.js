@@ -1,31 +1,51 @@
-const pool = require('../db/pool');
+const prisma = require('../db/prisma');
+const { mapOrderItem } = require('../db/mappers');
 
 class OrderItemRepository {
   async create(orderId, menuItemId, name, price, quantity) {
-    const result = await pool.query(
-      `INSERT INTO order_items (order_id, menu_item_id, name, price, quantity) 
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [orderId, menuItemId, name, price, quantity]
-    );
-    return result.rows[0];
+    const item = await prisma.orderItem.create({
+      data: {
+        orderId: Number(orderId),
+        menuItemId: Number(menuItemId),
+        name,
+        price,
+        quantity: Number(quantity),
+      },
+    });
+    return mapOrderItem(item);
   }
 
   async findByOrderId(orderId) {
-    const result = await pool.query('SELECT * FROM order_items WHERE order_id = $1', [orderId]);
-    return result.rows;
+    const items = await prisma.orderItem.findMany({
+      where: { orderId: Number(orderId) },
+      orderBy: { createdAt: 'asc' },
+    });
+    return items.map(mapOrderItem);
+  }
+
+  async findByOrderIds(orderIds) {
+    const items = await prisma.orderItem.findMany({
+      where: {
+        orderId: { in: orderIds.map(Number) },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    return items.map(mapOrderItem);
   }
 
   async updateQuantity(id, quantity) {
-    const result = await pool.query(
-      'UPDATE order_items SET quantity = $1 WHERE id = $2 RETURNING *',
-      [quantity, id]
-    );
-    return result.rows[0];
+    const item = await prisma.orderItem.update({
+      where: { id: Number(id) },
+      data: { quantity: Number(quantity) },
+    });
+    return mapOrderItem(item);
   }
 
   async delete(id) {
-    const result = await pool.query('DELETE FROM order_items WHERE id = $1 RETURNING *', [id]);
-    return result.rows[0];
+    const item = await prisma.orderItem.delete({
+      where: { id: Number(id) },
+    });
+    return mapOrderItem(item);
   }
 }
 

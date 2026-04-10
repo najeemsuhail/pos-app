@@ -1,36 +1,49 @@
-const pool = require('../db/pool');
+const prisma = require('../db/prisma');
+const { mapUser } = require('../db/mappers');
 
 class UserRepository {
   async findByUsername(username) {
-    const result = await pool.query('SELECT * FROM users WHERE name = $1', [username]);
-    return result.rows[0];
+    const user = await prisma.user.findUnique({
+      where: { name: username },
+    });
+    return mapUser(user);
   }
 
   async findById(id) {
-    const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-    return result.rows[0];
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+    });
+    return mapUser(user);
   }
 
   async create(name, role, password) {
-    const result = await pool.query(
-      'INSERT INTO users (name, role, password) VALUES ($1, $2, $3) RETURNING *',
-      [name, role, password]
-    );
-    return result.rows[0];
+    const user = await prisma.user.create({
+      data: { name, role, password },
+    });
+    return mapUser(user);
   }
 
   async all() {
-    const result = await pool.query('SELECT id, name, role, created_at FROM users ORDER BY created_at DESC');
-    return result.rows;
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return users.map((user) => {
+      const mapped = mapUser(user);
+      delete mapped.password;
+      return mapped;
+    });
   }
 
   async getAll() {
-    return await this.all();
+    return this.all();
   }
 
   async delete(id) {
-    const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
-    return result.rows[0];
+    return prisma.user.delete({
+      where: { id: Number(id) },
+      select: { id: true },
+    });
   }
 }
 

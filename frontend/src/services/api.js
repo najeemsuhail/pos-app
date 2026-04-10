@@ -51,9 +51,17 @@ export const orderService = {
 };
 
 export const reportService = {
-  getDailySummary: (date) => api.get('/reports/daily-summary', { params: { date } }),
+  getDailySummary: (date) => api.get('/reports/daily', { params: { date } }),
   getDateRangeSummary: (startDate, endDate) =>
-    api.get('/reports/range-summary', { params: { start_date: startDate, end_date: endDate } }),
+    api.get('/reports/range', { params: { startDate, endDate } }),
+  getExpenseSummary: (startDate, endDate) =>
+    api.get('/reports/expenses', { params: { startDate, endDate } }),
+};
+
+export const expenseService = {
+  getAll: (startDate, endDate) => api.get('/expenses', { params: { startDate, endDate } }),
+  create: (data) => api.post('/expenses', data),
+  delete: (id) => api.delete(`/expenses/${id}`),
 };
 
 export default api;

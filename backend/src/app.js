@@ -9,8 +9,10 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const menuItemRoutes = require('./routes/menuItemRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 const userRoutes = require('./routes/userRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const { desktopUploadsDir } = require('./db/paths');
 
 const app = express();
 const staticDir = path.resolve(__dirname, '../../public');
@@ -20,6 +22,7 @@ const hasFrontendBuild = fs.existsSync(frontendBuildPath);
 
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(desktopUploadsDir));
 
 if (hasFrontendBuild) {
   app.use(express.static(frontendBuildPath));
@@ -30,6 +33,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/menu-items', menuItemRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/expenses', expenseRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/api/health', (req, res) => {

@@ -1,7 +1,6 @@
-require('dotenv').config();
-const app = require('./app');
+const { startServer } = require('./server');
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`POS Backend running on port ${PORT}`);
+startServer(process.env.PORT || 5000).catch((error) => {
+  console.error('Failed to start backend', error);
+  process.exit(1);
 });

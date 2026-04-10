@@ -1,56 +1,80 @@
-const pool = require('../db/pool');
+const prisma = require('../db/prisma');
+const { mapOrder } = require('../db/mappers');
 
 class OrderRepository {
   async create(billNumber, subtotal, discountAmount, taxAmount, finalAmount) {
-    const result = await pool.query(
-      `INSERT INTO orders (bill_number, status, subtotal, discount_amount, tax_amount, final_amount, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING *`,
-      [billNumber, 'pending', subtotal, discountAmount, taxAmount, finalAmount]
-    );
-    return result.rows[0];
+    const order = await prisma.order.create({
+      data: {
+        billNumber,
+        status: 'pending',
+        subtotal,
+        discountAmount,
+        taxAmount,
+        finalAmount,
+      },
+    });
+    return mapOrder(order);
   }
 
   async findById(id) {
-    const result = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
-    return result.rows[0];
+    const order = await prisma.order.findUnique({
+      where: { id: Number(id) },
+    });
+    return mapOrder(order);
   }
 
   async findByBillNumber(billNumber) {
-    const result = await pool.query('SELECT * FROM orders WHERE bill_number = $1', [billNumber]);
-    return result.rows[0];
+    const order = await prisma.order.findUnique({
+      where: { billNumber },
+    });
+    return mapOrder(order);
   }
 
   async update(id, subtotal, discountAmount, taxAmount, finalAmount) {
-    const result = await pool.query(
-      `UPDATE orders SET subtotal = $1, discount_amount = $2, tax_amount = $3, final_amount = $4, updated_at = NOW()
-       WHERE id = $5 RETURNING *`,
-      [subtotal, discountAmount, taxAmount, finalAmount, id]
-    );
-    return result.rows[0];
+    const order = await prisma.order.update({
+      where: { id: Number(id) },
+      data: {
+        subtotal,
+        discountAmount,
+        taxAmount,
+        finalAmount,
+        updatedAt: new Date(),
+      },
+    });
+    return mapOrder(order);
   }
 
   async updateStatus(id, status) {
-    const result = await pool.query(
-      'UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
-      [status, id]
-    );
-    return result.rows[0];
+    const order = await prisma.order.update({
+      where: { id: Number(id) },
+      data: {
+        status,
+        updatedAt: new Date(),
+      },
+    });
+    return mapOrder(order);
   }
 
   async findAll(limit = 100, offset = 0) {
-    const result = await pool.query(
-      'SELECT * FROM orders ORDER BY created_at DESC LIMIT $1 OFFSET $2',
-      [limit, offset]
-    );
-    return result.rows;
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip: offset,
+    });
+    return orders.map(mapOrder);
   }
 
   async findByDateRange(startDate, endDate) {
-    const result = await pool.query(
-      'SELECT * FROM orders WHERE created_at >= $1 AND created_at < $2 ORDER BY created_at DESC',
-      [startDate, endDate]
-    );
-    return result.rows;
+    const orders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(startDate),
+          lt: new Date(endDate),
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return orders.map(mapOrder);
   }
 }
 

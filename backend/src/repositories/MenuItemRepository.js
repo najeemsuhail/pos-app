@@ -1,64 +1,84 @@
-const pool = require('../db/pool');
+const prisma = require('../db/prisma');
+const { mapMenuItem } = require('../db/mappers');
 
 class MenuItemRepository {
   async create(name, price, categoryId, isAvailable = true, imageUrl = null) {
-    const result = await pool.query(
-      'INSERT INTO menu_items (name, price, category_id, is_available, image_url, is_deleted) VALUES ($1, $2, $3, $4, $5, false) RETURNING *',
-      [name, price, categoryId, isAvailable, imageUrl]
-    );
-    return result.rows[0];
+    const item = await prisma.menuItem.create({
+      data: {
+        name,
+        price,
+        categoryId: Number(categoryId),
+        isAvailable,
+        imageUrl,
+        isDeleted: false,
+      },
+    });
+    return mapMenuItem(item);
   }
 
   async findAll() {
-    const result = await pool.query(
-      'SELECT * FROM menu_items WHERE is_deleted = false ORDER BY category_id, name'
-    );
-    return result.rows;
+    const items = await prisma.menuItem.findMany({
+      where: { isDeleted: false },
+      orderBy: [{ categoryId: 'asc' }, { name: 'asc' }],
+    });
+    return items.map(mapMenuItem);
   }
 
   async findByCategory(categoryId) {
-    const result = await pool.query(
-      'SELECT * FROM menu_items WHERE category_id = $1 AND is_deleted = false AND is_available = true ORDER BY name',
-      [categoryId]
-    );
-    return result.rows;
+    const items = await prisma.menuItem.findMany({
+      where: {
+        categoryId: Number(categoryId),
+        isDeleted: false,
+        isAvailable: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+    return items.map(mapMenuItem);
   }
 
   async findById(id) {
-    const result = await pool.query('SELECT * FROM menu_items WHERE id = $1 AND is_deleted = false', [id]);
-    return result.rows[0];
+    const item = await prisma.menuItem.findFirst({
+      where: { id: Number(id), isDeleted: false },
+    });
+    return mapMenuItem(item);
   }
 
   async update(id, name, price, categoryId, isAvailable, imageUrl = null) {
-    const result = await pool.query(
-      'UPDATE menu_items SET name = $1, price = $2, category_id = $3, is_available = $4, image_url = $5 WHERE id = $6 AND is_deleted = false RETURNING *',
-      [name, price, categoryId, isAvailable, imageUrl, id]
-    );
-    return result.rows[0];
+    const item = await prisma.menuItem.update({
+      where: { id: Number(id) },
+      data: {
+        name,
+        price,
+        categoryId: Number(categoryId),
+        isAvailable,
+        imageUrl,
+      },
+    });
+    return mapMenuItem(item);
   }
 
   async updateImage(id, imageUrl) {
-    const result = await pool.query(
-      'UPDATE menu_items SET image_url = $1 WHERE id = $2 AND is_deleted = false RETURNING *',
-      [imageUrl, id]
-    );
-    return result.rows[0];
+    const item = await prisma.menuItem.update({
+      where: { id: Number(id) },
+      data: { imageUrl },
+    });
+    return mapMenuItem(item);
   }
 
   async toggleAvailability(id, isAvailable) {
-    const result = await pool.query(
-      'UPDATE menu_items SET is_available = $1 WHERE id = $2 AND is_deleted = false RETURNING *',
-      [isAvailable, id]
-    );
-    return result.rows[0];
+    const item = await prisma.menuItem.update({
+      where: { id: Number(id) },
+      data: { isAvailable },
+    });
+    return mapMenuItem(item);
   }
 
   async softDelete(id) {
-    const result = await pool.query(
-      'UPDATE menu_items SET is_deleted = true WHERE id = $1 RETURNING *',
-      [id]
-    );
-    return result.rows[0];
+    const item = await prisma.menuItem.update({
+      where: { id: Number(id) },
+      data: { isDeleted: true },
+    });
+    return mapMenuItem(item);
   }
 }
 

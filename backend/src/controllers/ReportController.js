@@ -60,6 +60,21 @@ class ReportController {
       next(error);
     }
   }
+
+  async getExpenseSummary(req, res, next) {
+    try {
+      const { startDate, endDate } = req.query;
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({ error: 'Start date and end date are required' });
+      }
+
+      const summary = await ReportService.getExpenseSummary(startDate, endDate);
+      res.json(summary);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new ReportController();

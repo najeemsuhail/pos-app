@@ -1,61 +1,100 @@
 const OrderRepository = require('../repositories/OrderRepository');
+const OrderItemRepository = require('../repositories/OrderItemRepository');
 const PaymentRepository = require('../repositories/PaymentRepository');
-const pool = require('../db/pool');
+const ExpenseRepository = require('../repositories/ExpenseRepository');
 
 class ReportService {
-  // Helper to calculate hourly breakdown
-  async getHourlyBreakdown(startDate, endDate) {
-    const query = `
-      SELECT 
-        EXTRACT(HOUR FROM o.created_at) as hour,
-        COUNT(o.id) as order_count,
-        COUNT(DISTINCT o.id) FILTER (WHERE o.status = 'paid') as paid_count,
-        SUM(CASE WHEN o.status = 'paid' THEN CAST(o.final_amount AS FLOAT) ELSE 0 END) as sales,
-        SUM(CAST(o.tax_amount AS FLOAT)) as tax,
-        SUM(CAST(o.discount_amount AS FLOAT)) as discount
-      FROM orders o
-      WHERE o.created_at >= $1 AND o.created_at <= $2
-      GROUP BY EXTRACT(HOUR FROM o.created_at)
-      ORDER BY hour ASC
-    `;
-    const result = await pool.query(query, [startDate, endDate]);
-    return result.rows.map(row => ({
-      hour: Math.floor(row.hour),
-      orderCount: parseInt(row.order_count),
-      paidCount: parseInt(row.paid_count),
-      sales: parseFloat(row.sales) || 0,
-      tax: parseFloat(row.tax) || 0,
-      discount: parseFloat(row.discount) || 0,
-    }));
-  }
-
-  // Helper to get top and bottom items
-  async getTopBottomItems(startDate, endDate, limit = 5) {
-    const query = `
-      SELECT 
-        oi.name as item_name,
-        SUM(oi.quantity) as total_quantity,
-        SUM(CAST(oi.price AS FLOAT) * oi.quantity) as total_revenue,
-        AVG(CAST(oi.price AS FLOAT)) as avg_price,
-        COUNT(DISTINCT oi.order_id) as order_count
-      FROM order_items oi
-      JOIN orders o ON oi.order_id = o.id
-      WHERE o.created_at >= $1 AND o.created_at <= $2 AND o.status = 'paid'
-      GROUP BY oi.name
-      ORDER BY total_revenue DESC
-    `;
-    const result = await pool.query(query, [startDate, endDate]);
-    const items = result.rows.map(row => ({
-      name: row.item_name,
-      quantity: parseInt(row.total_quantity),
-      revenue: parseFloat(row.total_revenue) || 0,
-      avgPrice: parseFloat(row.avg_price) || 0,
-      orderCount: parseInt(row.order_count),
-    }));
+  buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses) {
+    const netRevenue = totalSales;
+    const operatingProfit = netRevenue - totalExpenses;
 
     return {
-      topItems: items.slice(0, limit),
-      bottomItems: items.slice(-limit).reverse(),
+      grossRevenue: totalSales + totalDiscount,
+      netRevenue,
+      taxCollected: totalTax,
+      discountsGiven: totalDiscount,
+      operatingExpenses: totalExpenses,
+      operatingProfit,
+      profitStatus: operatingProfit >= 0 ? 'profit' : 'loss',
+    };
+  }
+
+  getHourlyBreakdown(orders) {
+    const byHour = new Map();
+
+    orders.forEach((order) => {
+      const hour = new Date(order.created_at).getHours();
+      const existing = byHour.get(hour) || {
+        hour,
+        orderCount: 0,
+        paidCount: 0,
+        sales: 0,
+        tax: 0,
+        discount: 0,
+      };
+
+      existing.orderCount += 1;
+      existing.tax += Number(order.tax_amount) || 0;
+      existing.discount += Number(order.discount_amount) || 0;
+
+      if (order.status === 'paid') {
+        existing.paidCount += 1;
+        existing.sales += Number(order.final_amount) || 0;
+      }
+
+      byHour.set(hour, existing);
+    });
+
+    return Array.from(byHour.values()).sort((a, b) => a.hour - b.hour);
+  }
+
+  async getTopBottomItems(orders, limit = 5) {
+    const paidOrderIds = orders
+      .filter((order) => order.status === 'paid')
+      .map((order) => order.id);
+
+    if (paidOrderIds.length === 0) {
+      return { topItems: [], bottomItems: [] };
+    }
+
+    const orderItems = await OrderItemRepository.findByOrderIds(paidOrderIds);
+    const grouped = new Map();
+
+    orderItems.forEach((item) => {
+      const existing = grouped.get(item.name) || {
+        name: item.name,
+        quantity: 0,
+        revenue: 0,
+        totalPrice: 0,
+        lineCount: 0,
+        orderIds: new Set(),
+      };
+
+      const price = Number(item.price) || 0;
+      const quantity = Number(item.quantity) || 0;
+
+      existing.quantity += quantity;
+      existing.revenue += price * quantity;
+      existing.totalPrice += price;
+      existing.lineCount += 1;
+      existing.orderIds.add(item.order_id);
+
+      grouped.set(item.name, existing);
+    });
+
+    const rankedItems = Array.from(grouped.values())
+      .map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        revenue: item.revenue,
+        avgPrice: item.lineCount > 0 ? item.totalPrice / item.lineCount : 0,
+        orderCount: item.orderIds.size,
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    return {
+      topItems: rankedItems.slice(0, limit),
+      bottomItems: rankedItems.slice(-limit).reverse(),
     };
   }
 
@@ -68,24 +107,24 @@ class ReportService {
 
     const orders = await OrderRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
     const payments = await PaymentRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
+    const expenses = await ExpenseRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
 
-    const paidOrders = orders.filter((o) => o.status === 'paid');
-    const totalSales = paidOrders.reduce((sum, order) => sum + (parseFloat(order.final_amount) || 0), 0);
-    const totalDiscount = paidOrders.reduce((sum, order) => sum + (parseFloat(order.discount_amount) || 0), 0);
-    const totalTax = paidOrders.reduce((sum, order) => sum + (parseFloat(order.tax_amount) || 0), 0);
+    const paidOrders = orders.filter((order) => order.status === 'paid');
+    const totalSales = paidOrders.reduce((sum, order) => sum + (Number(order.final_amount) || 0), 0);
+    const totalDiscount = paidOrders.reduce((sum, order) => sum + (Number(order.discount_amount) || 0), 0);
+    const totalTax = paidOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
+    const totalExpenses = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
 
-    // Group payments by method
     const paymentByMethod = {};
     payments.forEach((payment) => {
       if (!paymentByMethod[payment.method]) {
         paymentByMethod[payment.method] = 0;
       }
-      paymentByMethod[payment.method] += parseFloat(payment.amount) || 0;
+      paymentByMethod[payment.method] += Number(payment.amount) || 0;
     });
 
-    // Get hourly breakdown and top/bottom items
-    const hourlyBreakdown = await this.getHourlyBreakdown(startDate.toISOString(), endDate.toISOString());
-    const { topItems, bottomItems } = await this.getTopBottomItems(startDate.toISOString(), endDate.toISOString());
+    const hourlyBreakdown = this.getHourlyBreakdown(orders);
+    const { topItems, bottomItems } = await this.getTopBottomItems(orders);
 
     return {
       date: date.toISOString().split('T')[0],
@@ -94,7 +133,12 @@ class ReportService {
       totalSales,
       totalDiscount,
       totalTax,
+      totalExpenses,
+      netSalesAfterExpenses: totalSales - totalExpenses,
       paymentByMethod,
+      expensesByCategory: this.groupExpensesByCategory(expenses),
+      expenseCount: expenses.length,
+      profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
       averageOrderValue: paidOrders.length > 0 ? totalSales / paidOrders.length : 0,
       hourlyBreakdown,
       topItems,
@@ -111,24 +155,24 @@ class ReportService {
 
     const orders = await OrderRepository.findByDateRange(start.toISOString(), end.toISOString());
     const payments = await PaymentRepository.findByDateRange(start.toISOString(), end.toISOString());
+    const expenses = await ExpenseRepository.findByDateRange(start.toISOString(), end.toISOString());
 
-    const paidOrders = orders.filter((o) => o.status === 'paid');
-    const totalSales = paidOrders.reduce((sum, order) => sum + (parseFloat(order.final_amount) || 0), 0);
-    const totalDiscount = paidOrders.reduce((sum, order) => sum + (parseFloat(order.discount_amount) || 0), 0);
-    const totalTax = paidOrders.reduce((sum, order) => sum + (parseFloat(order.tax_amount) || 0), 0);
+    const paidOrders = orders.filter((order) => order.status === 'paid');
+    const totalSales = paidOrders.reduce((sum, order) => sum + (Number(order.final_amount) || 0), 0);
+    const totalDiscount = paidOrders.reduce((sum, order) => sum + (Number(order.discount_amount) || 0), 0);
+    const totalTax = paidOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
+    const totalExpenses = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
 
-    // Group payments by method
     const paymentByMethod = {};
     payments.forEach((payment) => {
       if (!paymentByMethod[payment.method]) {
         paymentByMethod[payment.method] = 0;
       }
-      paymentByMethod[payment.method] += parseFloat(payment.amount) || 0;
+      paymentByMethod[payment.method] += Number(payment.amount) || 0;
     });
 
-    // Get hourly breakdown and top/bottom items
-    const hourlyBreakdown = await this.getHourlyBreakdown(start.toISOString(), end.toISOString());
-    const { topItems, bottomItems } = await this.getTopBottomItems(start.toISOString(), end.toISOString());
+    const hourlyBreakdown = this.getHourlyBreakdown(orders);
+    const { topItems, bottomItems } = await this.getTopBottomItems(orders);
 
     return {
       startDate: start.toISOString().split('T')[0],
@@ -138,7 +182,12 @@ class ReportService {
       totalSales,
       totalDiscount,
       totalTax,
+      totalExpenses,
+      netSalesAfterExpenses: totalSales - totalExpenses,
       paymentByMethod,
+      expensesByCategory: this.groupExpensesByCategory(expenses),
+      expenseCount: expenses.length,
+      profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
       averageOrderValue: paidOrders.length > 0 ? totalSales / paidOrders.length : 0,
       hourlyBreakdown,
       topItems,
@@ -146,7 +195,6 @@ class ReportService {
     };
   }
 
-  // Get weekly summary for a specific week
   async getWeeklySummary(date = new Date()) {
     const startDate = new Date(date);
     const day = startDate.getDay();
@@ -167,7 +215,6 @@ class ReportService {
     };
   }
 
-  // Get monthly summary for a specific month
   async getMonthlySummary(date = new Date()) {
     const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
     startDate.setHours(0, 0, 0, 0);
@@ -187,7 +234,6 @@ class ReportService {
     };
   }
 
-  // Get detailed revenue analytics with breakdowns
   async getRevenueAnalytics(startDate, endDate) {
     const start = new Date(startDate);
     start.setHours(0, 0, 0, 0);
@@ -195,36 +241,25 @@ class ReportService {
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
 
-    // Get all orders in range
-    const query = `
-      SELECT 
-        o.id,
-        o.status,
-        CAST(o.final_amount AS FLOAT) as final_amount,
-        CAST(o.tax_amount AS FLOAT) as tax_amount,
-        CAST(o.discount_amount AS FLOAT) as discount_amount,
-        o.created_at
-      FROM orders o
-      WHERE o.created_at >= $1 AND o.created_at <= $2
-    `;
-    const result = await pool.query(query, [start.toISOString(), end.toISOString()]);
-    const orders = result.rows;
+    const orders = await OrderRepository.findByDateRange(start.toISOString(), end.toISOString());
+    const expenses = await ExpenseRepository.findByDateRange(start.toISOString(), end.toISOString());
 
-    // Calculate revenue breakdown
     const revenue = {
       gross: 0,
       discounts: 0,
       tax: 0,
       net: 0,
+      expenses: expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0),
+      netAfterExpenses: 0,
       paidOrders: 0,
       pendingOrders: 0,
       cancelledOrders: 0,
     };
 
     orders.forEach((order) => {
-      const finalAmount = parseFloat(order.final_amount) || 0;
-      const taxAmount = parseFloat(order.tax_amount) || 0;
-      const discountAmount = parseFloat(order.discount_amount) || 0;
+      const finalAmount = Number(order.final_amount) || 0;
+      const taxAmount = Number(order.tax_amount) || 0;
+      const discountAmount = Number(order.discount_amount) || 0;
 
       if (order.status === 'paid') {
         revenue.gross += finalAmount + discountAmount;
@@ -240,17 +275,48 @@ class ReportService {
       revenue.tax += taxAmount;
     });
 
+    revenue.netAfterExpenses = revenue.net - revenue.expenses;
+
     return {
       startDate: start.toISOString().split('T')[0],
       endDate: end.toISOString().split('T')[0],
       totalOrders: orders.length,
       revenue,
       breakdown: [
-        { name: 'Net Sales', value: revenue.net, percentage: revenue.gross > 0 ? (revenue.net / revenue.gross * 100) : 0 },
-        { name: 'Discounts', value: revenue.discounts, percentage: revenue.gross > 0 ? (revenue.discounts / revenue.gross * 100) : 0 },
-        { name: 'Tax', value: revenue.tax, percentage: revenue.gross > 0 ? (revenue.tax / revenue.gross * 100) : 0 },
+        { name: 'Net Sales', value: revenue.net, percentage: revenue.gross > 0 ? (revenue.net / revenue.gross) * 100 : 0 },
+        { name: 'Discounts', value: revenue.discounts, percentage: revenue.gross > 0 ? (revenue.discounts / revenue.gross) * 100 : 0 },
+        { name: 'Tax', value: revenue.tax, percentage: revenue.gross > 0 ? (revenue.tax / revenue.gross) * 100 : 0 },
+        { name: 'Expenses', value: revenue.expenses, percentage: revenue.gross > 0 ? (revenue.expenses / revenue.gross) * 100 : 0 },
       ],
     };
+  }
+
+  async getExpenseSummary(startDate, endDate) {
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    const expenses = await ExpenseRepository.findByDateRange(start.toISOString(), end.toISOString());
+    const totalAmount = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
+
+    return {
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0],
+      totalExpenses: totalAmount,
+      expenseCount: expenses.length,
+      expensesByCategory: this.groupExpensesByCategory(expenses),
+      expenses,
+    };
+  }
+
+  groupExpensesByCategory(expenses) {
+    return expenses.reduce((acc, expense) => {
+      const key = expense.category || 'Other';
+      acc[key] = (acc[key] || 0) + (Number(expense.amount) || 0);
+      return acc;
+    }, {});
   }
 }
 

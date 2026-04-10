@@ -4,9 +4,14 @@ node_modules/
 *.log
 dist/
 build/
+public/
+release/
 .DS_Store
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+backend/prisma/*.db
+backend/prisma/*.db-journal
+backend/uploads/

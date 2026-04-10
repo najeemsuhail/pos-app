@@ -1,38 +1,43 @@
-const pool = require('../db/pool');
+const prisma = require('../db/prisma');
+const { mapCategory } = require('../db/mappers');
 
 class CategoryRepository {
   async create(name) {
-    const result = await pool.query(
-      'INSERT INTO categories (name, is_deleted) VALUES ($1, false) RETURNING *',
-      [name]
-    );
-    return result.rows[0];
+    const category = await prisma.category.create({
+      data: { name, isDeleted: false },
+    });
+    return mapCategory(category);
   }
 
   async findAll() {
-    const result = await pool.query('SELECT * FROM categories WHERE is_deleted = false ORDER BY name');
-    return result.rows;
+    const categories = await prisma.category.findMany({
+      where: { isDeleted: false },
+      orderBy: { name: 'asc' },
+    });
+    return categories.map(mapCategory);
   }
 
   async findById(id) {
-    const result = await pool.query('SELECT * FROM categories WHERE id = $1 AND is_deleted = false', [id]);
-    return result.rows[0];
+    const category = await prisma.category.findFirst({
+      where: { id: Number(id), isDeleted: false },
+    });
+    return mapCategory(category);
   }
 
   async update(id, name) {
-    const result = await pool.query(
-      'UPDATE categories SET name = $1 WHERE id = $2 AND is_deleted = false RETURNING *',
-      [name, id]
-    );
-    return result.rows[0];
+    const category = await prisma.category.update({
+      where: { id: Number(id) },
+      data: { name },
+    });
+    return mapCategory(category);
   }
 
   async softDelete(id) {
-    const result = await pool.query(
-      'UPDATE categories SET is_deleted = true WHERE id = $1 RETURNING *',
-      [id]
-    );
-    return result.rows[0];
+    const category = await prisma.category.update({
+      where: { id: Number(id) },
+      data: { isDeleted: true },
+    });
+    return mapCategory(category);
   }
 }
 

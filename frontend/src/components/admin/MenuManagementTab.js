@@ -231,7 +231,7 @@ const MenuManagementTab = () => {
 
             <div>
               <div className="form-group">
-                <label>Item Image (Stored on Cloudinary)</label>
+                <label>Item Image</label>
                 <div style={{
                   border: '2px dashed #ccc',
                   borderRadius: '8px',

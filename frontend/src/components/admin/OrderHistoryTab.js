@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import OrderDetailsModal from './OrderDetailsModal';
 
 const OrderHistoryTab = () => {
@@ -86,18 +89,8 @@ const OrderHistoryTab = () => {
       <div className="order-filters">
         <div>
           <label>Date Range:</label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="date-input"
-          />
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="date-input"
-          />
+          <DatePicker selected={parseDateStr(startDate)} onChange={(date) => setStartDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" placeholderText="Start Date" />
+          <DatePicker selected={parseDateStr(endDate)} onChange={(date) => setEndDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" placeholderText="End Date" />
           <button onClick={handleFilterByDate} className="btn-primary">
             Filter by Date
           </button>

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../services/api';
 import { generatePDF } from '../../utils/reportPDF';
@@ -159,12 +162,12 @@ const ReportsTab = () => {
       <div className="report-filters">
         {reportType === 'daily' ? (
           <>
-            <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="date-input" />
+            <DatePicker selected={parseDateStr(selectedDate)} onChange={(date) => setSelectedDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" />
             <button onClick={fetchDailyReport} className="btn-primary">Fetch Report</button>
           </>
         ) : reportType === 'weekly' ? (
           <>
-            <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="date-input" />
+            <DatePicker selected={parseDateStr(selectedDate)} onChange={(date) => setSelectedDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" />
             <button onClick={fetchWeeklyReport} className="btn-primary">Fetch Report</button>
           </>
         ) : reportType === 'monthly' ? (
@@ -176,11 +179,11 @@ const ReportsTab = () => {
           <>
             <div>
               <label>Start Date:</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="date-input" />
+              <DatePicker selected={parseDateStr(startDate)} onChange={(date) => setStartDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" />
             </div>
             <div>
               <label>End Date:</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="date-input" />
+              <DatePicker selected={parseDateStr(endDate)} onChange={(date) => setEndDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" />
             </div>
             <button onClick={fetchRangeReport} className="btn-primary">Fetch Report</button>
           </>
@@ -264,8 +267,6 @@ const ReportsTab = () => {
                         data={revenueAnalytics.breakdown}
                         cx="50%"
                         cy="50%"
-                        labelLine={false}
-                        label={({ name, percentage }) => `${name}: ${percentage.toFixed(1)}%`}
                         outerRadius={100}
                         fill="var(--success-color)"
                         dataKey="value"
@@ -297,8 +298,6 @@ const ReportsTab = () => {
                         ]}
                         cx="50%"
                         cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
                         outerRadius={100}
                         fill="var(--success-color)"
                         dataKey="value"
@@ -364,8 +363,6 @@ const ReportsTab = () => {
                         data={Object.entries(report.paymentByMethod || {}).map(([method, amount]) => ({ name: method, value: parseFloat(amount) }))}
                         cx="50%"
                         cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: Rs.${value.toFixed(0)}`}
                         outerRadius={100}
                         fill="var(--success-color)"
                         dataKey="value"

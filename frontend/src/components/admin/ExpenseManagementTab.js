@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
 
 const EXPENSE_CATEGORIES = ['Rent', 'Utilities', 'Supplies', 'Salary', 'Maintenance', 'Transport', 'Marketing', 'Other'];
@@ -90,7 +93,7 @@ const ExpenseManagementTab = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
           <div className="form-group">
             <label>Date *</label>
-            <input type="date" value={formData.expense_date} onChange={(e) => setFormData({ ...formData, expense_date: e.target.value })} required />
+            <DatePicker selected={parseDateStr(formData.expense_date)} onChange={(date) => setFormData({ ...formData, expense_date: formatDateStr(date) })} required className="date-input" dateFormat="yyyy-MM-dd" />
           </div>
           <div className="form-group">
             <label>Category *</label>
@@ -132,11 +135,11 @@ const ExpenseManagementTab = () => {
       <div className="report-filters">
         <div>
           <label>Start Date:</label>
-          <input type="date" value={filters.startDate} onChange={(e) => setFilters({ ...filters, startDate: e.target.value })} className="date-input" />
+          <DatePicker selected={parseDateStr(filters.startDate)} onChange={(date) => setFilters({ ...filters, startDate: formatDateStr(date) })} className="date-input" dateFormat="yyyy-MM-dd" />
         </div>
         <div>
           <label>End Date:</label>
-          <input type="date" value={filters.endDate} onChange={(e) => setFilters({ ...filters, endDate: e.target.value })} className="date-input" />
+          <DatePicker selected={parseDateStr(filters.endDate)} onChange={(date) => setFilters({ ...filters, endDate: formatDateStr(date) })} className="date-input" dateFormat="yyyy-MM-dd" />
         </div>
         <button className="btn-primary" onClick={() => fetchExpenses(filters.startDate, filters.endDate)}>Fetch Expenses</button>
       </div>

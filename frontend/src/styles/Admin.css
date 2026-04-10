@@ -520,17 +520,17 @@
   }
 }
 
-  .modal-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #999;
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+    color: var(--text-secondary);
     transition: color 0.3s;
   }
 
   .modal-close:hover {
-    color: #333;
+    color: var(--text-primary);
   }
 
   .modal-body {
@@ -541,14 +541,14 @@
 
   .modal-footer {
     padding: 15px 20px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color);
     display: flex;
     gap: 10px;
     justify-content: flex-end;
   }
 
   .order-summary {
-    background: #f9f9f9;
+    background: var(--bg-secondary);
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -564,11 +564,11 @@
 
   .summary-row label {
     font-weight: 600;
-    color: #666;
+    color: var(--text-secondary);
   }
 
   .summary-row span {
-    color: #333;
+    color: var(--text-primary);
   }
 
   .order-section {
@@ -577,18 +577,18 @@
 
   .order-section h3 {
     margin: 0 0 15px 0;
-    color: #333;
+    color: var(--text-primary);
     font-size: 16px;
     font-weight: 600;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 10px;
   }
 
   .amount-breakdown {
-    background: #f9f9f9;
+    background: var(--bg-secondary);
     padding: 15px;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
   }
 
   .breakdown-row {
@@ -596,7 +596,7 @@
     justify-content: space-between;
     padding: 10px 0;
     font-size: 14px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .breakdown-row:last-child {
@@ -605,29 +605,29 @@
 
   .breakdown-row label {
     font-weight: 600;
-    color: #666;
+    color: var(--text-secondary);
   }
 
   .breakdown-row value {
-    color: #333;
+    color: var(--text-primary);
     font-weight: 500;
   }
 
   .breakdown-row.total {
-    background: white;
+    background: var(--bg-tertiary);
     padding: 15px 0;
     margin-top: 10px;
-    border-top: 2px solid #e0e0e0;
+    border-top: 2px solid var(--border-color);
   }
 
   .breakdown-row.total label {
     font-size: 16px;
-    color: #333;
+    color: var(--text-primary);
   }
 
   .breakdown-row.total value {
     font-size: 16px;
-    color: #27ae60;
+    color: var(--success-color);
     font-weight: bold;
   }
 
@@ -640,7 +640,7 @@
     display: flex;
     gap: 20px;
     padding: 20px;
-    background: #f9f9f9;
+    background: var(--bg-secondary);
     border-radius: 8px;
     margin-bottom: 25px;
     flex-wrap: wrap;
@@ -656,7 +656,7 @@
   .order-filters label {
     display: block;
     margin-bottom: 8px;
-    color: #666;
+    color: var(--text-secondary);
     font-weight: 500;
     font-size: 14px;
   }
@@ -664,9 +664,11 @@
   .order-filters .date-input,
   .order-filters select {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 14px;
+    background: var(--surface-muted);
+    color: var(--text-primary);
   }
 
 .status {
@@ -733,7 +735,7 @@
 }
 
 .sales-cell {
-  color: #27ae60;
+  color: var(--success-color);
   font-weight: 600;
 }
 
@@ -769,14 +771,14 @@
 .section-container {
   margin: 30px 0;
   padding: 20px;
-  background: #f9f9f9;
+  background: var(--bg-secondary);
   border-radius: 8px;
   border-left: 4px solid #667eea;
 }
 
 .section-container h3 {
   margin-top: 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 18px;
   margin-bottom: 20px;
 }
@@ -786,7 +788,7 @@
 }
 
 .payment-breakdown h4 {
-  color: #333;
+  color: var(--text-primary);
   margin-top: 0;
 }
 
@@ -859,7 +861,7 @@
   align-items: flex-end;
   margin-bottom: 25px;
   flex-wrap: wrap;
-  background: #f9f9f9;
+  background: var(--bg-secondary);
   padding: 20px;
   border-radius: 8px;
 }
@@ -872,26 +874,28 @@
 
 .report-filters label {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .date-input {
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
+  background: var(--surface-muted);
+  color: var(--text-primary);
 }
 
 .report-header {
   margin-bottom: 25px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .report-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
 }
 
 /* Messages */
@@ -908,14 +912,14 @@
 .loading {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 16px;
 }
 
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  color: #999;
+  color: var(--text-secondary);
   font-size: 16px;
 }
 

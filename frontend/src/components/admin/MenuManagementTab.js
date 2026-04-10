@@ -233,12 +233,12 @@ const MenuManagementTab = () => {
               <div className="form-group">
                 <label>Item Image</label>
                 <div style={{
-                  border: '2px dashed #ccc',
+                  border: '2px dashed var(--border-color)',
                   borderRadius: '8px',
                   padding: '20px',
                   textAlign: 'center',
                   cursor: 'pointer',
-                  backgroundColor: '#f9f9f9',
+                  backgroundColor: 'var(--bg-secondary)',
                   minHeight: '200px',
                   position: 'relative',
                   overflow: 'hidden',
@@ -259,13 +259,13 @@ const MenuManagementTab = () => {
                           borderRadius: '4px'
                         }}
                       />
-                      <p style={{ marginBottom: '10px', color: '#666' }}>Change image?</p>
+                      <p style={{ marginBottom: '10px', color: 'var(--text-secondary)' }}>Change image?</p>
                     </>
                   ) : (
                     <>
                       <p style={{ fontSize: '24px', marginBottom: '10px' }}>📷</p>
                       <p style={{ marginBottom: '5px' }}>Click to upload image</p>
-                      <p style={{ fontSize: '12px', color: '#999' }}>PNG, JPG, GIF or WebP</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>PNG, JPG, GIF or WebP</p>
                     </>
                   )}
                   <input
@@ -308,7 +308,7 @@ const MenuManagementTab = () => {
           <div 
             key={item.id}
             style={{
-              border: '1px solid #e0e0e0',
+              border: '1px solid var(--border-color)',
               borderRadius: '8px',
               overflow: 'hidden',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -335,7 +335,7 @@ const MenuManagementTab = () => {
             <div style={{
               width: '100%',
               height: item.image_url ? '0px' : '180px',
-              backgroundColor: '#f0f0f0',
+              backgroundColor: 'var(--bg-tertiary)',
               display: item.image_url ? 'none' : 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -345,11 +345,11 @@ const MenuManagementTab = () => {
             </div>
             <div style={{ padding: '15px' }}>
               <h4 style={{ marginBottom: '8px', marginTop: '0' }}>{item.name}</h4>
-              <p style={{ marginBottom: '8px', color: '#666', fontSize: '14px' }}>
+              <p style={{ marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '14px' }}>
                 {getCategoryName(item.category_id)}
               </p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#27ae60' }}>
+                <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--success-color)' }}>
                   ₹{parseFloat(item.price).toFixed(2)}
                 </span>
                 <span className={`status ${item.is_available ? 'available' : 'unavailable'}`} style={{ fontSize: '12px' }}>

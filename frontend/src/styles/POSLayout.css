@@ -462,3 +462,48 @@
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
 }
+
+/* Added for Search Bar */
+.menu-header-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+  outline: none;
+  border-color: var(--primary-gradient);
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+  background: var(--bg-secondary);
+}
+
+
+/* Added for Keyboard Nav */
+.item-card.highlighted {
+  border-color: var(--success-color);
+  box-shadow: 0 0 15px rgba(39, 174, 96, 0.5);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.keyboard-hint {
+  animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translate(-50%, 0); }
+  to   { transform: translate(-50%, -3px); }
+}
+

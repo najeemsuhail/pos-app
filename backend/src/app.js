@@ -11,6 +11,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 const userRoutes = require('./routes/userRoutes');
+const licenseRoutes = require('./routes/licenseRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const { desktopUploadsDir } = require('./db/paths');
 
@@ -35,6 +36,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/license', licenseRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

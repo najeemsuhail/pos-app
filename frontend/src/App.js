@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import POSPage from './pages/POSPage';
 import AdminPage from './pages/AdminPage';
+import LicenseActivation from './components/LicenseActivation';
+import api from './services/api';
 import { OrderProvider } from './context/OrderContext';
 import { ThemeProvider } from './context/ThemeContext';
 import './styles/themes.css';
@@ -27,6 +29,39 @@ function ProtectedRoute({ element, requiredRole = null }) {
 }
 
 function App() {
+  const [isActivated, setIsActivated] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkLicense = async () => {
+      try {
+        const response = await api.get('/license/status');
+        setIsActivated(response.data.activated);
+      } catch (err) {
+        console.error('License check failed:', err);
+        setIsActivated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkLicense();
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', justifyContent: 'center', alignItems: 'center', 
+        height: '100vh', background: '#111827', color: 'white' 
+      }}>
+        Initializing...
+      </div>
+    );
+  }
+
+  if (!isActivated) {
+    return <LicenseActivation onActivated={() => setIsActivated(true)} />;
+  }
+
   return (
     <ThemeProvider>
       <Router>

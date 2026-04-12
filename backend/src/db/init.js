@@ -127,9 +127,19 @@ async function initializeDatabase() {
   
   // Check if we need to seed demo data (first run check)
   const categoryCount = await prisma.category.count();
-  if (categoryCount === 0) {
-    const SeederService = require('../services/SeederService');
-    await SeederService.seedDemoData();
+  const orderCount = await prisma.order.count();
+  
+  if (categoryCount === 0 && orderCount === 0) {
+    console.log('[Init] Fresh installation detected. Bootstrapping demo data...');
+    try {
+      const SeederService = require('../services/SeederService');
+      await SeederService.seedDemoData();
+      console.log('[Init] Demo data bootstrap complete.');
+    } catch (err) {
+      console.error('[Init] Error during database bootstrap:', err);
+    }
+  } else {
+    console.log('[Init] Database already initialized. Skipping bootstrap.');
   }
 }
 

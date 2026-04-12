@@ -24,6 +24,18 @@ pkg.build.appId = APP_ID;
 
 // Write back to package.json
 fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2), 'utf8');
-
 console.log('✅ package.json updated successfully!');
+
+// Synchronize BRAND in paths.js
+const pathsJsPath = path.join(__dirname, '..', 'backend', 'src', 'db', 'paths.js');
+if (fs.existsSync(pathsJsPath)) {
+  let pathsContent = fs.readFileSync(pathsJsPath, 'utf8');
+  // Match const APP_FOLDER_NAME = ...;
+  const regex = /const APP_FOLDER_NAME = [^;]+;/;
+  const replacement = `const APP_FOLDER_NAME = process.env.DESKTOP_APP_NAME || '${NEW_NAME}';`;
+  pathsContent = pathsContent.replace(regex, replacement);
+  fs.writeFileSync(pathsJsPath, pathsContent, 'utf8');
+  console.log('✅ backend/src/db/paths.js synchronized.');
+}
+
 console.log('💡 Note: You may need to restart your development server or rebuild the app for changes to take effect.');

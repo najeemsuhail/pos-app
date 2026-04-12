@@ -61,7 +61,19 @@ export const reportService = {
 export const expenseService = {
   getAll: (startDate, endDate) => api.get('/expenses', { params: { startDate, endDate } }),
   create: (data) => api.post('/expenses', data),
+  update: (id, data) => api.patch(`/expenses/${id}`, data),
   delete: (id) => api.delete(`/expenses/${id}`),
+};
+
+export const backupService = {
+  getAll: () => api.get('/backups'),
+  create: () => api.post('/backups'),
+  download: (filename) => api.get(`/backups/download/${filename}`, { responseType: 'blob' }),
+  restore: (filename) => api.post(`/backups/restore/${filename}`),
+  upload: (formData) => api.post('/backups/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  delete: (filename) => api.delete(`/backups/${filename}`),
 };
 
 export default api;

@@ -96,30 +96,6 @@ const ReportsTab = () => {
     }
   };
 
-  const handleViewDetails = async () => {
-    try {
-      setDetailsLoading(true);
-      let params;
-
-      if (reportType === 'daily') {
-        params = { startDate: selectedDate, endDate: selectedDate };
-      } else if (reportType === 'weekly') {
-        params = { startDate: report.weekStart, endDate: report.weekEnd };
-      } else if (reportType === 'monthly') {
-        params = { startDate: report.monthStart, endDate: report.monthEnd };
-      } else {
-        params = { startDate, endDate };
-      }
-
-      const response = await api.get('/orders', { params });
-      setOrders(response.data);
-    } catch (err) {
-      setError('Failed to fetch order details');
-    } finally {
-      setDetailsLoading(false);
-    }
-  };
-
   const handleViewOrderDetails = async (orderId) => {
     try {
       const response = await api.get(`/orders/${orderId}/full`);
@@ -189,10 +165,14 @@ const ReportsTab = () => {
           </>
         )}
         {report && (
-          <>
-            <button onClick={handleExportPDF} className="btn-success" title="Download report as PDF">PDF</button>
-            <button onClick={handleViewDetails} className="btn-primary" style={{ marginLeft: '10px' }} title="View individual orders from this report">Bills</button>
-          </>
+          <button 
+            onClick={handleExportPDF} 
+            className="btn-success" 
+            title="Download report as PDF"
+            style={{ width: '80px', flex: 'none', height: '38px' }}
+          >
+            PDF
+          </button>
         )}
       </div>
 

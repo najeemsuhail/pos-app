@@ -6,6 +6,7 @@ import MenuManagementTab from '../components/admin/MenuManagementTab';
 import CategoryManagementTab from '../components/admin/CategoryManagementTab';
 import ExpenseManagementTab from '../components/admin/ExpenseManagementTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
+import BackupTab from '../components/admin/BackupTab';
 import '../styles/Admin.css';
 
 const AdminPage = () => {
@@ -72,6 +73,9 @@ const AdminPage = () => {
         <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
           Users
         </button>
+        <button className={`tab-btn ${activeTab === 'backup' ? 'active' : ''}`} onClick={() => setActiveTab('backup')}>
+          Backup
+        </button>
       </div>
 
       <div className="admin-content">
@@ -81,6 +85,7 @@ const AdminPage = () => {
         {activeTab === 'categories' && <CategoryManagementTab />}
         {activeTab === 'expenses' && <ExpenseManagementTab />}
         {activeTab === 'users' && <UserManagementTab />}
+        {activeTab === 'backup' && <BackupTab />}
       </div>
     </div>
   );

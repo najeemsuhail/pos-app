@@ -35,6 +35,32 @@ class ExpenseService {
   async deleteExpense(id) {
     return ExpenseRepository.delete(id);
   }
+
+  async updateExpense(id, data) {
+    const { expense_date, category, note, amount, payment_method, reference } = data;
+
+    // Basic existence check
+    const existing = await ExpenseRepository.findById(id);
+    if (!existing) {
+      throw { status: 404, message: 'Expense not found' };
+    }
+
+    const updateData = {};
+    if (expense_date) updateData.expenseDate = expense_date;
+    if (category) updateData.category = category.trim();
+    if (note) updateData.note = note.trim();
+    if (amount !== undefined) {
+      const parsedAmount = Number(amount);
+      if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+        throw { status: 400, message: 'Amount must be greater than zero' };
+      }
+      updateData.amount = parsedAmount;
+    }
+    if (payment_method) updateData.paymentMethod = payment_method.trim();
+    if (reference !== undefined) updateData.reference = reference?.trim() || null;
+
+    return ExpenseRepository.update(id, updateData);
+  }
 }
 
 module.exports = new ExpenseService();

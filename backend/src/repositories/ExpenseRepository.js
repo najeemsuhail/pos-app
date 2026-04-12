@@ -49,6 +49,30 @@ class ExpenseRepository {
     return expenses.map(mapExpense);
   }
 
+  async findById(id) {
+    const expense = await prisma.expense.findUnique({
+      where: { id: Number(id) },
+    });
+    return expense ? mapExpense(expense) : null;
+  }
+
+  async update(id, data) {
+    const { expenseDate, category, note, amount, paymentMethod, reference } = data;
+    const expense = await prisma.expense.update({
+      where: { id: Number(id) },
+      data: {
+        expenseDate: expenseDate ? new Date(expenseDate) : undefined,
+        category,
+        note,
+        amount: amount !== undefined ? Number(amount) : undefined,
+        paymentMethod,
+        reference,
+      },
+    });
+
+    return mapExpense(expense);
+  }
+
   async delete(id) {
     const expense = await prisma.expense.delete({
       where: { id: Number(id) },

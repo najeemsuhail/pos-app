@@ -28,6 +28,7 @@ function ensureDir(dirPath) {
 const desktopDataRoot = getDesktopDataRoot();
 const desktopDataDir = ensureDir(path.join(desktopDataRoot, 'data'));
 const desktopUploadsDir = ensureDir(path.join(desktopDataDir, 'uploads'));
+const desktopBackupsDir = ensureDir(path.join(desktopDataDir, 'backups'));
 const desktopDbPath = path.join(desktopDataDir, 'pos-app.db');
 const repoDbPath = path.resolve(__dirname, '../../prisma/pos-app.db');
 
@@ -35,6 +36,7 @@ module.exports = {
   desktopDataRoot,
   desktopDataDir,
   desktopUploadsDir,
+  desktopBackupsDir,
   desktopDbPath,
   repoDbPath,
   ensureDir,

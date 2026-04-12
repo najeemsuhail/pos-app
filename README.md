@@ -1,6 +1,6 @@
 # POS App
 
-Restaurant POS app prepared for:
+Chewbiecafe POS app prepared for:
 
 - Vercel frontend + API deployment
 - Supabase Postgres database

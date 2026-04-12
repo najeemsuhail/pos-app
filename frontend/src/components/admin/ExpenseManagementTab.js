@@ -25,6 +25,7 @@ const ExpenseManagementTab = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingExpense, setEditingExpense] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [prevNotes, setPrevNotes] = useState([]);
 
   const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FFCD56', '#C9CBCF'];
 
@@ -41,9 +42,19 @@ const ExpenseManagementTab = () => {
     }
   }, [filters.endDate, filters.startDate]);
 
+  const fetchUniqueNotes = useCallback(async () => {
+    try {
+      const response = await expenseService.getUniqueNotes();
+      setPrevNotes(response.data);
+    } catch (err) {
+      console.error('Failed to fetch unique notes:', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchExpenses();
-  }, [fetchExpenses]);
+    fetchUniqueNotes();
+  }, [fetchExpenses, fetchUniqueNotes]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,6 +77,7 @@ const ExpenseManagementTab = () => {
       setError('');
       setShowAddForm(false);
       fetchExpenses();
+      fetchUniqueNotes();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save expense');
     }
@@ -82,6 +94,7 @@ const ExpenseManagementTab = () => {
       setEditingExpense(null);
       setError('');
       fetchExpenses();
+      fetchUniqueNotes();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update expense');
     }
@@ -191,7 +204,14 @@ const ExpenseManagementTab = () => {
 
             <div className="form-group">
               <label>Note *</label>
-              <input type="text" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} placeholder="e.g., Groceries, gas refill, technician visit" required />
+              <input 
+                type="text" 
+                value={formData.note} 
+                onChange={(e) => setFormData({ ...formData, note: e.target.value })} 
+                placeholder="e.g., Groceries, gas refill, technician visit" 
+                required 
+                list="prev-notes-list"
+              />
             </div>
 
             <div className="form-group">
@@ -359,7 +379,13 @@ const ExpenseManagementTab = () => {
               </div>
               <div className="form-group">
                 <label>Note</label>
-                <input type="text" value={editingExpense.note} onChange={(e) => setEditingExpense({ ...editingExpense, note: e.target.value })} required />
+                <input 
+                  type="text" 
+                  value={editingExpense.note} 
+                  onChange={(e) => setEditingExpense({ ...editingExpense, note: e.target.value })} 
+                  required 
+                  list="prev-notes-list"
+                />
               </div>
               <div className="form-group">
                 <label>Amount</label>
@@ -385,6 +411,12 @@ const ExpenseManagementTab = () => {
           </div>
         </div>
       )}
+
+      <datalist id="prev-notes-list">
+        {prevNotes.map((note, index) => (
+          <option key={index} value={note} />
+        ))}
+      </datalist>
     </div>
   );
 };

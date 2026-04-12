@@ -1,14 +1,15 @@
 {
-  "name": "pos-app",
+  "name": "restaurant-pos",
   "version": "1.0.0",
   "private": true,
-  "description": "Offline desktop restaurant POS application",
+  "description": "Offline desktop Chewbiecafe POS application",
   "author": "Hope",
   "workspaces": [
     "backend",
     "frontend"
   ],
   "scripts": {
+    "rebrand": "node scripts/rebrand.js",
     "dev:backend": "npm run dev --workspace backend",
     "dev:frontend": "npm run start --workspace frontend",
     "dev:desktop": "cross-env BROWSER=none concurrently \"cross-env DESKTOP_USE_SQLITE=true npm run dev:backend\" \"npm run dev:frontend\" \"npm run electron:dev\"",
@@ -41,9 +42,11 @@
     "wait-on": "^8.0.3"
   },
   "build": {
-    "appId": "com.hope.posapp",
-    "productName": "POS App",
+    "appId": "com.chewbiecafe.pos.app",
+    "productName": "Chewbiecafe POS",
+    "icon": "assets/icon.png",
     "files": [
+      "assets/**/*",
       "backend/**/*",
       "electron/**/*",
       "frontend/package.json",

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from './ThemeToggle';
 import '../styles/Header.css';
 
 const Header = ({ user, onLogout }) => {
@@ -31,7 +32,7 @@ const Header = ({ user, onLogout }) => {
   return (
     <header className="header">
       <div className="header-left">
-        <h1>Restaurant POS</h1>
+        <h1>Chewbiecafe</h1>
       </div>
 
       <div className="header-right">
@@ -63,20 +64,7 @@ const Header = ({ user, onLogout }) => {
           </div>
         )}
 
-        {!isThemeLocked && (
-          <div className="theme-selector">
-            {availableThemes.map((themeName) => (
-              <button
-                key={themeName}
-                onClick={() => switchTheme(themeName)}
-                className={`theme-btn ${theme === themeName ? 'active' : ''}`}
-                title={themeName}
-              >
-                {themeIcons[themeName] || themeName.charAt(0).toUpperCase()}
-              </button>
-            ))}
-          </div>
-        )}
+        <ThemeToggle />
 
         <button onClick={handleLogout} className="logout-btn">
           Logout

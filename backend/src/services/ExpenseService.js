@@ -37,10 +37,16 @@ class ExpenseService {
   }
 
   async updateExpense(id, data) {
+    console.log(`[ExpenseService] Updating expense ${id}:`, data);
     const { expense_date, category, note, amount, payment_method, reference } = data;
 
+    const numericId = Number(id);
+    if (isNaN(numericId)) {
+      throw { status: 400, message: 'Invalid expense ID' };
+    }
+
     // Basic existence check
-    const existing = await ExpenseRepository.findById(id);
+    const existing = await ExpenseRepository.findById(numericId);
     if (!existing) {
       throw { status: 404, message: 'Expense not found' };
     }
@@ -59,7 +65,18 @@ class ExpenseService {
     if (payment_method) updateData.paymentMethod = payment_method.trim();
     if (reference !== undefined) updateData.reference = reference?.trim() || null;
 
-    return ExpenseRepository.update(id, updateData);
+    try {
+      const updated = await ExpenseRepository.update(numericId, updateData);
+      console.log(`[ExpenseService] Successfully updated expense ${id}`);
+      return updated;
+    } catch (error) {
+       console.error(`[ExpenseService] Error updating expense ${id}:`, error);
+       throw error;
+    }
+  }
+
+  async getUniqueNotes() {
+    return ExpenseRepository.findUniqueNotes();
   }
 }
 

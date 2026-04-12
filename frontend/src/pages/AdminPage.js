@@ -7,6 +7,7 @@ import CategoryManagementTab from '../components/admin/CategoryManagementTab';
 import ExpenseManagementTab from '../components/admin/ExpenseManagementTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
 import BackupTab from '../components/admin/BackupTab';
+import ThemeToggle from '../components/ThemeToggle';
 import '../styles/Admin.css';
 
 const AdminPage = () => {
@@ -49,6 +50,7 @@ const AdminPage = () => {
         </div>
         <div className="admin-user-info">
           <span>Welcome, {user.name}</span>
+          <ThemeToggle />
           <button onClick={() => navigate('/pos')} className="nav-btn">Go to POS</button>
           <button onClick={handleLogout} className="logout-btn">Logout</button>
         </div>

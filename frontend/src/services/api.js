@@ -60,6 +60,7 @@ export const reportService = {
 
 export const expenseService = {
   getAll: (startDate, endDate) => api.get('/expenses', { params: { startDate, endDate } }),
+  getUniqueNotes: () => api.get('/expenses/notes'),
   create: (data) => api.post('/expenses', data),
   update: (id, data) => api.patch(`/expenses/${id}`, data),
   delete: (id) => api.delete(`/expenses/${id}`),

@@ -10,7 +10,7 @@ const generateThermalReceipt = (order, items, payments) => {
 
   let receipt = '';
   receipt += '\n' + line + '\n';
-  receipt += 'RESTAURANT POS RECEIPT'.padStart((width + 20) / 2).slice(0, width) + '\n';
+  receipt += 'Chewbiecafe RECEIPT'.padStart((width + 20) / 2).slice(0, width) + '\n';
   receipt += line + '\n\n';
 
   receipt += `Bill #: ${order.bill_number}\n`;

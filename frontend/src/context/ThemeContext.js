@@ -41,6 +41,11 @@ export const ThemeProvider = ({ children }) => {
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('posTheme', newTheme);
+
+    // Track the last dark theme to make the toggle intuitive
+    if (newTheme !== 'light') {
+      localStorage.setItem('lastDarkTheme', newTheme);
+    }
   };
 
   return (

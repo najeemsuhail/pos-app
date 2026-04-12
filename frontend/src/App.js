@@ -33,6 +33,8 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = process.env.REACT_APP_NAME || 'Chewbiecafe POS';
+
     const checkLicense = async () => {
       try {
         const response = await api.get('/license/status');

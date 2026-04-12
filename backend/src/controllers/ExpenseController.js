@@ -47,6 +47,15 @@ class ExpenseController {
       next(error);
     }
   }
+
+  async getNotes(req, res, next) {
+    try {
+      const notes = await ExpenseService.getUniqueNotes();
+      res.json(notes);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new ExpenseController();

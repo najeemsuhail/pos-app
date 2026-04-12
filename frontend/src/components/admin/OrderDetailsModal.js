@@ -134,7 +134,7 @@ const OrderDetailsModal = ({ order, onClose }) => {
                 <tbody>
                   {order.payments.map((payment, index) => (
                     <tr key={index}>
-                      <td>{payment.payment_method}</td>
+                      <td>{payment.method}</td>
                       <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
                         {formatCurrency(payment.amount)}
                       </td>

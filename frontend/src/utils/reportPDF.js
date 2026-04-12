@@ -25,7 +25,7 @@ const createReportHTML = (report, reportType) => {
 
   const header = `
     <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px;">
-      <h1 style="margin: 0; color: #2c3e50;">Restaurant POS Report</h1>
+      <h1 style="margin: 0; color: #2c3e50;">Chewbiecafe Report</h1>
       <p style="margin: 5px 0; color: #666;">
         ${reportType === 'daily' ? `Daily Report - ${report.date}` : `Report: ${report.startDate} to ${report.endDate}`}
       </p>
@@ -206,7 +206,7 @@ const createReportHTML = (report, reportType) => {
 
   const footer = `
     <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
-      <p style="margin: 5px 0;">This is a computer-generated report from Restaurant POS System</p>
+      <p style="margin: 5px 0;">This is a computer-generated report from Chewbiecafe System</p>
       <p style="margin: 5px 0;">For verification purposes only</p>
     </div>
   `;

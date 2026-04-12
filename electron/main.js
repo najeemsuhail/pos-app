@@ -29,6 +29,7 @@ async function createWindow() {
     minWidth: 1100,
     minHeight: 700,
     backgroundColor: '#111827',
+    icon: path.join(__dirname, '../assets/icon.png'),
     autoHideMenuBar: true,
     webPreferences: {
       contextIsolation: true,

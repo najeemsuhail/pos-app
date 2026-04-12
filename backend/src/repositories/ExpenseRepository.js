@@ -80,6 +80,20 @@ class ExpenseRepository {
 
     return mapExpense(expense);
   }
+
+  async findUniqueNotes() {
+    const notes = await prisma.expense.findMany({
+      distinct: ['note'],
+      select: {
+        note: true,
+      },
+      orderBy: {
+        note: 'asc',
+      },
+    });
+
+    return notes.map(n => n.note).filter(note => note && note.trim() !== '');
+  }
 }
 
 module.exports = new ExpenseRepository();

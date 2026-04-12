@@ -107,10 +107,46 @@ const POSPage = () => {
   };
 
   const handlePrintReceipt = () => {
-    const printWindow = window.open('', '', 'height=400,width=800');
-    printWindow.document.write('<pre style="font-family: monospace;">' + receipt + '</pre>');
-    printWindow.document.close();
-    printWindow.print();
+    // Create a hidden iframe for printing if it doesn't exist
+    let iframe = document.getElementById('print-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.id = 'print-iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+      <html>
+        <head>
+          <title>Print Receipt</title>
+          <style>
+            @media print {
+              body { margin: 0; padding: 10px; }
+              pre { 
+                white-space: pre-wrap; 
+                word-wrap: break-word; 
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 14px;
+                line-height: 1.2;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <pre>${receipt}</pre>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Small delay to ensure the content is loaded before printing
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 250);
   };
 
   const handleCloseReceipt = () => {

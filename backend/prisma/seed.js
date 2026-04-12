@@ -79,28 +79,87 @@ async function main() {
     console.log('✅ Cashier user ready.');
 
     // 2. Create Categories
-    console.log('📂 Populating categories...');
-    const catNames = ['Continental', 'Pan-Asian', 'Italian', 'Desserts', 'Beverages'];
-    const categories = [];
+    console.log('📂 Populating comprehensive categories...');
+    const catData = [
+      { name: 'Appetizers' },
+      { name: 'Soups & Salads' },
+      { name: 'Pizza & Pasta' },
+      { name: 'Main Course' },
+      { name: 'Asian Fusion' },
+      { name: 'Burgers & Wraps' },
+      { name: 'Desserts' },
+      { name: 'Beverages' },
+      { name: 'Specialty Coffee' },
+      { name: 'Mocktails' }
+    ];
     
-    for (const name of catNames) {
-      let cat = await prisma.category.findFirst({ where: { name } });
+    const categoryMap = {};
+    for (const item of catData) {
+      let cat = await prisma.category.findFirst({ where: { name: item.name } });
       if (!cat) {
-        cat = await prisma.category.create({ data: { name } });
+        cat = await prisma.category.create({ data: { name: item.name } });
       }
-      categories.push(cat);
+      categoryMap[item.name] = cat;
     }
-    const [continental, asian, italian, desserts, drinks] = categories;
 
     // 3. Create Menu Items
-    console.log('🍕 Populating signature dishes...');
+    console.log('🍕 Populating diverse menu items (40+ items)...');
     const menuItemsData = [
-      { name: 'Grilled Salmon', price: 450, categoryId: continental.id },
-      { name: 'Thai Green Curry', price: 320, categoryId: asian.id },
-      { name: 'Wood-fired Pepperoni', price: 420, categoryId: italian.id },
-      { name: 'Tiramisu', price: 220, categoryId: desserts.id },
-      { name: 'Virgin Mojito', price: 150, categoryId: drinks.id },
-      { name: 'Draft Beer', price: 280, categoryId: drinks.id },
+      // Appetizers
+      { name: 'Crispy Calamari', price: 380, categoryId: categoryMap['Appetizers'].id },
+      { name: 'Stuffed Mushrooms', price: 290, categoryId: categoryMap['Appetizers'].id },
+      { name: 'Chicken Wings (6pcs)', price: 350, categoryId: categoryMap['Appetizers'].id },
+      { name: 'Nachos Supreme', price: 420, categoryId: categoryMap['Appetizers'].id },
+      
+      // Soups & Salads
+      { name: 'Cream of Mushroom', price: 180, categoryId: categoryMap['Soups & Salads'].id },
+      { name: 'Caesar Salad', price: 320, categoryId: categoryMap['Soups & Salads'].id },
+      { name: 'Greek Salad', price: 280, categoryId: categoryMap['Soups & Salads'].id },
+      
+      // Pizza & Pasta
+      { name: 'Margherita Pizza', price: 380, categoryId: categoryMap['Pizza & Pasta'].id },
+      { name: 'Pepperoni Feast', price: 480, categoryId: categoryMap['Pizza & Pasta'].id },
+      { name: 'Penne Arrabbiata', price: 350, categoryId: categoryMap['Pizza & Pasta'].id },
+      { name: 'Fettuccine Alfredo', price: 420, categoryId: categoryMap['Pizza & Pasta'].id },
+      
+      // Main Course
+      { name: 'Grilled Salmon Steak', price: 650, categoryId: categoryMap['Main Course'].id },
+      { name: 'BBQ Pork Ribs', price: 580, categoryId: categoryMap['Main Course'].id },
+      { name: 'Beef Tenderloin', price: 720, categoryId: categoryMap['Main Course'].id },
+      { name: 'Roast Chicken', price: 450, categoryId: categoryMap['Main Course'].id },
+      
+      // Asian Fusion
+      { name: 'Thai Green Curry', price: 380, categoryId: categoryMap['Asian Fusion'].id },
+      { name: 'Kung Pao Chicken', price: 420, categoryId: categoryMap['Asian Fusion'].id },
+      { name: 'Sushi Platter (12pcs)', price: 850, categoryId: categoryMap['Asian Fusion'].id },
+      { name: 'Stir-fry Noodles', price: 320, categoryId: categoryMap['Asian Fusion'].id },
+      
+      // Burgers & Wraps
+      { name: 'Classic Cheeseburger', price: 350, categoryId: categoryMap['Burgers & Wraps'].id },
+      { name: 'Crispy Chicken Burger', price: 320, categoryId: categoryMap['Burgers & Wraps'].id },
+      { name: 'Veggie Garden Wrap', price: 280, categoryId: categoryMap['Burgers & Wraps'].id },
+      
+      // Desserts
+      { name: 'Tiramisu', price: 220, categoryId: categoryMap['Desserts'].id },
+      { name: 'Chocolate Lava Cake', price: 250, categoryId: categoryMap['Desserts'].id },
+      { name: 'Cheesecake Slice', price: 240, categoryId: categoryMap['Desserts'].id },
+      { name: 'Apple Pie with Ice Cream', price: 210, categoryId: categoryMap['Desserts'].id },
+      
+      // Beverages
+      { name: 'Coke / Sprite / Fanta', price: 60, categoryId: categoryMap['Beverages'].id },
+      { name: 'Mineral Water', price: 40, categoryId: categoryMap['Beverages'].id },
+      { name: 'Fresh Lime Soda', price: 90, categoryId: categoryMap['Beverages'].id },
+      
+      // Specialty Coffee
+      { name: 'Cappuccino', price: 160, categoryId: categoryMap['Specialty Coffee'].id },
+      { name: 'Caffè Latte', price: 170, categoryId: categoryMap['Specialty Coffee'].id },
+      { name: 'Iced Americano', price: 140, categoryId: categoryMap['Specialty Coffee'].id },
+      { name: 'Caramel Macchiato', price: 190, categoryId: categoryMap['Specialty Coffee'].id },
+      
+      // Mocktails
+      { name: 'Virgin Mojito', price: 180, categoryId: categoryMap['Mocktails'].id },
+      { name: 'Blue Lagoon', price: 190, categoryId: categoryMap['Mocktails'].id },
+      { name: 'Strawberry Daiquiri', price: 210, categoryId: categoryMap['Mocktails'].id }
     ];
 
     const createdItems = [];
@@ -114,22 +173,37 @@ async function main() {
     }
     console.log('✅ Menu items ready.');
 
-    // 4. Create Random Orders (Past 30 Days)
-    console.log('💳 Generating billing history...');
-    for (let i = 0; i < 30; i++) {
+    // 4. Create Random Orders (Past 60 Days - Heavier Vol)
+    console.log('💳 Generating significant billing history (120+ orders)...');
+    for (let i = 0; i < 120; i++) {
         const date = new Date();
-        const daysAgo = Math.floor(Math.random() * 30);
+        const daysAgo = Math.floor(Math.random() * 60);
         date.setDate(date.getDate() - daysAgo);
         
-        const randomItem = createdItems[Math.floor(Math.random() * createdItems.length)];
-        const qty = Math.floor(Math.random() * 2) + 1;
-        const subtotal = parseFloat(randomItem.price) * qty;
+        // Randomly pick 1-4 items per order
+        const numItems = Math.floor(Math.random() * 3) + 1;
+        const orderItems = [];
+        let subtotal = 0;
+        
+        for (let j = 0; j < numItems; j++) {
+          const item = createdItems[Math.floor(Math.random() * createdItems.length)];
+          const qty = Math.floor(Math.random() * 2) + 1;
+          const itemTotal = parseFloat(item.price) * qty;
+          subtotal += itemTotal;
+          orderItems.push({
+            menuItemId: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: qty
+          });
+        }
+
         const taxAmount = subtotal * 0.05;
         const finalAmount = subtotal + taxAmount;
 
         await prisma.order.create({
             data: {
-                billNumber: `DEMO-${Date.now()}-${i}`,
+                billNumber: `INV-${Date.now()}-${i}`,
                 status: 'paid',
                 subtotal,
                 taxAmount,
@@ -137,16 +211,11 @@ async function main() {
                 createdAt: date,
                 updatedAt: date,
                 items: {
-                    create: {
-                        menuItemId: randomItem.id,
-                        name: randomItem.name,
-                        price: randomItem.price,
-                        quantity: qty,
-                    }
+                    create: orderItems
                 },
                 payments: {
                     create: {
-                        method: Math.random() > 0.5 ? 'Cash' : 'UPI',
+                        method: Math.random() > 0.4 ? 'UPI' : 'Cash',
                         amount: finalAmount,
                         createdAt: date,
                     },
@@ -156,24 +225,38 @@ async function main() {
     }
 
     // 5. Create Random Expenses
-    console.log('💸 Populating expense dashboard...');
-    const expenseNames = ['Rent', 'Utilities', 'Salary', 'Maintenance', 'Supplies'];
-    for (let i = 0; i < 15; i++) {
+    console.log('💸 Populating extensive expense entries...');
+    const expenseData = [
+      { category: 'Rent', note: 'Monthly outlet rent' },
+      { category: 'Utilities', note: 'Electricity & Water bill' },
+      { category: 'Salary', note: 'Head Chef salary' },
+      { category: 'Salary', note: 'Waitstaff salaries' },
+      { category: 'Supplies', note: 'Vegetables & Meat supply' },
+      { category: 'Supplies', note: 'Dairy products' },
+      { category: 'Maintenance', note: 'Kitchen AC repair' },
+      { category: 'Maintenance', note: 'Duct cleaning' },
+      { category: 'Marketing', note: 'Facebook/Instagram ads' },
+      { category: 'Marketing', note: 'Local flyer distribution' },
+      { category: 'Other', note: 'Miscellaneous stationaries' }
+    ];
+
+    for (let i = 0; i < 25; i++) {
       const date = new Date();
-      date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+      date.setDate(date.getDate() - Math.floor(Math.random() * 60));
+      const expTemplate = expenseData[Math.floor(Math.random() * expenseData.length)];
       await prisma.expense.create({
         data: {
           expenseDate: date,
-          category: expenseNames[Math.floor(Math.random() * expenseNames.length)],
-          note: `Demo expense #${i + 1}`,
-          amount: Math.floor(Math.random() * 2000) + 100,
-          paymentMethod: 'Cash',
+          category: expTemplate.category,
+          note: expTemplate.note,
+          amount: Math.floor(Math.random() * 5000) + 200,
+          paymentMethod: Math.random() > 0.5 ? 'Bank Transfer' : 'Cash',
           createdAt: date,
         },
       });
     }
 
-    console.log('✅ Seeding completed! Real database at ' + desktopDbPath + ' is ready.');
+    console.log('✅ Seeding completed! Database is now rich with production-grade demo data.');
   } catch (error) {
     console.error('❌ SEEDING ERROR:', error.message || error);
     process.exit(1);

@@ -7,6 +7,7 @@ import CategoryManagementTab from '../components/admin/CategoryManagementTab';
 import ExpenseManagementTab from '../components/admin/ExpenseManagementTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
 import BackupTab from '../components/admin/BackupTab';
+import SettingsTab from '../components/admin/SettingsTab';
 import ThemeToggle from '../components/ThemeToggle';
 import '../styles/Admin.css';
 
@@ -78,6 +79,9 @@ const AdminPage = () => {
         <button className={`tab-btn ${activeTab === 'backup' ? 'active' : ''}`} onClick={() => setActiveTab('backup')}>
           Backup
         </button>
+        <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
+          Settings
+        </button>
       </div>
 
       <div className="admin-content">
@@ -88,6 +92,7 @@ const AdminPage = () => {
         {activeTab === 'expenses' && <ExpenseManagementTab />}
         {activeTab === 'users' && <UserManagementTab />}
         {activeTab === 'backup' && <BackupTab />}
+        {activeTab === 'settings' && <SettingsTab />}
       </div>
     </div>
   );

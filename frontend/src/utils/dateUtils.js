@@ -1,6 +1,10 @@
 export const parseDateStr = (str) => {
   if (!str) return null;
-  const parts = str.split('-');
+  // Handle ISO strings by taking only the date part
+  const datePart = typeof str === 'string' ? str.split('T')[0] : str;
+  if (typeof datePart !== 'string') return null;
+  
+  const parts = datePart.split('-');
   if (parts.length !== 3) return null;
   const [y, m, d] = parts;
   return new Date(y, m - 1, d);

@@ -42,8 +42,8 @@
     "wait-on": "^8.0.3"
   },
   "build": {
-    "appId": "com.chewbiecafe.pos.app",
-    "productName": "Chewbiecafe POS",
+    "appId": "com.restaurant.pos.app",
+    "productName": "Restaurant POS",
     "icon": "assets/icon.png",
     "files": [
       "assets/**/*",

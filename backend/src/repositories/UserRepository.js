@@ -45,6 +45,13 @@ class UserRepository {
       select: { id: true },
     });
   }
+
+  async updatePassword(id, password) {
+    return prisma.user.update({
+      where: { id: Number(id) },
+      data: { password },
+    });
+  }
 }
 
 module.exports = new UserRepository();

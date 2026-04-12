@@ -13,6 +13,9 @@ router.get('/', UserController.getAll);
 // Get user by ID
 router.get('/:id', UserController.getById);
 
+// Change password
+router.post('/change-password', UserController.changePassword);
+
 // Delete user
 router.delete('/:id', UserController.delete);
 

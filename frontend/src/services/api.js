@@ -77,4 +77,14 @@ export const backupService = {
   delete: (filename) => api.delete(`/backups/${filename}`),
 };
 
+export const userService = {
+  getAll: () => api.get('/users'),
+  delete: (id) => api.delete(`/users/${id}`),
+  changePassword: (data) => api.post('/users/change-password', data),
+};
+
+export const adminService = {
+  resetDatabase: () => api.post('/admin/reset-database'),
+};
+
 export default api;

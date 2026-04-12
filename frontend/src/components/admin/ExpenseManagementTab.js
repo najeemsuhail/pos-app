@@ -86,11 +86,18 @@ const ExpenseManagementTab = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      if (!editingExpense.expense_date || !editingExpense.category || !editingExpense.note.trim() || !editingExpense.amount) {
-        setError('All fields are required');
+      if (!editingExpense.expense_date || !editingExpense.category || !editingExpense.amount) {
+        setError('Date, category, and amount are required');
         return;
       }
-      await expenseService.update(editingExpense.id, editingExpense);
+      const note = (editingExpense.note || '').trim();
+      if (!note) {
+        setError('Note is required');
+        return;
+      }
+      
+      const payload = { ...editingExpense, note };
+      await expenseService.update(editingExpense.id, payload);
       setEditingExpense(null);
       setError('');
       fetchExpenses();
@@ -127,6 +134,7 @@ const ExpenseManagementTab = () => {
 
   const categoryData = Object.entries(
     expenses.reduce((acc, exp) => {
+      if (!exp || !exp.category || exp.amount === undefined || exp.amount === null) return acc;
       acc[exp.category] = (acc[exp.category] || 0) + parseFloat(exp.amount);
       return acc;
     }, {})
@@ -134,7 +142,8 @@ const ExpenseManagementTab = () => {
 
   const dailyTrendData = Object.entries(
     expenses.reduce((acc, exp) => {
-      const date = exp.expense_date.split('T')[0];
+      if (!exp || !exp.expense_date || exp.amount === undefined || exp.amount === null) return acc;
+      const date = typeof exp.expense_date === 'string' ? exp.expense_date.split('T')[0] : formatDateStr(exp.expense_date);
       acc[date] = (acc[date] || 0) + parseFloat(exp.amount);
       return acc;
     }, {})
@@ -331,12 +340,12 @@ const ExpenseManagementTab = () => {
             <tbody>
               {filteredExpenses.map((expense) => (
                 <tr key={expense.id}>
-                  <td>{new Date(expense.expense_date).toLocaleDateString()}</td>
-                  <td><span className="badge" style={{ background: COLORS[EXPENSE_CATEGORIES.indexOf(expense.category) % COLORS.length], opacity: 0.8 }}>{expense.category}</span></td>
-                  <td>{expense.note}</td>
+                  <td>{expense.expense_date ? new Date(expense.expense_date).toLocaleDateString() : 'N/A'}</td>
+                  <td><span className="badge" style={{ background: COLORS[EXPENSE_CATEGORIES.indexOf(expense.category) % COLORS.length] || '#ccc', opacity: 0.8 }}>{expense.category}</span></td>
+                  <td>{expense.note || '-'}</td>
                   <td>{expense.payment_method}</td>
                   <td>{expense.reference || '-'}</td>
-                  <td style={{ fontWeight: 'bold' }}>Rs. {parseFloat(expense.amount).toFixed(2)}</td>
+                  <td style={{ fontWeight: 'bold' }}>Rs. {parseFloat(expense.amount || 0).toFixed(2)}</td>
                   <td style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn-edit" onClick={() => setEditingExpense(expense)}>Edit</button>
                     <button className="btn-delete" onClick={() => handleDelete(expense.id)}>Delete</button>

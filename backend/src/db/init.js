@@ -124,6 +124,13 @@ async function initializeDatabase() {
   ensureDir(desktopUploadsDir);
   await ensureSchema();
   await ensureDefaultAdmin();
+  
+  // Check if we need to seed demo data (first run check)
+  const categoryCount = await prisma.category.count();
+  if (categoryCount === 0) {
+    const SeederService = require('../services/SeederService');
+    await SeederService.seedDemoData();
+  }
 }
 
 module.exports = {

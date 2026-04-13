@@ -47,7 +47,7 @@ const AdminPage = () => {
       <div className="admin-header">
         <div className="admin-title">
           <h1>Admin Dashboard</h1>
-          <p>Restaurant Management System</p>
+          <p>Chewbiecafe Management System</p>
         </div>
         <div className="admin-user-info">
           <span>Welcome, {user.name}</span>

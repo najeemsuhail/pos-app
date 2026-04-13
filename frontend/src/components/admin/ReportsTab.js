@@ -21,6 +21,8 @@ const ReportsTab = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orders, setOrders] = useState([]);
+  const [itemSortKey, setItemSortKey] = useState('quantity');
+  const [itemSortDir, setItemSortDir] = useState('desc');
 
   const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
   const tooltipStyle = {
@@ -121,6 +123,32 @@ const ReportsTab = () => {
   const formatDate = (dateString) => new Date(dateString).toLocaleString();
   const formatCurrency = (amount) => `Rs. ${parseFloat(amount).toFixed(2)}`;
   const getHourLabel = (hour) => `${String(hour).padStart(2, '0')}:00`;
+
+  const handleItemSort = (key) => {
+    if (itemSortKey === key) {
+      setItemSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setItemSortKey(key);
+      setItemSortDir('desc');
+    }
+  };
+
+  const getSortedAllItems = (items) => {
+    if (!items) return [];
+    return [...items].sort((a, b) => {
+      const aVal = a[itemSortKey];
+      const bVal = b[itemSortKey];
+      if (typeof aVal === 'string') {
+        return itemSortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+      return itemSortDir === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+  };
+
+  const SortArrow = ({ col }) => {
+    if (itemSortKey !== col) return <span style={{ opacity: 0.3, marginLeft: 4 }}>⇅</span>;
+    return <span style={{ marginLeft: 4 }}>{itemSortDir === 'asc' ? '▲' : '▼'}</span>;
+  };
 
   return (
     <div className="admin-tab-content">
@@ -384,45 +412,64 @@ const ReportsTab = () => {
             </div>
           )}
 
-          {report.topItems && report.topItems.length > 0 && (
+          {report.allItems && report.allItems.length > 0 && (
             <div className="section-container">
-              <h3>Top Selling Items</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0 }}>All Items Sold ({report.allItems.length} items)</h3>
+                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Click column headers to sort</span>
+              </div>
               <table className="data-table">
-                <thead><tr><th>Item Name</th><th>Quantity Sold</th><th>Revenue (Rs.)</th><th>Avg Price</th><th>Orders</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th style={{ cursor: 'default' }}>#</th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('name')}>
+                      Item Name <SortArrow col="name" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('quantity')}>
+                      Qty Sold <SortArrow col="quantity" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('revenue')}>
+                      Revenue (Rs.) <SortArrow col="revenue" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('avgPrice')}>
+                      Avg Price <SortArrow col="avgPrice" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('orderCount')}>
+                      Orders <SortArrow col="orderCount" />
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {report.topItems.map((item, idx) => (
-                    <tr key={idx} className="top-item">
-                      <td><span className="rank-badge">{idx + 1}</span>{item.name}</td>
-                      <td>{item.quantity}</td>
+                  {getSortedAllItems(report.allItems).map((item, idx) => (
+                    <tr key={idx}>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{idx + 1}</td>
+                      <td><strong>{item.name}</strong></td>
+                      <td style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{item.quantity}</td>
                       <td className="sales-cell">Rs. {item.revenue.toFixed(2)}</td>
                       <td>Rs. {item.avgPrice.toFixed(2)}</td>
                       <td>{item.orderCount}</td>
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr style={{ backgroundColor: 'var(--surface-muted)', fontWeight: 'bold' }}>
+                    <td></td>
+                    <td>Total</td>
+                    <td style={{ color: 'var(--primary-color)' }}>
+                      {report.allItems.reduce((s, i) => s + i.quantity, 0)}
+                    </td>
+                    <td className="sales-cell">
+                      Rs. {report.allItems.reduce((s, i) => s + i.revenue, 0).toFixed(2)}
+                    </td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           )}
 
-          {report.bottomItems && report.bottomItems.length > 0 && (
-            <div className="section-container">
-              <h3>Bottom Selling Items</h3>
-              <table className="data-table">
-                <thead><tr><th>Item Name</th><th>Quantity Sold</th><th>Revenue (Rs.)</th><th>Avg Price</th><th>Orders</th></tr></thead>
-                <tbody>
-                  {report.bottomItems.map((item, idx) => (
-                    <tr key={idx} className="bottom-item">
-                      <td><span className="rank-badge">↓{idx + 1}</span>{item.name}</td>
-                      <td>{item.quantity}</td>
-                      <td>Rs. {item.revenue.toFixed(2)}</td>
-                      <td>Rs. {item.avgPrice.toFixed(2)}</td>
-                      <td>{item.orderCount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+
 
           {detailsLoading && (
             <div className="section-container">

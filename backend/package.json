@@ -1,7 +1,7 @@
 {
   "name": "pos-backend",
   "version": "1.0.0",
-  "description": "Restaurant Billing POS Backend",
+  "description": "Chewbiecafe Billing POS Backend",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

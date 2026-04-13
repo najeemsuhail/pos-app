@@ -1,19 +1,34 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import ExpenseReportSection from './ExpenseReportSection';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-const EXPENSE_CATEGORIES = ['Rent', 'Utilities', 'Supplies', 'Salary', 'Maintenance', 'Transport', 'Marketing', 'Other'];
+const DEFAULT_EXPENSE_CATEGORIES = ['Rent', 'Utilities', 'Supplies', 'Salary', 'Maintenance', 'Transport', 'Marketing', 'Other'];
 const PAYMENT_METHODS = ['Cash', 'UPI', 'Card', 'Bank Transfer'];
 const today = new Date().toISOString().split('T')[0];
+
+const loadCustomCategories = () => {
+  try {
+    return JSON.parse(localStorage.getItem('expenseCustomCategories') || '[]');
+  } catch { return []; }
+};
+
+const saveCustomCategories = (cats) => {
+  localStorage.setItem('expenseCustomCategories', JSON.stringify(cats));
+};
 
 const ExpenseManagementTab = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ startDate: today, endDate: today });
+  const [customCategories, setCustomCategories] = useState(loadCustomCategories);
+  const [newCategoryInput, setNewCategoryInput] = useState('');
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const EXPENSE_CATEGORIES = [...DEFAULT_EXPENSE_CATEGORIES, ...customCategories];
   const [formData, setFormData] = useState({
     expense_date: today,
     category: 'Supplies',
@@ -26,6 +41,28 @@ const ExpenseManagementTab = () => {
   const [editingExpense, setEditingExpense] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [prevNotes, setPrevNotes] = useState([]);
+  const [viewMode, setViewMode] = useState('ledger');
+
+  const handleAddCategory = () => {
+    const trimmed = newCategoryInput.trim();
+    if (!trimmed || EXPENSE_CATEGORIES.includes(trimmed)) {
+      setNewCategoryInput('');
+      setShowAddCategory(false);
+      return;
+    }
+    const updated = [...customCategories, trimmed];
+    setCustomCategories(updated);
+    saveCustomCategories(updated);
+    setFormData((f) => ({ ...f, category: trimmed }));
+    setNewCategoryInput('');
+    setShowAddCategory(false);
+  };
+
+  const handleDeleteCategory = (cat) => {
+    const updated = customCategories.filter((c) => c !== cat);
+    setCustomCategories(updated);
+    saveCustomCategories(updated);
+  };
 
   const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FFCD56', '#C9CBCF'];
 
@@ -61,7 +98,7 @@ const ExpenseManagementTab = () => {
 
     try {
       if (!formData.expense_date || !formData.category || !formData.note.trim() || !formData.amount) {
-        setError('Date, category, note, and amount are required');
+        setError('Date, category, sub category, and amount are required');
         return;
       }
 
@@ -92,7 +129,7 @@ const ExpenseManagementTab = () => {
       }
       const note = (editingExpense.note || '').trim();
       if (!note) {
-        setError('Note is required');
+        setError('Sub Category is required');
         return;
       }
       
@@ -163,10 +200,46 @@ const ExpenseManagementTab = () => {
     color: 'var(--text-primary)',
   };
 
+  if (viewMode === 'report') {
+    return (
+      <div className="admin-tab-content">
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
+          <button
+            onClick={() => setViewMode('ledger')}
+            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '500', background: 'transparent', color: 'var(--text-secondary)' }}
+          >
+            Ledger
+          </button>
+          <button
+            onClick={() => setViewMode('report')}
+            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', background: 'var(--primary-color)', color: 'var(--text-on-brand)' }}
+          >
+            Report
+          </button>
+        </div>
+        <ExpenseReportSection />
+      </div>
+    );
+  }
+
   return (
     <div className="admin-tab-content">
-      <div className="tab-header">
+      <div className="tab-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>Daily Expenses</h2>
+        <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '8px' }}>
+          <button
+            onClick={() => setViewMode('ledger')}
+            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', background: 'var(--primary-color)', color: 'var(--text-on-brand)' }}
+          >
+            Ledger
+          </button>
+          <button
+            onClick={() => setViewMode('report')}
+            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '500', background: 'transparent', color: 'var(--text-secondary)' }}
+          >
+            Report
+          </button>
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -191,11 +264,40 @@ const ExpenseManagementTab = () => {
               </div>
               <div className="form-group">
                 <label>Category *</label>
-                <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required>
-                  {EXPENSE_CATEGORIES.map((category) => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required style={{ flex: 1 }}>
+                    {EXPENSE_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                  <button type="button" onClick={() => setShowAddCategory((v) => !v)} className="btn-secondary" style={{ whiteSpace: 'nowrap', padding: '6px 10px', fontSize: '13px' }}>
+                    {showAddCategory ? '✕' : '+ New'}
+                  </button>
+                </div>
+                {showAddCategory && (
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <input
+                      type="text"
+                      value={newCategoryInput}
+                      onChange={(e) => setNewCategoryInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCategory())}
+                      placeholder="New category name..."
+                      style={{ flex: 1 }}
+                      autoFocus
+                    />
+                    <button type="button" onClick={handleAddCategory} className="btn-success" style={{ padding: '6px 12px' }}>Add</button>
+                  </div>
+                )}
+                {customCategories.length > 0 && (
+                  <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {customCategories.map((cat) => (
+                      <span key={cat} style={{ background: 'var(--surface-muted)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '2px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {cat}
+                        <button type="button" onClick={() => handleDeleteCategory(cat)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger-color)', fontWeight: 'bold', padding: 0, lineHeight: 1 }}>✕</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="form-group">
                 <label>Amount *</label>
@@ -212,7 +314,7 @@ const ExpenseManagementTab = () => {
             </div>
 
             <div className="form-group">
-              <label>Note *</label>
+              <label>Sub Category *</label>
               <input 
                 type="text" 
                 value={formData.note} 
@@ -240,7 +342,7 @@ const ExpenseManagementTab = () => {
           <label>Search Expenses:</label>
           <input 
             type="text" 
-            placeholder="Search by note, category or ref..." 
+            placeholder="Search by sub category, category or ref..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -330,7 +432,7 @@ const ExpenseManagementTab = () => {
               <tr>
                 <th>Date</th>
                 <th>Category</th>
-                <th>Note</th>
+                <th>Sub Category</th>
                 <th>Method</th>
                 <th>Reference</th>
                 <th>Amount</th>
@@ -387,7 +489,7 @@ const ExpenseManagementTab = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>Note</label>
+                <label>Sub Category</label>
                 <input 
                   type="text" 
                   value={editingExpense.note} 

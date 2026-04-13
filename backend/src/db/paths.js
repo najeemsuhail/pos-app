@@ -2,7 +2,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const APP_FOLDER_NAME = process.env.DESKTOP_APP_NAME || 'Restaurant POS';
+const APP_FOLDER_NAME = process.env.DESKTOP_APP_NAME || 'Chewbiecafe POS';
 
 function getDesktopDataRoot() {
   if (process.env.DESKTOP_DATA_DIR) {

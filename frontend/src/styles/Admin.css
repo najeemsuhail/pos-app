@@ -126,8 +126,7 @@
   padding: 32px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
-  
+  /* Removed backdrop-filter to prevent creating a containing block for fixed elements */
 }
 
 .admin-tab-content h2 {
@@ -232,6 +231,7 @@
   color: var(--text-primary);
   
   font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-group input::placeholder,
@@ -286,7 +286,7 @@
   font-weight: 700;
   
   box-shadow: var(--shadow-sm);
-  /* flex: 1; */
+  min-width: 140px;
 }
 
 .btn-success:hover {
@@ -303,7 +303,7 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
-  
+  min-width: 110px;
   /* flex: 1; */
 }
 
@@ -446,7 +446,8 @@
   align-items: center !important;
   z-index: 9999;
   padding: 20px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
 }
 
 .modal-content {
@@ -461,6 +462,12 @@
   flex-direction: column;
   overflow: hidden;
   margin: auto;
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes slideUp {

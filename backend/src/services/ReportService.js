@@ -48,13 +48,13 @@ class ReportService {
     return Array.from(byHour.values()).sort((a, b) => a.hour - b.hour);
   }
 
-  async getTopBottomItems(orders, limit = 5) {
+  async getTopBottomItems(orders) {
     const paidOrderIds = orders
       .filter((order) => order.status === 'paid')
       .map((order) => order.id);
 
     if (paidOrderIds.length === 0) {
-      return { topItems: [], bottomItems: [] };
+      return { topItems: [], bottomItems: [], allItems: [] };
     }
 
     const orderItems = await OrderItemRepository.findByOrderIds(paidOrderIds);
@@ -90,12 +90,9 @@ class ReportService {
         avgPrice: item.lineCount > 0 ? item.totalPrice / item.lineCount : 0,
         orderCount: item.orderIds.size,
       }))
-      .sort((a, b) => b.revenue - a.revenue);
+      .sort((a, b) => b.quantity - a.quantity);
 
-    return {
-      topItems: rankedItems.slice(0, limit),
-      bottomItems: rankedItems.slice(-limit).reverse(),
-    };
+    return { allItems: rankedItems };
   }
 
   async getDailySummary(date = new Date()) {
@@ -124,7 +121,7 @@ class ReportService {
     });
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
-    const { topItems, bottomItems } = await this.getTopBottomItems(orders);
+    const { allItems } = await this.getTopBottomItems(orders);
 
     return {
       date: date.toISOString().split('T')[0],
@@ -141,8 +138,7 @@ class ReportService {
       profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
       averageOrderValue: paidOrders.length > 0 ? totalSales / paidOrders.length : 0,
       hourlyBreakdown,
-      topItems,
-      bottomItems,
+      allItems,
     };
   }
 
@@ -172,7 +168,7 @@ class ReportService {
     });
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
-    const { topItems, bottomItems } = await this.getTopBottomItems(orders);
+    const { allItems } = await this.getTopBottomItems(orders);
 
     return {
       startDate: start.toISOString().split('T')[0],
@@ -190,8 +186,7 @@ class ReportService {
       profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
       averageOrderValue: paidOrders.length > 0 ? totalSales / paidOrders.length : 0,
       hourlyBreakdown,
-      topItems,
-      bottomItems,
+      allItems,
     };
   }
 

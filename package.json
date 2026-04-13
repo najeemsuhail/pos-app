@@ -1,5 +1,5 @@
 {
-  "name": "restaurant-pos",
+  "name": "Chewbiecafe-pos",
   "version": "1.0.0",
   "private": true,
   "description": "Offline desktop Chewbiecafe POS application",
@@ -42,8 +42,8 @@
     "wait-on": "^8.0.3"
   },
   "build": {
-    "appId": "com.restaurant.pos.app",
-    "productName": "Restaurant POS",
+    "appId": "com.Chewbiecafe.pos.app",
+    "productName": "Chewbiecafe POS",
     "icon": "assets/icon.png",
     "files": [
       "assets/**/*",

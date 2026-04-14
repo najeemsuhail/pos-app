@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminService } from '../../services/api';
+import { adminService, settingService } from '../../services/api';
 
 const SettingsTab = () => {
   const [resetConfirm, setResetConfirm] = useState('');
@@ -9,6 +9,8 @@ const SettingsTab = () => {
 
   const [printers, setPrinters] = useState([]);
   const [selectedPrinter, setSelectedPrinter] = useState('browser-default');
+  const [storeSettings, setStoreSettings] = useState({ storeName: '', storeAddressLocality: '', storePhone: '' });
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   useEffect(() => {
     if (window.posDesktop && window.posDesktop.getPrinters) {
@@ -21,6 +23,10 @@ const SettingsTab = () => {
     if (savedPrinter) {
       setSelectedPrinter(savedPrinter);
     }
+    
+    settingService.getAll()
+      .then(res => setStoreSettings(res.data))
+      .catch(err => console.error("Failed to load settings:", err));
   }, []);
 
   const handlePrinterChange = (e) => {
@@ -29,6 +35,20 @@ const SettingsTab = () => {
     localStorage.setItem('receiptPrinter', val);
     setSuccess('Printer settings saved successfully!');
     setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleSaveStoreSettings = async () => {
+    try {
+      setIsSavingSettings(true);
+      setError('');
+      await settingService.update(storeSettings);
+      setSuccess('Store settings saved successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to save store settings');
+    } finally {
+      setIsSavingSettings(false);
+    }
   };
 
   const handleReset = async () => {
@@ -65,6 +85,47 @@ const SettingsTab = () => {
       </div>
 
       <div className="settings-container">
+        
+        <div className="settings-section" style={{ marginBottom: '30px' }}>
+          <h3>🏪 Store Information</h3>
+          <p>These details will appear on the receipts.</p>
+          <div className="setting-card" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Store Name</label>
+              <input 
+                type="text" 
+                className="settings-input" 
+                value={storeSettings.storeName}
+                onChange={e => setStoreSettings({...storeSettings, storeName: e.target.value})}
+              />
+            </div>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Store Address (Locality / City)</label>
+              <input 
+                type="text" 
+                className="settings-input" 
+                value={storeSettings.storeAddressLocality}
+                onChange={e => setStoreSettings({...storeSettings, storeAddressLocality: e.target.value})}
+              />
+            </div>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Store Phone Number</label>
+              <input 
+                type="text" 
+                className="settings-input" 
+                value={storeSettings.storePhone}
+                onChange={e => setStoreSettings({...storeSettings, storePhone: e.target.value})}
+              />
+            </div>
+            <button 
+              className={`btn-gradient ${isSavingSettings ? 'btn-disabled' : ''}`}
+              onClick={handleSaveStoreSettings}
+              disabled={isSavingSettings}
+            >
+              {isSavingSettings ? 'Saving...' : 'Save Store Details'}
+            </button>
+          </div>
+        </div>
         
         {window.posDesktop && (
           <div className="settings-section hardware-zone" style={{ marginBottom: '30px' }}>
@@ -188,7 +249,7 @@ const SettingsTab = () => {
           font-weight: bold;
           text-align: center;
         }
-        .settings-select {
+        .settings-input, .settings-select {
           padding: 10px;
           border: 1px solid var(--border-color);
           border-radius: 8px;

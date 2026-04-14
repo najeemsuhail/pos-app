@@ -307,11 +307,30 @@ class ReportService {
   }
 
   groupExpensesByCategory(expenses) {
-    return expenses.reduce((acc, expense) => {
-      const key = expense.category || 'Other';
-      acc[key] = (acc[key] || 0) + (Number(expense.amount) || 0);
+    const grouped = expenses.reduce((acc, expense) => {
+      const cat = expense.category || 'Other';
+      const sub = expense.note || 'No Sub Category';
+      const amt = Number(expense.amount) || 0;
+
+      if (!acc[cat]) {
+        acc[cat] = { category: cat, totalAmount: 0, count: 0, subcategories: {} };
+      }
+      acc[cat].totalAmount += amt;
+      acc[cat].count += 1;
+
+      if (!acc[cat].subcategories[sub]) {
+        acc[cat].subcategories[sub] = { name: sub, amount: 0, count: 0 };
+      }
+      acc[cat].subcategories[sub].amount += amt;
+      acc[cat].subcategories[sub].count += 1;
+
       return acc;
     }, {});
+
+    return Object.values(grouped).map(cat => ({
+      ...cat,
+      subcategories: Object.values(cat.subcategories).sort((a, b) => b.amount - a.amount)
+    })).sort((a, b) => b.totalAmount - a.totalAmount);
   }
 }
 

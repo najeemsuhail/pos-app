@@ -14,6 +14,7 @@ const userRoutes = require('./routes/userRoutes');
 const licenseRoutes = require('./routes/licenseRoutes');
 const backupRoutes = require('./routes/backupRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const settingRoutes = require('./routes/settingRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const { desktopUploadsDir } = require('./db/paths');
 
@@ -41,6 +42,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/license', licenseRoutes);
 app.use('/api/backups', backupRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

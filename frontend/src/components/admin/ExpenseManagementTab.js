@@ -36,8 +36,8 @@ const ExpenseManagementTab = () => {
     amount: '',
     payment_method: 'Cash',
     reference: '',
+    reference: '',
   });
-  const [searchQuery, setSearchQuery] = useState('');
   const [editingExpense, setEditingExpense] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [prevNotes, setPrevNotes] = useState([]);
@@ -160,14 +160,7 @@ const ExpenseManagementTab = () => {
 
   const totalExpenses = expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
-  const filteredExpenses = expenses.filter(expense => {
-    const query = searchQuery.toLowerCase();
-    return (
-      expense.note.toLowerCase().includes(query) ||
-      expense.category.toLowerCase().includes(query) ||
-      (expense.reference && expense.reference.toLowerCase().includes(query))
-    );
-  });
+  const filteredExpenses = expenses;
 
   const categoryData = Object.entries(
     expenses.reduce((acc, exp) => {
@@ -338,17 +331,6 @@ const ExpenseManagementTab = () => {
       </div>
 
       <div className="report-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-end' }}>
-        <div style={{ flex: '1', minWidth: '200px' }}>
-          <label>Search Expenses:</label>
-          <input 
-            type="text" 
-            placeholder="Search by sub category, category or ref..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--input-bg)', color: 'var(--text-primary)' }}
-          />
-        </div>
         <div>
           <label>Start Date:</label>
           <DatePicker selected={parseDateStr(filters.startDate)} onChange={(date) => setFilters({ ...filters, startDate: formatDateStr(date) })} className="date-input" dateFormat="yyyy-MM-dd" />

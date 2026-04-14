@@ -87,4 +87,9 @@ export const adminService = {
   resetDatabase: () => api.post('/admin/reset-database'),
 };
 
+export const settingService = {
+  getAll: () => api.get('/settings'),
+  update: (data) => api.post('/settings', data),
+};
+
 export default api;

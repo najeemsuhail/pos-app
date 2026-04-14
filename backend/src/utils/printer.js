@@ -1,4 +1,7 @@
+const SettingService = require('../services/SettingService');
+
 const generateThermalReceipt = (order, items, payments) => {
+  const settings = SettingService.getSettings();
   const width = 40; // 80mm thermal width in characters
   const line = '='.repeat(width);
 
@@ -9,12 +12,26 @@ const generateThermalReceipt = (order, items, payments) => {
   const finalAmount = parseFloat(order.final_amount) || 0;
 
   let receipt = '';
-  receipt += '\n' + line + '\n';
-  receipt += 'Chewbiecafe RECEIPT'.padStart((width + 20) / 2).slice(0, width) + '\n';
-  receipt += line + '\n\n';
+  
+  // Center aligned store info
+  if (settings.storeName) {
+    receipt += settings.storeName.padStart(Math.floor((width + settings.storeName.length) / 2)).slice(0, width) + '\n';
+  }
+  if (settings.storeAddressLocality) {
+    receipt += settings.storeAddressLocality.padStart(Math.floor((width + settings.storeAddressLocality.length) / 2)).slice(0, width) + '\n';
+  }
+  if (settings.storePhone) {
+    const phoneStr = `Ph: ${settings.storePhone}`;
+    receipt += phoneStr.padStart(Math.floor((width + phoneStr.length) / 2)).slice(0, width) + '\n';
+  }
 
-  receipt += `Bill #: ${order.bill_number}\n`;
-  receipt += `Date: ${new Date(order.created_at).toLocaleString()}\n`;
+  receipt += '\n' + line + '\n';
+  receipt += `Bill No : ${order.bill_number}\n`;
+  receipt += `Date    : ${new Date(order.created_at).toLocaleDateString()}\n`;
+  receipt += `Time    : ${new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\n`;
+  if (order.table_id) {
+    receipt += `Table   : ${order.table_id}\n`;
+  }
   receipt += line + '\n\n';
 
   receipt += 'Item'.padEnd(20) + 'Qty'.padEnd(5) + 'Amount\n';

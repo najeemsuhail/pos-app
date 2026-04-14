@@ -398,14 +398,33 @@ const ReportsTab = () => {
             </div>
           </div>
 
-          {report.expensesByCategory && Object.keys(report.expensesByCategory).length > 0 && (
+          {Array.isArray(report.expensesByCategory) && report.expensesByCategory.length > 0 && (
             <div className="section-container">
-              <h3>Expense Breakdown</h3>
+              <h3>Detailed Expense Breakdown (Top Spend)</h3>
               <table className="data-table">
-                <thead><tr><th>Category</th><th>Amount</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Category / Sub Category</th>
+                    <th style={{ textAlign: 'right' }}>Entries</th>
+                    <th style={{ textAlign: 'right' }}>Amount</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {Object.entries(report.expensesByCategory).map(([category, amount]) => (
-                    <tr key={category}><td>{category}</td><td>Rs. {parseFloat(amount).toFixed(2)}</td></tr>
+                  {report.expensesByCategory.map((catData) => (
+                    <React.Fragment key={catData.category}>
+                      <tr style={{ backgroundColor: 'var(--surface-muted)' }}>
+                        <td><strong>{catData.category}</strong></td>
+                        <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{catData.count}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 'bold', color: 'var(--danger-color)' }}>Rs. {catData.totalAmount.toFixed(2)}</td>
+                      </tr>
+                      {catData.subcategories && catData.subcategories.map((sub) => (
+                        <tr key={`${catData.category}-${sub.name}`} style={{ backgroundColor: 'var(--card-bg)' }}>
+                          <td style={{ paddingLeft: '32px', color: 'var(--text-secondary)', fontSize: '13px' }}>↳ {sub.name}</td>
+                          <td style={{ textAlign: 'right', color: 'var(--text-secondary)', fontSize: '13px' }}>{sub.count}</td>
+                          <td style={{ textAlign: 'right', fontSize: '13px' }}>Rs. {sub.amount.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>

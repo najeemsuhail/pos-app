@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/api';
 
 const SettingsTab = () => {
@@ -6,6 +6,30 @@ const SettingsTab = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const [printers, setPrinters] = useState([]);
+  const [selectedPrinter, setSelectedPrinter] = useState('browser-default');
+
+  useEffect(() => {
+    if (window.posDesktop && window.posDesktop.getPrinters) {
+      window.posDesktop.getPrinters().then(printersList => {
+        setPrinters(printersList || []);
+      }).catch(err => console.error("Could not load printers", err));
+    }
+    
+    const savedPrinter = localStorage.getItem('receiptPrinter');
+    if (savedPrinter) {
+      setSelectedPrinter(savedPrinter);
+    }
+  }, []);
+
+  const handlePrinterChange = (e) => {
+    const val = e.target.value;
+    setSelectedPrinter(val);
+    localStorage.setItem('receiptPrinter', val);
+    setSuccess('Printer settings saved successfully!');
+    setTimeout(() => setSuccess(''), 3000);
+  };
 
   const handleReset = async () => {
     if (resetConfirm !== 'RESET') {
@@ -41,6 +65,32 @@ const SettingsTab = () => {
       </div>
 
       <div className="settings-container">
+        
+        {window.posDesktop && (
+          <div className="settings-section hardware-zone" style={{ marginBottom: '30px' }}>
+            <h3>🖨️ Hardware & Devices</h3>
+            <div className="setting-card">
+              <div className="setting-info">
+                <h4>Receipt Printer</h4>
+                <p>Select the physical printer used for generating receipts. Overrides browser default printing dialog for silent printing.</p>
+              </div>
+              <div className="setting-action">
+                <select 
+                  className="settings-select"
+                  value={selectedPrinter} 
+                  onChange={handlePrinterChange}
+                  style={{ width: '100%', maxWidth: '300px' }}
+                >
+                  <option value="browser-default">Standard Browser Print Dialog</option>
+                  {printers.map(p => (
+                    <option key={p.name} value={p.name}>{p.displayName || p.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="settings-section danger-zone">
           <h3>⚠️ Danger Zone</h3>
           <p>The following actions are destructive and cannot be undone. Use with extreme caution.</p>
@@ -137,6 +187,14 @@ const SettingsTab = () => {
           width: 150px;
           font-weight: bold;
           text-align: center;
+        }
+        .settings-select {
+          padding: 10px;
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          background: var(--bg-primary);
+          color: var(--text-primary);
+          font-size: 14px;
         }
         .btn-disabled {
           opacity: 0.5;

@@ -132,6 +132,49 @@ ipcMain.handle('desktop:open-data-folder', async () => {
 
 ipcMain.handle('desktop:export-backup', exportBackup);
 
+ipcMain.handle('desktop:get-printers', async () => {
+  if (mainWindow) {
+    try {
+      return await mainWindow.webContents.getPrintersAsync();
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+  return [];
+});
+
+ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
+  return new Promise((resolve) => {
+    let printWindow = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+
+    const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+    printWindow.loadURL(dataUrl);
+
+    printWindow.webContents.on('did-finish-load', () => {
+      const printOptions = {
+        silent: !!printerName && printerName !== 'browser-default',
+        printBackground: true,
+      };
+
+      if (printerName && printerName !== 'browser-default') {
+        printOptions.deviceName = printerName;
+      }
+
+      printWindow.webContents.print(printOptions, (success, errorType) => {
+        printWindow.close();
+        resolve({ success, errorType });
+      });
+    });
+  });
+});
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();

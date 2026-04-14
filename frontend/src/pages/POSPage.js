@@ -106,19 +106,8 @@ const POSPage = () => {
     }
   };
 
-  const handlePrintReceipt = () => {
-    // Create a hidden iframe for printing if it doesn't exist
-    let iframe = document.getElementById('print-iframe');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.id = 'print-iframe';
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-    }
-
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(`
+  const handlePrintReceipt = async () => {
+    const htmlContent = `
       <html>
         <head>
           <title>Print Receipt</title>
@@ -139,7 +128,35 @@ const POSPage = () => {
           <pre>${receipt}</pre>
         </body>
       </html>
-    `);
+    `;
+
+    // 1. Desktop Mode (Native/Silent Print)
+    if (window.posDesktop && window.posDesktop.printReceipt) {
+      const printerName = localStorage.getItem('receiptPrinter') || 'browser-default';
+      try {
+        const result = await window.posDesktop.printReceipt(htmlContent, printerName);
+        if (!result.success) {
+          alert('Printing failed: ' + result.errorType);
+        }
+      } catch (e) {
+        console.error('Desktop print error:', e);
+        alert('Failed to print receipt via desktop module.');
+      }
+      return;
+    }
+
+    // 2. Fallback to standard browser print via hidden Iframe
+    let iframe = document.getElementById('print-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.id = 'print-iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(htmlContent);
     doc.close();
 
     // Small delay to ensure the content is loaded before printing

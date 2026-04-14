@@ -12,9 +12,7 @@ const ThemeToggle = () => {
     if (isDark) {
       switchTheme('light');
     } else {
-      // Get last dark theme from localStorage if exists, else default to neon
-      const lastDarkTheme = localStorage.getItem('lastDarkTheme') || 'neon';
-      switchTheme(lastDarkTheme);
+      switchTheme('dark');
     }
   };
 

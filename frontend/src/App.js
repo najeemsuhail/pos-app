@@ -51,11 +51,12 @@ function App() {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', justifyContent: 'center', alignItems: 'center', 
-        height: '100vh', background: '#111827', color: 'white' 
+      <div style={{
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+        height: '100vh', background: '#111827', color: 'white'
       }}>
-        Initializing...
+        <div className="light-loader" style={{ borderColor: 'rgba(255, 255, 255, 0.1)', borderLeftColor: '#ffffff' }}></div>
+        <div>Initializing...</div>
       </div>
     );
   }
@@ -74,6 +75,9 @@ function App() {
             <Route path="/admin" element={<ProtectedRoute element={<AdminPage />} requiredRole="Admin" />} />
             <Route path="/" element={<Navigate to="/pos" />} />
           </Routes>
+          <footer className="app-footer">
+            &copy; {new Date().getFullYear()} Kani Enterprise. All rights reserved.
+          </footer>
         </OrderProvider>
       </Router>
     </ThemeProvider>

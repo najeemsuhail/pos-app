@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext();
-const AVAILABLE_THEMES = ['neon', 'sunset', 'ocean', 'mint', 'cyberpunk', 'light'];
-const DEFAULT_THEME = 'neon';
+const AVAILABLE_THEMES = ['dark', 'light'];
+const DEFAULT_THEME = 'dark';
 
 export const ThemeProvider = ({ children }) => {
   const envTheme = process.env.REACT_APP_THEME?.trim().toLowerCase();

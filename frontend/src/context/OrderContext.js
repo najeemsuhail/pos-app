@@ -52,10 +52,16 @@ export const OrderProvider = ({ children }) => {
     setOrder(null);
   }, []);
 
+  const replaceItems = useCallback((nextItems) => {
+    setItems(Array.isArray(nextItems) ? nextItems : []);
+  }, []);
+
   const value = {
     order,
     setOrder,
     items,
+    setItems: replaceItems,
+    replaceItems,
     addItem,
     updateQuantity,
     removeItem,

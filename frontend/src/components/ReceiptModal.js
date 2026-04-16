@@ -1,7 +1,39 @@
 import React from 'react';
 import '../styles/ReceiptModal.css';
+import receiptLogo from '../assets/icon.png';
 
 const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
+  const lines = receipt.split('\n').filter((line, index, list) => !(line === '' && list[index - 1] === ''));
+
+  const getLineClassName = (line) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      return 'receipt-line spacer';
+    }
+    if (/^=+$/.test(trimmed)) {
+      return 'receipt-line separator';
+    }
+    if (trimmed === 'PAYMENT BREAKDOWN') {
+      return 'receipt-line section-title';
+    }
+    if (trimmed.startsWith('TOTAL:')) {
+      return 'receipt-line total';
+    }
+    if (/^(Subtotal:|Discount:|Tax \(GST\):)/.test(trimmed)) {
+      return 'receipt-line summary';
+    }
+    if (/^(Bill No|Date|Time|Table)\s*:/.test(trimmed)) {
+      return 'receipt-line meta';
+    }
+    if (trimmed === 'Thank you! Please visit again.') {
+      return 'receipt-line footer';
+    }
+    if (trimmed === 'Item                 Qty  Amount') {
+      return 'receipt-line header-row';
+    }
+    return 'receipt-line';
+  };
+
   return (
     <div className="modal-overlay">
       <div className="receipt-modal">
@@ -12,7 +44,24 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
           </button>
         </div>
 
-        <pre className="receipt-content">{receipt}</pre>
+        <div className="receipt-content">
+          <div className="receipt-brand">
+            <div className="receipt-logo-frame">
+              <img src={receiptLogo} alt="Chewbie Cafe logo" className="receipt-logo" />
+            </div>
+            <div className="receipt-brand-copy">
+              <strong>Chewbie Cafe</strong>
+              <span>Receipt Preview</span>
+            </div>
+          </div>
+          <div className="receipt-paper">
+            {lines.map((line, index) => (
+              <div key={`${index}-${line}`} className={getLineClassName(line)}>
+                {line || '\u00A0'}
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="receipt-actions">
           <button onClick={onPrint} className="print-btn">

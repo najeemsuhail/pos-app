@@ -38,12 +38,14 @@ export const menuItemService = {
 };
 
 export const orderService = {
-  create: () => api.post('/orders'),
+  create: (data = {}) => api.post('/orders', data),
   getById: (id) => api.get(`/orders/${id}`),
+  getActiveTables: () => api.get('/orders/tables/active'),
   addItem: (orderId, data) => api.post(`/orders/${orderId}/items`, data),
   updateItem: (orderId, itemId, quantity) => api.patch(`/orders/${orderId}/items/${itemId}`, { quantity }),
   removeItem: (orderId, itemId) => api.delete(`/orders/${orderId}/items/${itemId}`),
   getItems: (orderId) => api.get(`/orders/${orderId}/items`),
+  syncItems: (orderId, items) => api.put(`/orders/${orderId}/sync-items`, { items }),
   finalize: (orderId, data) => api.post(`/orders/${orderId}/finalize`, data),
   pay: (orderId, payments) => api.post(`/orders/${orderId}/payments`, { payments }),
   getReceipt: (orderId) => api.get(`/orders/${orderId}/receipt`),

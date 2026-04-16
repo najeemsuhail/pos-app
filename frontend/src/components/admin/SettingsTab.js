@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { adminService, settingService } from '../../services/api';
 
+const DEFAULT_TABLE_COUNT = 12;
+
+const buildDefaultTableNames = () => Array.from({ length: DEFAULT_TABLE_COUNT }, (_, index) => `Table ${index + 1}`);
+
 const SettingsTab = () => {
+  const defaultTableNames = useMemo(() => buildDefaultTableNames(), []);
   const [resetConfirm, setResetConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -9,32 +14,49 @@ const SettingsTab = () => {
 
   const [printers, setPrinters] = useState([]);
   const [selectedPrinter, setSelectedPrinter] = useState('browser-default');
-  const [storeSettings, setStoreSettings] = useState({ storeName: '', storeAddressLocality: '', storePhone: '' });
+  const [storeSettings, setStoreSettings] = useState({
+    storeName: '',
+    storeAddressLocality: '',
+    storePhone: '',
+    taxRate: 5,
+    tableNames: defaultTableNames,
+  });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   useEffect(() => {
     if (window.posDesktop && window.posDesktop.getPrinters) {
-      window.posDesktop.getPrinters().then(printersList => {
-        setPrinters(printersList || []);
-      }).catch(err => console.error("Could not load printers", err));
+      window.posDesktop.getPrinters()
+        .then((printersList) => {
+          setPrinters(printersList || []);
+        })
+        .catch((err) => console.error('Could not load printers', err));
     }
-    
+
     const savedPrinter = localStorage.getItem('receiptPrinter');
     if (savedPrinter) {
       setSelectedPrinter(savedPrinter);
     }
-    
-    settingService.getAll()
-      .then(res => setStoreSettings(res.data))
-      .catch(err => console.error("Failed to load settings:", err));
-  }, []);
 
-  const handlePrinterChange = (e) => {
-    const val = e.target.value;
-    setSelectedPrinter(val);
-    localStorage.setItem('receiptPrinter', val);
+    settingService.getAll()
+      .then((res) => setStoreSettings({
+        ...res.data,
+        tableNames: Array.isArray(res.data.tableNames) ? res.data.tableNames : defaultTableNames,
+      }))
+      .catch((err) => console.error('Failed to load settings:', err));
+  }, [defaultTableNames]);
+
+  const handlePrinterChange = (event) => {
+    const value = event.target.value;
+    setSelectedPrinter(value);
+    localStorage.setItem('receiptPrinter', value);
     setSuccess('Printer settings saved successfully!');
     setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleTableNameChange = (index, value) => {
+    const nextTableNames = [...(storeSettings.tableNames || defaultTableNames)];
+    nextTableNames[index] = value;
+    setStoreSettings({ ...storeSettings, tableNames: nextTableNames });
   };
 
   const handleSaveStoreSettings = async () => {
@@ -67,7 +89,6 @@ const SettingsTab = () => {
       const response = await adminService.resetDatabase();
       setSuccess(response.data.message);
       setResetConfirm('');
-      // Force reload after a short delay to refresh all state
       setTimeout(() => {
         window.location.reload();
       }, 3000);
@@ -81,43 +102,53 @@ const SettingsTab = () => {
   return (
     <div className="admin-tab-content">
       <div className="tab-header">
-        <h2>⚙️ System Settings</h2>
+        <h2>System Settings</h2>
       </div>
 
       <div className="settings-container">
-        
         <div className="settings-section" style={{ marginBottom: '30px' }}>
-          <h3>🏪 Store Information</h3>
+          <h3>Store Information</h3>
           <p>These details will appear on the receipts.</p>
           <div className="setting-card" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
             <div style={{ width: '100%', marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Store Name</label>
-              <input 
-                type="text" 
-                className="settings-input" 
+              <input
+                type="text"
+                className="settings-input"
                 value={storeSettings.storeName}
-                onChange={e => setStoreSettings({...storeSettings, storeName: e.target.value})}
+                onChange={(event) => setStoreSettings({ ...storeSettings, storeName: event.target.value })}
               />
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Store Address (Locality / City)</label>
-              <input 
-                type="text" 
-                className="settings-input" 
+              <input
+                type="text"
+                className="settings-input"
                 value={storeSettings.storeAddressLocality}
-                onChange={e => setStoreSettings({...storeSettings, storeAddressLocality: e.target.value})}
+                onChange={(event) => setStoreSettings({ ...storeSettings, storeAddressLocality: event.target.value })}
               />
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Store Phone Number</label>
-              <input 
-                type="text" 
-                className="settings-input" 
+              <input
+                type="text"
+                className="settings-input"
                 value={storeSettings.storePhone}
-                onChange={e => setStoreSettings({...storeSettings, storePhone: e.target.value})}
+                onChange={(event) => setStoreSettings({ ...storeSettings, storePhone: event.target.value })}
               />
             </div>
-            <button 
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Tax Rate (%)</label>
+              <input
+                type="number"
+                className="settings-input"
+                value={storeSettings.taxRate}
+                min="0"
+                step="0.01"
+                onChange={(event) => setStoreSettings({ ...storeSettings, taxRate: Number(event.target.value) })}
+              />
+            </div>
+            <button
               className={`btn-gradient ${isSavingSettings ? 'btn-disabled' : ''}`}
               onClick={handleSaveStoreSettings}
               disabled={isSavingSettings}
@@ -126,25 +157,46 @@ const SettingsTab = () => {
             </button>
           </div>
         </div>
-        
+
+        <div className="settings-section" style={{ marginBottom: '30px' }}>
+          <h3>Table Names</h3>
+          <p>Rename your tables here. The POS will keep the same numeric table ids internally.</p>
+          <div className="setting-card" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div className="table-settings-grid">
+              {(storeSettings.tableNames || defaultTableNames).map((tableName, index) => (
+                <div key={index} style={{ width: '100%' }}>
+                  <label style={{ display: 'block', marginBottom: '5px' }}>Table {index + 1}</label>
+                  <input
+                    type="text"
+                    className="settings-input"
+                    value={tableName}
+                    onChange={(event) => handleTableNameChange(index, event.target.value)}
+                    placeholder={`Table ${index + 1}`}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {window.posDesktop && (
           <div className="settings-section hardware-zone" style={{ marginBottom: '30px' }}>
-            <h3>🖨️ Hardware & Devices</h3>
+            <h3>Hardware and Devices</h3>
             <div className="setting-card">
               <div className="setting-info">
                 <h4>Receipt Printer</h4>
                 <p>Select the physical printer used for generating receipts. Overrides browser default printing dialog for silent printing.</p>
               </div>
               <div className="setting-action">
-                <select 
+                <select
                   className="settings-select"
-                  value={selectedPrinter} 
+                  value={selectedPrinter}
                   onChange={handlePrinterChange}
                   style={{ width: '100%', maxWidth: '300px' }}
                 >
                   <option value="browser-default">Standard Browser Print Dialog</option>
-                  {printers.map(p => (
-                    <option key={p.name} value={p.name}>{p.displayName || p.name}</option>
+                  {printers.map((printer) => (
+                    <option key={printer.name} value={printer.name}>{printer.displayName || printer.name}</option>
                   ))}
                 </select>
               </div>
@@ -153,27 +205,27 @@ const SettingsTab = () => {
         )}
 
         <div className="settings-section danger-zone">
-          <h3>⚠️ Danger Zone</h3>
+          <h3>Danger Zone</h3>
           <p>The following actions are destructive and cannot be undone. Use with extreme caution.</p>
-          
+
           <div className="setting-card">
             <div className="setting-info">
               <h4>Factory Reset / Clear All Data</h4>
               <p>Permanently delete all transaction history, sales records, product catalogs, and staff accounts. The current Administrator account and software license will be preserved.</p>
             </div>
-            
+
             <div className="setting-action">
               <div className="reset-confirmation">
                 <label>Type <strong>RESET</strong> to confirm:</label>
-                <input 
-                  type="text" 
-                  value={resetConfirm} 
-                  onChange={(e) => setResetConfirm(e.target.value)}
+                <input
+                  type="text"
+                  value={resetConfirm}
+                  onChange={(event) => setResetConfirm(event.target.value)}
                   placeholder="RESET"
                   className="reset-input"
                 />
               </div>
-              <button 
+              <button
                 className={`btn-delete ${loading ? 'btn-disabled' : ''}`}
                 onClick={handleReset}
                 disabled={loading || resetConfirm !== 'RESET'}
@@ -190,7 +242,7 @@ const SettingsTab = () => {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .settings-container {
-          max-width: 800px;
+          max-width: 900px;
         }
         .danger-zone {
           border: 1px solid #ff4d4d;
@@ -256,10 +308,22 @@ const SettingsTab = () => {
           background: var(--bg-primary);
           color: var(--text-primary);
           font-size: 14px;
+          width: 100%;
+        }
+        .table-settings-grid {
+          width: 100%;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 14px;
         }
         .btn-disabled {
           opacity: 0.5;
           cursor: not-allowed;
+        }
+        @media (max-width: 768px) {
+          .table-settings-grid {
+            grid-template-columns: 1fr;
+          }
         }
       `}} />
     </div>

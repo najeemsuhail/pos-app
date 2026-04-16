@@ -4,6 +4,7 @@ const generateThermalReceipt = (order, items, payments) => {
   const settings = SettingService.getSettings();
   const width = 40; // 80mm thermal width in characters
   const line = '='.repeat(width);
+  const taxRate = Number(settings.taxRate) || 0;
 
   // Convert decimal strings from PostgreSQL to numbers
   const subtotal = parseFloat(order.subtotal) || 0;
@@ -55,7 +56,7 @@ const generateThermalReceipt = (order, items, payments) => {
   if (discountAmount > 0) {
     receipt += `Discount: -Rs. ${discountAmount.toFixed(2)}`.padStart(width) + '\n';
   }
-  receipt += `Tax (GST): Rs. ${taxAmount.toFixed(2)}`.padStart(width) + '\n';
+  receipt += `Tax (${taxRate}%): Rs. ${taxAmount.toFixed(2)}`.padStart(width) + '\n';
   receipt += line + '\n';
   receipt += `TOTAL: Rs. ${finalAmount.toFixed(2)}`.padStart(width) + '\n';
   receipt += line + '\n\n';

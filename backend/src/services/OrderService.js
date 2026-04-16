@@ -5,9 +5,9 @@ const MenuItemRepository = require('../repositories/MenuItemRepository');
 const { generateBillNumber, calculateTax, calculateDiscount } = require('../utils/billing');
 
 class OrderService {
-  async createOrder() {
+  async createOrder(tableId = null) {
     const billNumber = generateBillNumber();
-    return await OrderRepository.create(billNumber, 0, 0, 0, 0);
+    return await OrderRepository.create(billNumber, 0, 0, 0, 0, tableId);
   }
 
   async getOrderById(id) {
@@ -58,6 +58,20 @@ class OrderService {
   async getOrderItems(orderId) {
     await this.getOrderById(orderId);
     return await OrderItemRepository.findByOrderId(orderId);
+  }
+
+  async syncItemsToOrder(orderId, itemsArray) {
+    await this.getOrderById(orderId);
+    
+    // Clear existing
+    await OrderItemRepository.deleteByOrderId(orderId);
+    
+    // Insert new items
+    for (const item of itemsArray) {
+      if (item.menu_item_id && item.quantity > 0) {
+        await this.addItemToOrder(orderId, item.menu_item_id, item.quantity);
+      }
+    }
   }
 
   async finalizeOrder(orderId, discountPercent = 0, taxRate = 5) {
@@ -144,6 +158,10 @@ class OrderService {
 
   async getOrdersByDateRange(startDate, endDate) {
     return await OrderRepository.findByDateRange(startDate, endDate);
+  }
+
+  async getActiveTableOrders() {
+    return await OrderRepository.findActiveTables();
   }
 }
 

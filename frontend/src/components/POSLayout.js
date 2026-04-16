@@ -1,16 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import '../styles/POSLayout.css';
 
-const POSLayout = ({ categories, items, onAddItem, onFinalizeOrder, totals, cartItems, onRemoveItem, onUpdateQuantity }) => {
+const POSLayout = ({
+  categories,
+  items,
+  onAddItem,
+  onFinalizeOrder,
+  totals,
+  discount,
+  taxRate,
+  onDiscountChange,
+  cartItems,
+  onRemoveItem,
+  onUpdateQuantity,
+  selectedTableId,
+  tableNumbers,
+  tableNames,
+  activeTableOrders,
+  onSelectTable,
+  currentOrder,
+}) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [discount, setDiscount] = useState(0);
   const [newItemIndex, setNewItemIndex] = useState(-1);
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [showHelp, setShowHelp] = useState(false);
 
   const billItemsRef = useRef(null);
   const prevCartLengthRef = useRef(0);
   const searchInputRef = useRef(null);
+  const tableRailRef = useRef(null);
 
   const filteredItems = items.filter((item) => {
     const matchesCategory = selectedCategory ? item.category_id === selectedCategory : true;
@@ -18,79 +37,125 @@ const POSLayout = ({ categories, items, onAddItem, onFinalizeOrder, totals, cart
     return matchesCategory && matchesSearch;
   });
 
-  const category_totals = totals || { subtotal: 0, tax: 0, discount: 0, total: 0 };
+  const categoryOptions = useMemo(() => ([
+    { id: null, name: 'All' },
+    ...categories.map((category) => ({ id: category.id, name: category.name })),
+  ]), [categories]);
+  const getTableLabel = (tableId) => tableNames?.[tableId - 1] || `Table ${tableId}`;
 
-  // Auto focus search bar initially
+  const categoryTotals = totals || { subtotal: 0, tax: 0, discount: 0, total: 0 };
+
   useEffect(() => {
     if (searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, []);
 
-  // Track new items and auto-scroll
   useEffect(() => {
     if (cartItems.length > prevCartLengthRef.current) {
-      // New item added
       const newIndex = cartItems.length - 1;
       setNewItemIndex(newIndex);
 
-      // Auto-scroll to new item
       if (billItemsRef.current) {
         setTimeout(() => {
           billItemsRef.current.scrollTop = billItemsRef.current.scrollHeight;
         }, 0);
       }
 
-      // Remove highlight after animation completes
       const timer = setTimeout(() => setNewItemIndex(-1), 2000);
       return () => clearTimeout(timer);
     }
+
     prevCartLengthRef.current = cartItems.length;
   }, [cartItems.length]);
 
-  // Reset highlight index when filter changes
   useEffect(() => {
     setHighlightedIndex(0);
   }, [searchQuery, selectedCategory]);
 
-  // Global Keyboard Shortcuts
   useEffect(() => {
-    const handleGlobalKeyDown = (e) => {
-      // F9 to Pay
-      if (e.key === 'F9') {
-        e.preventDefault();
-        onFinalizeOrder(discount);
+    const handleGlobalKeyDown = (event) => {
+      const activeTag = document.activeElement?.tagName;
+      const isTypingInForm = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT';
+
+      if (event.key === 'F9') {
+        event.preventDefault();
+        if (selectedTableId) {
+          onFinalizeOrder(discount);
+        }
         return;
       }
 
-      // Escape clears search and focuses search bar
-      if (e.key === 'Escape') {
-        e.preventDefault();
+      if (event.key === 'F1' && event.shiftKey) {
+        event.preventDefault();
+        setShowHelp((prev) => !prev);
+        return;
+      }
+
+      if (event.key === '/') {
+        event.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
         setSearchQuery('');
         setSelectedCategory(null);
         setHighlightedIndex(0);
-        if (searchInputRef.current) searchInputRef.current.focus();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+        }
         return;
       }
 
-      // + and - to adjust quantity of the LAST item in the cart
-      if (e.key === '+' || e.key === '=') {
-        // Prevent typing + in input fields from triggering this
-        if (document.activeElement.tagName === 'INPUT' && document.activeElement !== searchInputRef.current) return;
-        
+      if (/^F([1-9]|1[0-2])$/.test(event.key)) {
+        event.preventDefault();
+        const tableIndex = Number(event.key.slice(1));
+        if (tableNumbers.includes(tableIndex)) {
+          onSelectTable(tableIndex);
+        }
+        return;
+      }
+
+      if (event.ctrlKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+        event.preventDefault();
+        const currentCategoryIndex = categoryOptions.findIndex((category) => category.id === selectedCategory);
+        const currentIndex = currentCategoryIndex >= 0 ? currentCategoryIndex : 0;
+        const direction = event.key === 'ArrowDown' ? 1 : -1;
+        const nextIndex = (currentIndex + direction + categoryOptions.length) % categoryOptions.length;
+        setSelectedCategory(categoryOptions[nextIndex].id);
+        return;
+      }
+
+      if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+        event.preventDefault();
+        const currentIndex = Math.max(tableNumbers.indexOf(selectedTableId), 0);
+        const direction = event.key === 'ArrowRight' ? 1 : -1;
+        const nextIndex = (currentIndex + direction + tableNumbers.length) % tableNumbers.length;
+        onSelectTable(tableNumbers[nextIndex]);
+        return;
+      }
+
+      if (isTypingInForm && document.activeElement !== searchInputRef.current) {
+        return;
+      }
+
+      if (event.key === '+' || event.key === '=') {
         if (cartItems.length > 0) {
-          e.preventDefault();
+          event.preventDefault();
           const lastItem = cartItems[cartItems.length - 1];
           onUpdateQuantity(lastItem.id, lastItem.quantity + 1);
         }
         return;
       }
-      
-      if (e.key === '-' || e.key === '_') {
-        if (document.activeElement.tagName === 'INPUT' && document.activeElement !== searchInputRef.current) return;
 
+      if (event.key === '-' || event.key === '_') {
         if (cartItems.length > 0) {
-          e.preventDefault();
+          event.preventDefault();
           const lastItem = cartItems[cartItems.length - 1];
           if (lastItem.quantity > 1) {
             onUpdateQuantity(lastItem.id, lastItem.quantity - 1);
@@ -101,25 +166,26 @@ const POSLayout = ({ categories, items, onAddItem, onFinalizeOrder, totals, cart
         return;
       }
 
-      // Grid Navigation
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault();
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        event.preventDefault();
         setHighlightedIndex((prev) => Math.min(prev + 1, filteredItems.length - 1));
         return;
       }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault();
+
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+        event.preventDefault();
         setHighlightedIndex((prev) => Math.max(prev - 1, 0));
         return;
       }
 
-      // Enter to add item
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        // If discount input is focused, don't add item, just blur to finalize edit
-        if (document.activeElement.type === 'number') {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+
+        if (document.activeElement?.type === 'number') {
           document.activeElement.blur();
-          if (searchInputRef.current) searchInputRef.current.focus();
+          if (searchInputRef.current) {
+            searchInputRef.current.focus();
+          }
           return;
         }
 
@@ -129,68 +195,136 @@ const POSLayout = ({ categories, items, onAddItem, onFinalizeOrder, totals, cart
             onAddItem(item, 1);
             setSearchQuery('');
             setHighlightedIndex(0);
-            if (searchInputRef.current) searchInputRef.current.focus();
+            if (searchInputRef.current) {
+              searchInputRef.current.focus();
+            }
           }
         }
         return;
       }
 
-      // Any text key instantly jumps focus to search bar so they can type immediately
-      if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
-        if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-          if (searchInputRef.current) {
-            searchInputRef.current.focus();
-          }
+      if (event.key.length === 1 && /[a-zA-Z0-9]/.test(event.key)) {
+        if (!isTypingInForm && searchInputRef.current) {
+          searchInputRef.current.focus();
         }
       }
     };
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [cartItems, filteredItems, highlightedIndex, onAddItem, onRemoveItem, onUpdateQuantity, discount, onFinalizeOrder, searchQuery]);
+  }, [
+    cartItems,
+    categoryOptions,
+    discount,
+    filteredItems,
+    highlightedIndex,
+    onAddItem,
+    onFinalizeOrder,
+    onRemoveItem,
+    onSelectTable,
+    onUpdateQuantity,
+    selectedCategory,
+    selectedTableId,
+    tableNumbers,
+  ]);
 
-  // Add cache-busting to image URLs to prevent browser caching
   const getCacheBustedImageUrl = (imageUrl) => {
-    if (!imageUrl) return null;
+    if (!imageUrl) {
+      return null;
+    }
+
     const separator = imageUrl.includes('?') ? '&' : '?';
     return `${imageUrl}${separator}t=${Date.now()}`;
   };
 
+  const scrollTables = (direction) => {
+    if (!tableRailRef.current) {
+      return;
+    }
+
+    const scrollAmount = Math.max(tableRailRef.current.clientWidth * 0.7, 220);
+    tableRailRef.current.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth',
+    });
+  };
+
   return (
+    <>
     <div className="pos-container">
-      {/* Left: Categories */}
-      <div className="pos-categories">
-        <h3>Categories</h3>
-        <p style={{fontSize: '11px', color: 'var(--text-secondary)', marginTop: '-10px', marginBottom: '10px'}}>Use Esc to reset</p>
-        <div className="category-list">
-          <button
-            className={`category-btn ${selectedCategory === null ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(null)}
-          >
-            All
+      <section className="pos-table-dock">
+        <div className="table-dock-heading">
+          <div>
+            <h3>Tables</h3>
+            <p>Compact table rail. Names come from Settings.</p>
+          </div>
+          <div className="table-dock-status">
+            <span>{selectedTableId ? getTableLabel(selectedTableId) : 'No table selected'}</span>
+            <strong>{currentOrder?.bill_number ? `Bill ${currentOrder.bill_number}` : 'Ready for new order'}</strong>
+          </div>
+          <button className="help-btn" onClick={() => setShowHelp(true)} type="button">
+            Help
           </button>
-          {categories.map((cat) => (
+        </div>
+        <div className="table-carousel">
+          <button className="table-nav-btn" type="button" onClick={() => scrollTables(-1)} aria-label="Scroll tables left">
+            &lt;
+          </button>
+          <div className="table-rail" ref={tableRailRef}>
+            {tableNumbers.map((tableId) => {
+              const activeOrder = activeTableOrders.find((order) => order.table_id === tableId);
+              const isSelected = selectedTableId === tableId;
+
+              return (
+                <button
+                  key={tableId}
+                  className={`table-btn ${isSelected ? 'selected' : ''} ${activeOrder ? 'occupied' : 'empty'}`}
+                  onClick={() => onSelectTable(tableId)}
+                  title={`Select ${getTableLabel(tableId)}`}
+                >
+                  <span className="table-btn-label">{getTableLabel(tableId)}</span>
+                  <strong>{activeOrder ? 'Open' : 'Free'}</strong>
+                  <small>{activeOrder?.bill_number || (tableId <= 12 ? `F${tableId}` : '')}</small>
+                </button>
+              );
+            })}
+          </div>
+          <button className="table-nav-btn" type="button" onClick={() => scrollTables(1)} aria-label="Scroll tables right">
+            &gt;
+          </button>
+        </div>
+      </section>
+
+      <aside className="pos-categories">
+        <div className="section-header">
+          <h3>Categories</h3>
+          <p>`Ctrl + Up/Down` changes category</p>
+        </div>
+        <div className="category-list">
+          {categoryOptions.map((category) => (
             <button
-              key={cat.id}
-              className={`category-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat.id)}
+              key={category.id ?? 'all'}
+              className={`category-btn ${selectedCategory === category.id ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(category.id)}
             >
-              {cat.name}
+              {category.name}
             </button>
           ))}
         </div>
-      </div>
+      </aside>
 
-      {/* Center: Menu Items */}
-      <div className="pos-menu">
+      <main className="pos-menu">
         <div className="menu-header-container">
-          <h3 style={{ marginBottom: '0' }}>Menu Items</h3>
-          <input 
-            type="search" 
-            className="search-bar" 
-            placeholder="Search... (Arrow keys to select, Enter to add)" 
+          <div className="section-header">
+            <h3>Menu Items</h3>
+            <p>`/` search, arrows move, `Enter` adds item</p>
+          </div>
+          <input
+            type="search"
+            className="search-bar"
+            placeholder="Search items..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(event) => setSearchQuery(event.target.value)}
             ref={searchInputRef}
           />
         </div>
@@ -202,88 +336,62 @@ const POSLayout = ({ categories, items, onAddItem, onFinalizeOrder, totals, cart
               onClick={() => {
                 onAddItem(item, 1);
                 setHighlightedIndex(index);
-                if (searchInputRef.current) searchInputRef.current.focus();
+                if (searchInputRef.current) {
+                  searchInputRef.current.focus();
+                }
               }}
               disabled={!item.is_available}
-              style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}
-              // To enable hovering to sync with keyboard
               onMouseEnter={() => setHighlightedIndex(index)}
+              title={`Add ${item.name}`}
             >
               {item.image_url ? (
-                <img 
-                  src={getCacheBustedImageUrl(item.image_url)} 
+                <img
+                  className="item-image"
+                  src={getCacheBustedImageUrl(item.image_url)}
                   alt={item.name}
-                  style={{
-                    width: '100%',
-                    height: '120px',
-                    objectFit: 'contain',
-                    backgroundColor: 'var(--surface-muted)',
-                    borderRadius: '4px 4px 0 0',
-                    marginBottom: '8px'
-                  }}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextElementSibling.style.display = 'flex';
+                  onError={(event) => {
+                    event.target.style.display = 'none';
+                    event.target.nextElementSibling.style.display = 'flex';
                   }}
                 />
               ) : null}
-              <div style={{
-                width: '100%',
-                height: item.image_url ? '0px' : '120px',
-                backgroundColor: 'var(--surface-muted)',
-                display: item.image_url ? 'none' : 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '32px',
-                borderRadius: '4px 4px 0 0',
-                marginBottom: '8px'
-              }}>
-                🍔
+              <div className="item-image-fallback" style={{ display: item.image_url ? 'none' : 'flex' }}>
+                No Image
               </div>
-              <div className="item-name">{item.name}</div>
-              <div className="item-price">₹{item.price}</div>
+              <div className="item-card-body">
+                <div className="item-name">{item.name}</div>
+                <div className="item-price">Rs {item.price}</div>
+              </div>
               {!item.is_available && <div className="item-unavailable">Out of Stock</div>}
-              
-              {index === highlightedIndex && (
-                 <div className="keyboard-hint" style={{
-                   position: 'absolute',
-                   bottom: '-12px',
-                   left: '50%',
-                   transform: 'translateX(-50%)',
-                   background: 'var(--primary-gradient)',
-                   color: 'white',
-                   fontSize: '10px',
-                   padding: '2px 8px',
-                   borderRadius: '4px',
-                   opacity: item.is_available ? 1 : 0.5
-                 }}>
-                   Press Enter
-                 </div>
-              )}
+              {index === highlightedIndex && item.is_available && <div className="keyboard-hint">Enter</div>}
             </button>
           ))}
+
           {filteredItems.length === 0 && (
-            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)', gridColumn: '1 / -1' }}>
-              No items found. Press Esc to clear search.
+            <div className="empty-menu-state">
+              No items found. Press `Esc` to clear search or change the category.
             </div>
           )}
         </div>
-      </div>
+      </main>
 
-      {/* Right: Bill Summary */}
-      <div className="pos-bill">
-        <h3 style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          Bill Summary
-          <span style={{fontSize: '11px', background: 'var(--bg-tertiary)', padding: '4px 8px', borderRadius: '4px'}}>
-             Press +/- for Qty
-          </span>
+      <aside className="pos-bill">
+        <h3 className="bill-heading">
+          <span>Bill Summary</span>
+          <span className="bill-heading-chip">{selectedTableId ? getTableLabel(selectedTableId) : 'Select a table'}</span>
         </h3>
+
+        <div className="bill-meta">
+          <span>{currentOrder?.bill_number ? `Bill ${currentOrder.bill_number}` : 'No active bill yet'}</span>
+          <span>{cartItems.length} items</span>
+        </div>
+
         <div className="bill-items" ref={billItemsRef}>
           {cartItems.map((item, index) => (
-            <div key={item.id || Math.random()} className={`bill-item ${index === newItemIndex ? 'new-item' : ''}`}>
+            <div key={`${item.id}-${index}`} className={`bill-item ${index === newItemIndex ? 'new-item' : ''}`}>
               <div className="bill-item-info">
                 <div className="bill-item-name">{item.name}</div>
-                <div className="bill-item-price">₹{item.price}</div>
+                <div className="bill-item-price">Rs {item.price}</div>
               </div>
               <div className="bill-item-qty">
                 <button onClick={() => onUpdateQuantity(item.id, item.quantity - 1)} className="qty-btn" tabIndex="-1">
@@ -294,45 +402,118 @@ const POSLayout = ({ categories, items, onAddItem, onFinalizeOrder, totals, cart
                   +
                 </button>
               </div>
-              <div className="bill-item-total">₹{(item.price * item.quantity).toFixed(2)}</div>
+              <div className="bill-item-total">Rs {(item.price * item.quantity).toFixed(2)}</div>
               <button onClick={() => onRemoveItem(item.id)} className="remove-btn" tabIndex="-1">
-                ✕
+                x
               </button>
             </div>
           ))}
+
+          {cartItems.length === 0 && (
+            <div className="empty-bill-state">
+              {selectedTableId ? 'Add items to start this table order.' : 'Select a table to begin taking an order.'}
+            </div>
+          )}
         </div>
 
         <div className="bill-summary">
           <div className="summary-line">
             <span>Subtotal:</span>
-            <span>₹{category_totals.subtotal?.toFixed(2) || '0.00'}</span>
+            <span>Rs {categoryTotals.subtotal?.toFixed(2) || '0.00'}</span>
           </div>
           <div className="summary-line discount-input">
             <span>Discount %:</span>
             <input
               type="number"
               value={discount}
-              onChange={(e) => setDiscount(Number(e.target.value))}
+              onChange={(event) => onDiscountChange(Number(event.target.value))}
               min="0"
               max="100"
               tabIndex="-1"
             />
           </div>
           <div className="summary-line">
-            <span>Tax (5%):</span>
-            <span>₹{category_totals.tax?.toFixed(2) || '0.00'}</span>
+            <span>Discount Amount:</span>
+            <span>Rs {categoryTotals.discount?.toFixed(2) || '0.00'}</span>
+          </div>
+          <div className="summary-line">
+            <span>Tax ({taxRate}%):</span>
+            <span>Rs {categoryTotals.tax?.toFixed(2) || '0.00'}</span>
           </div>
           <div className="summary-line total">
             <span>Total:</span>
-            <span>₹{category_totals.total?.toFixed(2) || '0.00'}</span>
+            <span>Rs {categoryTotals.total?.toFixed(2) || '0.00'}</span>
           </div>
         </div>
 
-        <button className="pay-btn" onClick={() => onFinalizeOrder(discount)}>
+        <button className="pay-btn" onClick={() => onFinalizeOrder(discount)} disabled={!selectedTableId || cartItems.length === 0}>
           PAY (F9)
         </button>
-      </div>
+      </aside>
     </div>
+
+    {showHelp && (
+      <div className="modal-overlay" onClick={() => setShowHelp(false)}>
+        <div className="shortcut-modal" onClick={(event) => event.stopPropagation()}>
+          <div className="shortcut-modal-header">
+            <div>
+              <h3>Keyboard Help</h3>
+              <p>Use this as the operator quick reference.</p>
+            </div>
+            <button className="shortcut-close" type="button" onClick={() => setShowHelp(false)}>
+              x
+            </button>
+          </div>
+          <div className="shortcut-grid" aria-label="Keyboard shortcuts">
+            <div className="shortcut-item">
+              <kbd>F1-F12</kbd>
+              <span>Select table directly</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>Alt</kbd>
+              <kbd>Left/Right</kbd>
+              <span>Move between tables</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>/</kbd>
+              <span>Focus search instantly</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>Ctrl</kbd>
+              <kbd>Up/Down</kbd>
+              <span>Change category</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>Arrows</kbd>
+              <span>Move item highlight</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>Enter</kbd>
+              <span>Add highlighted item</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>+</kbd>
+              <kbd>-</kbd>
+              <span>Change last item quantity</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>Esc</kbd>
+              <span>Reset search and category</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>F9</kbd>
+              <span>Checkout current bill</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>Shift</kbd>
+              <kbd>F1</kbd>
+              <span>Open or close this help window</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

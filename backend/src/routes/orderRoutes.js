@@ -5,6 +5,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.create(req, res, next));
+router.get('/tables/active', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.getActiveTables(req, res, next));
 router.get('/', authenticate, authorize('Admin'), (req, res, next) => OrderController.getAll(req, res, next));
 router.get('/:id', authenticate, (req, res, next) => OrderController.getById(req, res, next));
 router.get('/:id/full', authenticate, authorize('Admin'), (req, res, next) => OrderController.getFullOrder(req, res, next));
@@ -15,6 +16,9 @@ router.patch('/:id/items/:itemId', authenticate, authorize('Admin', 'Staff'), (r
 );
 router.delete('/:id/items/:itemId', authenticate, authorize('Admin', 'Staff'), (req, res, next) =>
   OrderController.removeItem(req, res, next)
+);
+router.put('/:id/sync-items', authenticate, authorize('Admin', 'Staff'), (req, res, next) => 
+  OrderController.syncItems(req, res, next)
 );
 router.post('/:id/finalize', authenticate, authorize('Admin', 'Staff'), (req, res, next) =>
   OrderController.finalize(req, res, next)

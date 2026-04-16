@@ -47,6 +47,13 @@ class OrderItemRepository {
     });
     return mapOrderItem(item);
   }
+
+  async deleteByOrderId(orderId) {
+    const { count } = await prisma.orderItem.deleteMany({
+      where: { orderId: Number(orderId) },
+    });
+    return count;
+  }
 }
 
 module.exports = new OrderItemRepository();

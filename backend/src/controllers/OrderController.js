@@ -1,11 +1,13 @@
 const OrderService = require('../services/OrderService');
 const OrderItemRepository = require('../repositories/OrderItemRepository');
 const { generateThermalReceipt } = require('../utils/printer');
+const SettingService = require('../services/SettingService');
 
 class OrderController {
   async create(req, res, next) {
     try {
-      const order = await OrderService.createOrder();
+      const { table_id } = req.body || {};
+      const order = await OrderService.createOrder(table_id);
       res.status(201).json(order);
     } catch (error) {
       next(error);
@@ -79,10 +81,25 @@ class OrderController {
     }
   }
 
+  async syncItems(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { items } = req.body;
+      if (!Array.isArray(items)) {
+        return res.status(400).json({ error: 'Items array is required' });
+      }
+      await OrderService.syncItemsToOrder(id, items);
+      res.json({ message: 'Items synced successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async finalize(req, res, next) {
     try {
       const { id } = req.params;
-      const { discount_percent = 0, tax_rate = 5 } = req.body;
+      const settings = SettingService.getSettings();
+      const { discount_percent = 0, tax_rate = settings.taxRate } = req.body;
 
       const order = await OrderService.finalizeOrder(id, discount_percent, tax_rate);
       res.json(order);
@@ -161,6 +178,15 @@ class OrderController {
         items,
         payments
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getActiveTables(req, res, next) {
+    try {
+      const tables = await OrderService.getActiveTableOrders();
+      res.json(tables);
     } catch (error) {
       next(error);
     }

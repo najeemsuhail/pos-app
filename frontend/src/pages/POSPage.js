@@ -10,7 +10,7 @@ import { useOrder } from '../hooks/useOrder';
 import '../styles/POS.css';
 import receiptLogo from '../assets/icon.png';
 
-const TABLE_COUNT = 12;
+const DEFAULT_TABLE_COUNT = 12;
 
 const POSPage = () => {
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ const POSPage = () => {
   const [paymentTotal, setPaymentTotal] = useState(0);
   const [receipt, setReceipt] = useState('');
   const [tableNames, setTableNames] = useState([]);
+  const [tableCount, setTableCount] = useState(DEFAULT_TABLE_COUNT);
   const [taxRate, setTaxRate] = useState(5);
   const [user, setUser] = useState(null);
   const hydrateInProgressRef = useRef(false);
@@ -57,6 +58,7 @@ const POSPage = () => {
       setCategories(categoriesRes.data);
       setMenuItems(itemsRes.data);
       setActiveTableOrders(activeTablesRes.data);
+      setTableCount(Number(settingsRes.data.tableCount) || DEFAULT_TABLE_COUNT);
       setTableNames(settingsRes.data.tableNames || []);
       setTaxRate(Number(settingsRes.data.taxRate) || 0);
     } catch (error) {
@@ -131,6 +133,21 @@ const POSPage = () => {
       }
     }
   }, [currentOrder, refreshActiveTables, setOrder]);
+
+  useEffect(() => {
+    if (selectedTableId && selectedTableId > tableCount) {
+      hydrateInProgressRef.current = true;
+      setSelectedTableId(null);
+      replaceItems([]);
+      setCurrentOrder(null);
+      setOrder(null);
+      setDiscount(0);
+      setPaymentTotal(0);
+      setShowPaymentModal(false);
+      setShowReceiptModal(false);
+      hydrateInProgressRef.current = false;
+    }
+  }, [replaceItems, selectedTableId, setOrder, tableCount]);
 
   useEffect(() => {
     if (!selectedTableId || hydrateInProgressRef.current) {
@@ -439,7 +456,7 @@ const POSPage = () => {
     };
   }, [baseTotals, discount, taxRate]);
 
-  const tableNumbers = useMemo(() => Array.from({ length: TABLE_COUNT }, (_, index) => index + 1), []);
+  const tableNumbers = useMemo(() => Array.from({ length: tableCount }, (_, index) => index + 1), [tableCount]);
 
   if (loading && categories.length === 0) {
     return <Loader />;

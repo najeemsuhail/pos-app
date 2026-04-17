@@ -9,6 +9,56 @@ const DEFAULT_PORT = 5000;
 
 let mainWindow;
 let backendServer;
+let isQuitting = false;
+let shutdownPromise = null;
+
+function closeServer(server) {
+  return new Promise((resolve) => {
+    let settled = false;
+
+    const finish = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve();
+    };
+
+    const timeout = setTimeout(() => {
+      if (typeof server.closeAllConnections === 'function') {
+        server.closeAllConnections();
+      }
+      finish();
+    }, 2000);
+
+    server.close(() => {
+      clearTimeout(timeout);
+      finish();
+    });
+
+    if (typeof server.closeIdleConnections === 'function') {
+      server.closeIdleConnections();
+    }
+  });
+}
+
+async function shutdownBackend() {
+  if (!backendServer) {
+    return;
+  }
+
+  if (shutdownPromise) {
+    return shutdownPromise;
+  }
+
+  const serverToClose = backendServer;
+  backendServer = null;
+  shutdownPromise = closeServer(serverToClose).finally(() => {
+    shutdownPromise = null;
+  });
+
+  return shutdownPromise;
+}
 
 function isDev() {
   return process.env.ELECTRON_DEV === 'true';
@@ -43,6 +93,10 @@ async function createWindow() {
   if (isDev()) {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   }
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
 function buildMenu() {
@@ -108,10 +162,39 @@ async function exportBackup() {
   return { ok: true, filePath: result.filePath };
 }
 
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+
+if (!gotSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', async () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+      }
+      mainWindow.focus();
+      return;
+    }
+
+    await createWindow();
+  });
+}
+
 app.whenReady().then(async () => {
   if (!isDev()) {
-    const { server } = await startServer(process.env.PORT || DEFAULT_PORT);
-    backendServer = server;
+    try {
+      const { server } = await startServer(process.env.PORT || DEFAULT_PORT);
+      backendServer = server;
+    } catch (error) {
+      const alreadyInUse = error && error.code === 'EADDRINUSE';
+      const message = alreadyInUse
+        ? `Port ${process.env.PORT || DEFAULT_PORT} is already in use. A previous POS process may still be running.`
+        : 'The local POS backend failed to start.';
+
+      dialog.showErrorBox('Unable to Start POS', `${message}\n\n${error.message || error}`);
+      app.exit(1);
+      return;
+    }
   }
 
   buildMenu();
@@ -181,8 +264,17 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('before-quit', () => {
-  if (backendServer) {
-    backendServer.close();
+app.on('before-quit', async (event) => {
+  if (isQuitting) {
+    return;
+  }
+
+  isQuitting = true;
+  event.preventDefault();
+
+  try {
+    await shutdownBackend();
+  } finally {
+    app.quit();
   }
 });

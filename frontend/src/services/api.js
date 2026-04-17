@@ -91,7 +91,8 @@ export const adminService = {
 
 export const settingService = {
   getAll: () => api.get('/settings'),
-  update: (data) => api.post('/settings', data),
+  update: (data) => api.put('/settings', data),
+  updateLegacy: (data) => api.post('/settings', data),
 };
 
 export default api;

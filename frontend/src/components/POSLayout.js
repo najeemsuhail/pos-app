@@ -328,11 +328,11 @@ const POSLayout = ({
             ref={searchInputRef}
           />
         </div>
-        <div className="items-grid">
+        <div className="pos-items-grid">
           {filteredItems.map((item, index) => (
             <button
               key={item.id}
-              className={`item-card ${index === highlightedIndex ? 'highlighted' : ''}`}
+              className={`pos-item-card ${index === highlightedIndex ? 'highlighted' : ''}`}
               onClick={() => {
                 onAddItem(item, 1);
                 setHighlightedIndex(index);
@@ -346,7 +346,7 @@ const POSLayout = ({
             >
               {item.image_url ? (
                 <img
-                  className="item-image"
+                  className="pos-item-image"
                   src={getCacheBustedImageUrl(item.image_url)}
                   alt={item.name}
                   onError={(event) => {
@@ -355,20 +355,20 @@ const POSLayout = ({
                   }}
                 />
               ) : null}
-              <div className="item-image-fallback" style={{ display: item.image_url ? 'none' : 'flex' }}>
+              <div className="pos-item-image-fallback" style={{ display: item.image_url ? 'none' : 'flex' }}>
                 No Image
               </div>
-              <div className="item-card-body">
-                <div className="item-name">{item.name}</div>
-                <div className="item-price">Rs {item.price}</div>
+              <div className="pos-item-card-body">
+                <div className="pos-item-name">{item.name}</div>
+                <div className="pos-item-price">Rs {item.price}</div>
               </div>
-              {!item.is_available && <div className="item-unavailable">Out of Stock</div>}
-              {index === highlightedIndex && item.is_available && <div className="keyboard-hint">Enter</div>}
+              {!item.is_available && <div className="pos-item-unavailable">Out of Stock</div>}
+              {index === highlightedIndex && item.is_available && <div className="pos-keyboard-hint">Enter</div>}
             </button>
           ))}
 
           {filteredItems.length === 0 && (
-            <div className="empty-menu-state">
+            <div className="pos-empty-menu-state">
               No items found. Press `Esc` to clear search or change the category.
             </div>
           )}

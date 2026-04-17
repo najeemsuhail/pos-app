@@ -2,8 +2,21 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { adminService, settingService } from '../../services/api';
 
 const DEFAULT_TABLE_COUNT = 12;
+const MIN_TABLE_COUNT = 1;
+const MAX_TABLE_COUNT = 50;
 
-const buildDefaultTableNames = () => Array.from({ length: DEFAULT_TABLE_COUNT }, (_, index) => `Table ${index + 1}`);
+const normalizeTableCount = (value) => {
+  const parsed = Number.parseInt(value, 10);
+
+  if (!Number.isFinite(parsed)) {
+    return DEFAULT_TABLE_COUNT;
+  }
+
+  return Math.min(Math.max(parsed, MIN_TABLE_COUNT), MAX_TABLE_COUNT);
+};
+
+const buildDefaultTableNames = (tableCount = DEFAULT_TABLE_COUNT) =>
+  Array.from({ length: normalizeTableCount(tableCount) }, (_, index) => `Table ${index + 1}`);
 
 const SettingsTab = () => {
   const defaultTableNames = useMemo(() => buildDefaultTableNames(), []);
@@ -19,6 +32,7 @@ const SettingsTab = () => {
     storeAddressLocality: '',
     storePhone: '',
     taxRate: 5,
+    tableCount: DEFAULT_TABLE_COUNT,
     tableNames: defaultTableNames,
   });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
@@ -40,7 +54,10 @@ const SettingsTab = () => {
     settingService.getAll()
       .then((res) => setStoreSettings({
         ...res.data,
-        tableNames: Array.isArray(res.data.tableNames) ? res.data.tableNames : defaultTableNames,
+        tableCount: normalizeTableCount(res.data.tableCount),
+        tableNames: Array.isArray(res.data.tableNames)
+          ? buildDefaultTableNames(res.data.tableCount).map((fallback, index) => res.data.tableNames[index] || fallback)
+          : buildDefaultTableNames(res.data.tableCount),
       }))
       .catch((err) => console.error('Failed to load settings:', err));
   }, [defaultTableNames]);
@@ -59,11 +76,39 @@ const SettingsTab = () => {
     setStoreSettings({ ...storeSettings, tableNames: nextTableNames });
   };
 
+  const handleTableCountChange = (value) => {
+    const tableCount = normalizeTableCount(value);
+    const existingNames = Array.isArray(storeSettings.tableNames) ? storeSettings.tableNames : [];
+    const nextTableNames = buildDefaultTableNames(tableCount).map((fallback, index) => existingNames[index] || fallback);
+
+    setStoreSettings({
+      ...storeSettings,
+      tableCount,
+      tableNames: nextTableNames,
+    });
+  };
+
   const handleSaveStoreSettings = async () => {
     try {
       setIsSavingSettings(true);
       setError('');
-      await settingService.update(storeSettings);
+      let response;
+      try {
+        response = await settingService.update(storeSettings);
+      } catch (err) {
+        if (err.response?.status === 404 || err.response?.status === 401 || err.response?.status === 403) {
+          response = await settingService.updateLegacy(storeSettings);
+        } else {
+          throw err;
+        }
+      }
+      setStoreSettings({
+        ...response.data,
+        tableCount: normalizeTableCount(response.data.tableCount),
+        tableNames: Array.isArray(response.data.tableNames)
+          ? buildDefaultTableNames(response.data.tableCount).map((fallback, index) => response.data.tableNames[index] || fallback)
+          : buildDefaultTableNames(response.data.tableCount),
+      });
       setSuccess('Store settings saved successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -148,19 +193,34 @@ const SettingsTab = () => {
                 onChange={(event) => setStoreSettings({ ...storeSettings, taxRate: Number(event.target.value) })}
               />
             </div>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Number of Tables</label>
+              <input
+                type="number"
+                className="settings-input"
+                value={storeSettings.tableCount}
+                min={MIN_TABLE_COUNT}
+                max={MAX_TABLE_COUNT}
+                step="1"
+                onChange={(event) => handleTableCountChange(event.target.value)}
+              />
+              <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-secondary)' }}>
+                Choose between {MIN_TABLE_COUNT} and {MAX_TABLE_COUNT} tables.
+              </small>
+            </div>
             <button
               className={`btn-gradient ${isSavingSettings ? 'btn-disabled' : ''}`}
               onClick={handleSaveStoreSettings}
               disabled={isSavingSettings}
             >
-              {isSavingSettings ? 'Saving...' : 'Save Store Details'}
+              {isSavingSettings ? 'Saving...' : 'Save Store Settings'}
             </button>
           </div>
         </div>
 
         <div className="settings-section" style={{ marginBottom: '30px' }}>
           <h3>Table Names</h3>
-          <p>Rename your tables here. The POS will keep the same numeric table ids internally.</p>
+          <p>Rename your tables here. The POS will use the configured table count and keep numeric table ids internally.</p>
           <div className="setting-card" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
             <div className="table-settings-grid">
               {(storeSettings.tableNames || defaultTableNames).map((tableName, index) => (
@@ -176,6 +236,13 @@ const SettingsTab = () => {
                 </div>
               ))}
             </div>
+            <button
+              className={`btn-gradient ${isSavingSettings ? 'btn-disabled' : ''}`}
+              onClick={handleSaveStoreSettings}
+              disabled={isSavingSettings}
+            >
+              {isSavingSettings ? 'Saving...' : 'Save Table Names'}
+            </button>
           </div>
         </div>
 

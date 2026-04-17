@@ -5,6 +5,9 @@ const generateThermalReceipt = (order, items, payments) => {
   const width = 40; // 80mm thermal width in characters
   const line = '='.repeat(width);
   const taxRate = Number(settings.taxRate) || 0;
+  const tableLabel = order.table_id
+    ? settings.tableNames?.[Number(order.table_id) - 1] || `Table ${order.table_id}`
+    : null;
 
   // Convert decimal strings from PostgreSQL to numbers
   const subtotal = parseFloat(order.subtotal) || 0;
@@ -30,8 +33,8 @@ const generateThermalReceipt = (order, items, payments) => {
   receipt += `Bill No : ${order.bill_number}\n`;
   receipt += `Date    : ${new Date(order.created_at).toLocaleDateString()}\n`;
   receipt += `Time    : ${new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\n`;
-  if (order.table_id) {
-    receipt += `Table   : ${order.table_id}\n`;
+  if (tableLabel) {
+    receipt += `Table   : ${tableLabel}\n`;
   }
   receipt += line + '\n\n';
 

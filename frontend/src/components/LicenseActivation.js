@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import '../styles/LicenseActivation.css';
 
 const LicenseActivation = ({ onActivated }) => {
   const [machineId, setMachineId] = useState('');
@@ -44,56 +45,42 @@ const LicenseActivation = ({ onActivated }) => {
   };
 
   if (loading) {
-    return <div className="loading">Initializing System...</div>;
+    return <div className="license-activation-loading">Initializing System...</div>;
   }
 
   return (
-    <div style={{
-      display: 'flex', justifyContent: 'center', alignItems: 'center', 
-      minHeight: '100vh', backgroundColor: 'var(--bg-color)', color: 'var(--text-primary)'
-    }}>
-      <div style={{
-        background: 'var(--card-bg)', padding: '40px', borderRadius: '12px', 
-        boxShadow: '0 10px 30px rgba(0,0,0,0.5)', width: '100%', maxWidth: '500px',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ marginBottom: '10px', color: 'var(--brand-primary)' }}>Activation Required</h2>
-        <p style={{ marginBottom: '30px', color: 'var(--text-secondary)' }}>
+    <div className="license-activation-page">
+      <div className="license-activation-card">
+        <div className="license-activation-header">
+          <h2>Activation Required</h2>
+          <p>
           Please provide your Machine ID to the developer to receive an unlock key.
-        </p>
+          </p>
+        </div>
 
-        <div style={{
-          background: 'var(--surface-muted)', padding: '15px', borderRadius: '8px', 
-          marginBottom: '20px', fontFamily: 'monospace', fontSize: '18px',
-          wordBreak: 'break-all'
-        }}>
-          <strong>Machine ID:</strong><br />
-          {machineId || 'UNAVAILABLE'}
+        <div className="license-machine-card">
+          <span className="license-machine-label">Machine ID</span>
+          <div className="license-machine-id">{machineId || 'UNAVAILABLE'}</div>
         </div>
 
         <form onSubmit={handleActivate}>
-          <div style={{ marginBottom: '20px', textAlign: 'left' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Product Key</label>
+          <div className="license-field">
+            <label htmlFor="productKey">Product Key</label>
             <input 
+              id="productKey"
               type="text" 
               value={productKey}
               onChange={(e) => setProductKey(e.target.value)}
               placeholder="XXXX-XXXX-XXXX-XXXX"
-              style={{
-                width: '100%', padding: '12px', borderRadius: '8px', 
-                border: '1px solid var(--border-color)', background: 'var(--bg-color)', 
-                color: 'var(--text-primary)', fontSize: '16px', letterSpacing: '2px', textAlign: 'center',
-                textTransform: 'uppercase'
-              }}
+              className="license-input"
             />
           </div>
 
-          {error && <div className="error-message" style={{marginBottom: '20px'}}>{error}</div>}
+          {error && <div className="license-error">{error}</div>}
 
           <button 
             type="submit" 
-            className="btn-primary" 
-            style={{ width: '100%', padding: '14px', fontSize: '16px' }}
+            className="license-activate-btn"
           >
             Activate POS
           </button>

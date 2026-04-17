@@ -36,7 +36,6 @@ const ExpenseManagementTab = () => {
     amount: '',
     payment_method: 'Cash',
     reference: '',
-    reference: '',
   });
   const [editingExpense, setEditingExpense] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -448,27 +447,41 @@ const ExpenseManagementTab = () => {
 
       {editingExpense && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ minWidth: '400px' }}>
+          <div className="modal-content" style={{ maxWidth: '760px', width: '100%' }}>
             <div className="modal-header">
               <h3>Edit Expense</h3>
-              <button className="close-btn" onClick={() => setEditingExpense(null)}>&times;</button>
+              <button type="button" className="modal-close" onClick={() => setEditingExpense(null)}>&times;</button>
             </div>
-            <form onSubmit={handleUpdate} className="admin-form" style={{ border: 'none', padding: 0 }}>
-              <div className="form-group">
-                <label>Date</label>
-                <DatePicker 
-                  selected={parseDateStr(editingExpense.expense_date)} 
-                  onChange={(date) => setEditingExpense({ ...editingExpense, expense_date: formatDateStr(date) })} 
-                  required className="date-input" dateFormat="yyyy-MM-dd" 
-                />
-              </div>
-              <div className="form-group">
-                <label>Category</label>
-                <select value={editingExpense.category} onChange={(e) => setEditingExpense({ ...editingExpense, category: e.target.value })} required>
-                  {EXPENSE_CATEGORIES.map((category) => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
+            <form onSubmit={handleUpdate} className="admin-form" style={{ border: 'none', padding: 20, marginBottom: 0, background: 'transparent' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                <div className="form-group">
+                  <label>Date</label>
+                  <DatePicker 
+                    selected={parseDateStr(editingExpense.expense_date)} 
+                    onChange={(date) => setEditingExpense({ ...editingExpense, expense_date: formatDateStr(date) })} 
+                    required className="date-input" dateFormat="yyyy-MM-dd" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select value={editingExpense.category} onChange={(e) => setEditingExpense({ ...editingExpense, category: e.target.value })} required>
+                    {EXPENSE_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Amount</label>
+                  <input type="number" step="0.01" value={editingExpense.amount} onChange={(e) => setEditingExpense({ ...editingExpense, amount: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                  <label>Payment Method</label>
+                  <select value={editingExpense.payment_method} onChange={(e) => setEditingExpense({ ...editingExpense, payment_method: e.target.value })} required>
+                    {PAYMENT_METHODS.map((method) => (
+                      <option key={method} value={method}>{method}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="form-group">
                 <label>Sub Category</label>
@@ -479,18 +492,6 @@ const ExpenseManagementTab = () => {
                   required 
                   list="prev-notes-list"
                 />
-              </div>
-              <div className="form-group">
-                <label>Amount</label>
-                <input type="number" step="0.01" value={editingExpense.amount} onChange={(e) => setEditingExpense({ ...editingExpense, amount: e.target.value })} required />
-              </div>
-              <div className="form-group">
-                <label>Payment Method</label>
-                <select value={editingExpense.payment_method} onChange={(e) => setEditingExpense({ ...editingExpense, payment_method: e.target.value })} required>
-                  {PAYMENT_METHODS.map((method) => (
-                    <option key={method} value={method}>{method}</option>
-                  ))}
-                </select>
               </div>
               <div className="form-group">
                 <label>Reference</label>

@@ -41,6 +41,23 @@ const ExpenseManagementTab = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [prevNotes, setPrevNotes] = useState([]);
   const [viewMode, setViewMode] = useState('ledger');
+  const [sortBy, setSortBy] = useState('date_desc');
+
+  const toggleSort = (field) => {
+    setSortBy((current) => {
+      if (current === `${field}_desc`) {
+        return `${field}_asc`;
+      }
+      return `${field}_desc`;
+    });
+  };
+
+  const getSortArrow = (field) => {
+    if (!sortBy.startsWith(`${field}_`)) {
+      return '⇅';
+    }
+    return sortBy.endsWith('_asc') ? '▲' : '▼';
+  };
 
   const handleAddCategory = () => {
     const trimmed = newCategoryInput.trim();
@@ -159,7 +176,23 @@ const ExpenseManagementTab = () => {
 
   const totalExpenses = expenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
-  const filteredExpenses = expenses;
+  const filteredExpenses = [...expenses].sort((a, b) => {
+    switch (sortBy) {
+      case 'date_asc':
+        return new Date(a.expense_date || 0) - new Date(b.expense_date || 0);
+      case 'amount_desc':
+        return (parseFloat(b.amount) || 0) - (parseFloat(a.amount) || 0);
+      case 'amount_asc':
+        return (parseFloat(a.amount) || 0) - (parseFloat(b.amount) || 0);
+      case 'category_asc':
+        return (a.category || '').localeCompare(b.category || '');
+      case 'category_desc':
+        return (b.category || '').localeCompare(a.category || '');
+      case 'date_desc':
+      default:
+        return new Date(b.expense_date || 0) - new Date(a.expense_date || 0);
+    }
+  });
 
   const categoryData = Object.entries(
     expenses.reduce((acc, exp) => {
@@ -411,12 +444,30 @@ const ExpenseManagementTab = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Category</th>
+                <th
+                  onClick={() => toggleSort('date')}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  title="Sort by date"
+                >
+                  Date <span style={{ marginLeft: '4px', opacity: sortBy.startsWith('date_') ? 1 : 0.45 }}>{getSortArrow('date')}</span>
+                </th>
+                <th
+                  onClick={() => toggleSort('category')}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  title="Sort by category"
+                >
+                  Category <span style={{ marginLeft: '4px', opacity: sortBy.startsWith('category_') ? 1 : 0.45 }}>{getSortArrow('category')}</span>
+                </th>
                 <th>Sub Category</th>
                 <th>Method</th>
                 <th>Reference</th>
-                <th>Amount</th>
+                <th
+                  onClick={() => toggleSort('amount')}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  title="Sort by amount"
+                >
+                  Amount <span style={{ marginLeft: '4px', opacity: sortBy.startsWith('amount_') ? 1 : 0.45 }}>{getSortArrow('amount')}</span>
+                </th>
                 <th>Action</th>
               </tr>
             </thead>

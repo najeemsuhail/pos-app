@@ -1,6 +1,6 @@
 .pos-container {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1.9fr) 320px;
+  grid-template-columns: 220px minmax(0, 1.7fr) minmax(380px, 0.9fr);
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
     "tables tables bill"
@@ -10,6 +10,13 @@
   height: calc(100vh - 80px);
   background: var(--bg-primary);
   overflow: hidden;
+}
+
+.pos-container.categories-collapsed {
+  grid-template-columns: 58px minmax(0, 1.95fr) minmax(380px, 0.9fr);
+  grid-template-areas:
+    "tables tables bill"
+    "categories menu bill";
 }
 
 .pos-table-dock,
@@ -38,6 +45,10 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
+}
+
+.section-header > div:first-child {
+  min-width: 0;
 }
 
 .table-dock-heading h3,
@@ -263,6 +274,49 @@
   overflow: hidden;
 }
 
+.pos-container.categories-collapsed .pos-categories {
+  padding: 10px 8px;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-rail-toggle {
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-rail-toggle span {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.category-rail-toggle strong {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.category-rail-toggle:hover,
+.category-rail-toggle:focus-visible {
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+  outline: none;
+}
+
 .category-list {
   display: flex;
   flex-direction: column;
@@ -332,6 +386,45 @@
   background: var(--bg-secondary);
 }
 
+.menu-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.active-category-chip,
+.panel-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.active-category-chip {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.panel-toggle-btn {
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.panel-toggle-btn:hover,
+.panel-toggle-btn:focus-visible {
+  background: var(--bg-tertiary);
+  box-shadow: var(--shadow-sm);
+  outline: none;
+}
+
 .pos-items-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -398,14 +491,17 @@
 
 .pos-item-name {
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pos-item-price {
   color: var(--success-color);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -453,6 +549,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
 }
 
 .bill-heading {
@@ -486,6 +583,7 @@
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
+  min-width: 0;
 }
 
 @keyframes slideInNewItem {
@@ -503,12 +601,12 @@
 .bill-item {
   display: grid;
   grid-template-columns: 1fr auto auto auto;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 12px;
-  padding: 14px;
+  margin-bottom: 8px;
+  padding: 9px 10px;
   background: var(--bg-tertiary);
-  border-radius: 12px;
+  border-radius: 10px;
   transition: all 0.2s ease;
   animation: slideInNewItem 0.25s ease-out;
 }
@@ -522,37 +620,42 @@
 .bill-item-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .bill-item-name {
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bill-item-price {
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .bill-item-qty {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
   background: var(--bg-secondary);
-  padding: 5px 8px;
-  border-radius: 10px;
+  padding: 3px 6px;
+  border-radius: 8px;
 }
 
 .qty-btn,
 .remove-btn {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   color: white;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -573,26 +676,69 @@
 }
 
 .qty-value {
-  min-width: 22px;
+  min-width: 18px;
   text-align: center;
   color: var(--text-primary);
   font-weight: 800;
+  font-size: 12px;
 }
 
 .bill-item-total {
-  min-width: 74px;
+  min-width: 64px;
   text-align: right;
   color: var(--success-color);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .bill-summary {
   margin-bottom: 16px;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  padding: 10px 12px;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 14px;
+  border-radius: 12px;
+}
+
+.summary-header-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.summary-total-row {
+  margin-bottom: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 15px;
+}
+
+.summary-breakdown {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.summary-toggle-btn {
+  min-width: 58px;
+  min-height: 30px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.summary-toggle-btn:hover,
+.summary-toggle-btn:focus-visible {
+  background: var(--bg-tertiary);
+  box-shadow: var(--shadow-sm);
+  outline: none;
 }
 
 .summary-line {
@@ -600,8 +746,9 @@
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .summary-line:last-child {
@@ -609,11 +756,8 @@
 }
 
 .summary-line.total {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
   color: var(--success-color);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
 }
 
@@ -624,12 +768,12 @@
 
 .summary-line.discount-input input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid var(--border-color);
   border-radius: 10px;
   background: var(--bg-secondary);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -739,7 +883,11 @@
 
 @media (max-width: 1360px) {
   .pos-container {
-    grid-template-columns: 190px minmax(0, 1.75fr) 290px;
+    grid-template-columns: 190px minmax(0, 1.55fr) minmax(340px, 0.95fr);
+  }
+
+  .pos-container.categories-collapsed {
+    grid-template-columns: 52px minmax(0, 1.8fr) minmax(340px, 0.95fr);
   }
 
   .shortcut-grid {
@@ -748,6 +896,36 @@
 
   .pos-items-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .bill-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "info remove"
+      "qty total";
+    align-items: start;
+  }
+
+  .bill-item-info {
+    grid-area: info;
+  }
+
+  .bill-item-qty {
+    grid-area: qty;
+    justify-self: start;
+  }
+
+  .bill-item-total {
+    grid-area: total;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .remove-btn {
+    grid-area: remove;
+    justify-self: end;
   }
 }
 
@@ -761,6 +939,14 @@
       "menu bill";
     height: auto;
     min-height: calc(100vh - 80px);
+  }
+
+  .pos-container.categories-collapsed {
+    grid-template-columns: 1fr 320px;
+    grid-template-areas:
+      "tables tables"
+      "categories categories"
+      "menu bill";
   }
 
   .pos-categories {
@@ -799,11 +985,24 @@
     padding: 12px;
   }
 
+  .pos-container.categories-collapsed {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "tables"
+      "categories"
+      "menu"
+      "bill";
+  }
+
   .table-dock-heading,
   .section-header,
   .bill-heading {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .menu-header-actions {
+    justify-content: flex-start;
   }
 
   .table-dock-status {

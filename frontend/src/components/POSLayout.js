@@ -25,6 +25,8 @@ const POSLayout = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
+  const [categoriesCollapsed, setCategoriesCollapsed] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
 
   const billItemsRef = useRef(null);
   const prevCartLengthRef = useRef(0);
@@ -251,7 +253,7 @@ const POSLayout = ({
 
   return (
     <>
-    <div className="pos-container">
+    <div className={`pos-container ${categoriesCollapsed ? 'categories-collapsed' : ''}`}>
       <section className="pos-table-dock">
         <div className="table-dock-heading">
           <div>
@@ -296,28 +298,58 @@ const POSLayout = ({
       </section>
 
       <aside className="pos-categories">
-        <div className="section-header">
-          <h3>Categories</h3>
-          <p>`Ctrl + Up/Down` changes category</p>
-        </div>
-        <div className="category-list">
-          {categoryOptions.map((category) => (
-            <button
-              key={category.id ?? 'all'}
-              className={`category-btn ${selectedCategory === category.id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(category.id)}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
+        {categoriesCollapsed ? (
+          <button
+            className="category-rail-toggle"
+            type="button"
+            onClick={() => setCategoriesCollapsed(false)}
+            aria-label="Expand categories panel"
+          >
+            <span>&gt;</span>
+            <strong>Categories</strong>
+          </button>
+        ) : (
+          <>
+            <div className="section-header">
+              <div>
+                <h3>Categories</h3>
+                <br />
+              </div>
+              <button
+                className="panel-toggle-btn"
+                type="button"
+                onClick={() => setCategoriesCollapsed(true)}
+                aria-label="Collapse categories panel"
+              >
+                Hide
+              </button>
+            </div>
+            <div className="category-list">
+              {categoryOptions.map((category) => (
+                <button
+                  key={category.id ?? 'all'}
+                  className={`category-btn ${selectedCategory === category.id ? 'active' : ''}`}
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </aside>
 
       <main className="pos-menu">
         <div className="menu-header-container">
           <div className="section-header">
-            <h3>Menu Items</h3>
-            <p>`/` search, arrows move, `Enter` adds item</p>
+            <div>
+              <h3>Menu Items</h3>
+            </div>
+            <div className="menu-header-actions">
+              <span className="active-category-chip">
+                {selectedCategory == null ? 'All categories' : categoryOptions.find((category) => category.id === selectedCategory)?.name || 'Category'}
+              </span>
+            </div>
           </div>
           <input
             type="search"
@@ -417,33 +449,47 @@ const POSLayout = ({
         </div>
 
         <div className="bill-summary">
-          <div className="summary-line">
-            <span>Subtotal:</span>
-            <span>Rs {categoryTotals.subtotal?.toFixed(2) || '0.00'}</span>
+          <div className="summary-header-row">
+            <div className="summary-line total summary-total-row">
+              <span>Total</span>
+              <span>Rs {categoryTotals.total?.toFixed(2) || '0.00'}</span>
+            </div>
+            <button
+              className="summary-toggle-btn"
+              type="button"
+              onClick={() => setSummaryExpanded((prev) => !prev)}
+              aria-expanded={summaryExpanded}
+            >
+              {summaryExpanded ? 'Hide' : 'Split'}
+            </button>
           </div>
-          <div className="summary-line discount-input">
-            <span>Discount %:</span>
-            <input
-              type="number"
-              value={discount}
-              onChange={(event) => onDiscountChange(Number(event.target.value))}
-              min="0"
-              max="100"
-              tabIndex="-1"
-            />
-          </div>
-          <div className="summary-line">
-            <span>Discount Amount:</span>
-            <span>Rs {categoryTotals.discount?.toFixed(2) || '0.00'}</span>
-          </div>
-          <div className="summary-line">
-            <span>Tax ({taxRate}%):</span>
-            <span>Rs {categoryTotals.tax?.toFixed(2) || '0.00'}</span>
-          </div>
-          <div className="summary-line total">
-            <span>Total:</span>
-            <span>Rs {categoryTotals.total?.toFixed(2) || '0.00'}</span>
-          </div>
+          {summaryExpanded && (
+            <div className="summary-breakdown">
+              <div className="summary-line">
+                <span>Subtotal:</span>
+                <span>Rs {categoryTotals.subtotal?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className="summary-line discount-input">
+                <span>Discount %:</span>
+                <input
+                  type="number"
+                  value={discount}
+                  onChange={(event) => onDiscountChange(Number(event.target.value))}
+                  min="0"
+                  max="100"
+                  tabIndex="-1"
+                />
+              </div>
+              <div className="summary-line">
+                <span>Discount Amount:</span>
+                <span>Rs {categoryTotals.discount?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className="summary-line">
+                <span>Tax ({taxRate}%):</span>
+                <span>Rs {categoryTotals.tax?.toFixed(2) || '0.00'}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <button className="pay-btn" onClick={() => onFinalizeOrder(discount)} disabled={!selectedTableId || cartItems.length === 0}>

@@ -2,18 +2,27 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import '../styles/LicenseActivation.css';
 
-const LicenseActivation = ({ onActivated }) => {
+const LicenseActivation = ({ onActivated, licenseStatus }) => {
   const [machineId, setMachineId] = useState('');
   const [productKey, setProductKey] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [trialInfo, setTrialInfo] = useState(null);
 
   useEffect(() => {
+    if (licenseStatus) {
+      setMachineId(licenseStatus.machineId || '');
+      setTrialInfo(licenseStatus.trial || null);
+      setLoading(false);
+      return undefined;
+    }
+
     // Fetch machine ID to display
     const checkStatus = async () => {
       try {
         const response = await api.get('/license/status');
         setMachineId(response.data.machineId);
+        setTrialInfo(response.data.trial || null);
       } catch (err) {
         setError('Failed to connect to local license service.');
       } finally {
@@ -21,7 +30,8 @@ const LicenseActivation = ({ onActivated }) => {
       }
     };
     checkStatus();
-  }, []);
+    return undefined;
+  }, [licenseStatus]);
 
   const handleActivate = async (e) => {
     e.preventDefault();
@@ -52,9 +62,11 @@ const LicenseActivation = ({ onActivated }) => {
     <div className="license-activation-page">
       <div className="license-activation-card">
         <div className="license-activation-header">
-          <h2>Activation Required</h2>
+          <h2>{trialInfo?.expired ? 'Trial Expired' : 'Activation Required'}</h2>
           <p>
-          Please provide your Machine ID to the developer to receive an unlock key.
+            {trialInfo?.expired
+              ? 'Your 7-day trial has ended. Please provide your Machine ID to the developer to receive an unlock key.'
+              : 'Please provide your Machine ID to the developer to receive an unlock key.'}
           </p>
         </div>
 

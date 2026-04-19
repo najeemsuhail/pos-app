@@ -3,9 +3,7 @@ const router = express.Router();
 const LicenseService = require('../services/LicenseService');
 
 router.get('/status', (req, res) => {
-  const isActivated = LicenseService.checkLicense();
-  const machineId = LicenseService.getMachineId();
-  res.json({ activated: isActivated, machineId });
+  res.json(LicenseService.getStatus());
 });
 
 router.post('/activate', (req, res) => {

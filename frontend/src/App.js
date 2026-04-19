@@ -29,7 +29,7 @@ function ProtectedRoute({ element, requiredRole = null }) {
 }
 
 function App() {
-  const [isActivated, setIsActivated] = useState(null);
+  const [licenseStatus, setLicenseStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,10 +38,10 @@ function App() {
     const checkLicense = async () => {
       try {
         const response = await api.get('/license/status');
-        setIsActivated(response.data.activated);
+        setLicenseStatus(response.data);
       } catch (err) {
         console.error('License check failed:', err);
-        setIsActivated(false);
+        setLicenseStatus({ activated: false, trial: null });
       } finally {
         setLoading(false);
       }
@@ -61,14 +61,29 @@ function App() {
     );
   }
 
-  if (!isActivated) {
-    return <LicenseActivation onActivated={() => setIsActivated(true)} />;
+  const isActivated = Boolean(licenseStatus?.activated);
+  const isTrialActive = Boolean(licenseStatus?.trial && !licenseStatus.trial.expired);
+  const canUseApp = isActivated || isTrialActive;
+
+  if (!canUseApp) {
+    return <LicenseActivation onActivated={() => setLicenseStatus((current) => ({ ...(current || {}), activated: true, trial: null }))} licenseStatus={licenseStatus} />;
   }
 
   return (
     <ThemeProvider>
       <Router>
         <OrderProvider>
+          {!isActivated && isTrialActive ? (
+            <div style={{
+              background: '#f59e0b',
+              color: '#111827',
+              padding: '10px 16px',
+              textAlign: 'center',
+              fontWeight: 700,
+            }}>
+              Trial version: {licenseStatus.trial.daysLeft} day{licenseStatus.trial.daysLeft === 1 ? '' : 's'} left
+            </div>
+          ) : null}
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/pos" element={<ProtectedRoute element={<POSPage />} />} />

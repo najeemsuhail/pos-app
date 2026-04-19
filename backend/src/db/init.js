@@ -91,12 +91,41 @@ async function ensureSchema() {
     )
   `);
 
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS sync_queue (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      action TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      retry_count INTEGER NOT NULL DEFAULT 0,
+      last_error TEXT,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS sync_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      source_device_id TEXT,
+      entity_type TEXT NOT NULL,
+      entity_id TEXT NOT NULL,
+      action TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_menu_items_category_id ON menu_items(category_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status, updated_at)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)');
 }
 
 async function ensureDefaultAdmin() {

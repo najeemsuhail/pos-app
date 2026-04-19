@@ -1,4 +1,5 @@
 const ExpenseService = require('../services/ExpenseService');
+const SyncService = require('../services/SyncService');
 
 class ExpenseController {
   async create(req, res, next) {
@@ -12,6 +13,7 @@ class ExpenseController {
         payment_method,
         reference
       );
+      await SyncService.queueExpenseSnapshot(expense);
       res.status(201).json(expense);
     } catch (error) {
       next(error);
@@ -32,6 +34,7 @@ class ExpenseController {
     try {
       const { id } = req.params;
       const expense = await ExpenseService.deleteExpense(id);
+      await SyncService.queueExpenseSnapshot(expense, 'delete');
       res.json({ message: 'Expense deleted', expense });
     } catch (error) {
       next(error);
@@ -42,6 +45,7 @@ class ExpenseController {
     try {
       const { id } = req.params;
       const expense = await ExpenseService.updateExpense(id, req.body);
+      await SyncService.queueExpenseSnapshot(expense);
       res.json(expense);
     } catch (error) {
       next(error);

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { adminService, settingService } from '../../services/api';
+import { adminService, settingService, syncService } from '../../services/api';
 
 const DEFAULT_TABLE_COUNT = 12;
 const MIN_TABLE_COUNT = 1;
@@ -36,6 +36,14 @@ const SettingsTab = () => {
     tableNames: defaultTableNames,
   });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [syncConfig, setSyncConfig] = useState({
+    syncEnabled: false,
+    syncServerUrl: '',
+    syncApiKey: '',
+  });
+  const [syncStatus, setSyncStatus] = useState(null);
+  const [isSavingSync, setIsSavingSync] = useState(false);
+  const [isRunningSync, setIsRunningSync] = useState(false);
 
   useEffect(() => {
     if (window.posDesktop && window.posDesktop.getPrinters) {
@@ -60,7 +68,28 @@ const SettingsTab = () => {
           : buildDefaultTableNames(res.data.tableCount),
       }))
       .catch((err) => console.error('Failed to load settings:', err));
+
+    syncService.getConfig()
+      .then((res) => setSyncConfig(res.data))
+      .catch((err) => console.error('Failed to load sync config:', err));
+
+    syncService.getStatus()
+      .then((res) => setSyncStatus(res.data))
+      .catch((err) => console.error('Failed to load sync status:', err));
   }, [defaultTableNames]);
+
+  const formatSyncTime = (value) => {
+    if (!value) {
+      return 'Never';
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return 'Never';
+    }
+
+    return parsed.toLocaleString();
+  };
 
   const handlePrinterChange = (event) => {
     const value = event.target.value;
@@ -115,6 +144,37 @@ const SettingsTab = () => {
       setError(err.response?.data?.error || 'Failed to save store settings');
     } finally {
       setIsSavingSettings(false);
+    }
+  };
+
+  const handleSaveSyncSettings = async () => {
+    try {
+      setIsSavingSync(true);
+      setError('');
+      const response = await syncService.updateConfig(syncConfig);
+      setSyncConfig(response.data.config);
+      setSyncStatus(response.data.status);
+      setSuccess('Cloud sync settings saved successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to save sync settings');
+    } finally {
+      setIsSavingSync(false);
+    }
+  };
+
+  const handleRunSync = async (fullResync = false) => {
+    try {
+      setIsRunningSync(true);
+      setError('');
+      const response = await syncService.runNow(fullResync);
+      setSyncStatus(response.data);
+      setSuccess(fullResync ? 'Full sync completed successfully!' : 'Sync completed successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to run sync');
+    } finally {
+      setIsRunningSync(false);
     }
   };
 
@@ -270,6 +330,73 @@ const SettingsTab = () => {
             </div>
           </div>
         )}
+
+        <div className="settings-section" style={{ marginBottom: '30px' }}>
+          <h3>Cloud Sync</h3>
+          <p>Keep local POS data in sync with an online server whenever internet is available.</p>
+          <div className="setting-card" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>
+                <input
+                  type="checkbox"
+                  checked={syncConfig.syncEnabled}
+                  onChange={(event) => setSyncConfig({ ...syncConfig, syncEnabled: event.target.checked })}
+                  style={{ marginRight: '8px' }}
+                />
+                Enable Cloud Sync
+              </label>
+            </div>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Sync Server URL</label>
+              <input
+                type="text"
+                className="settings-input"
+                value={syncConfig.syncServerUrl}
+                onChange={(event) => setSyncConfig({ ...syncConfig, syncServerUrl: event.target.value })}
+                placeholder="https://your-sync-server.com"
+              />
+            </div>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Shared Sync Key</label>
+              <input
+                type="text"
+                className="settings-input"
+                value={syncConfig.syncApiKey}
+                onChange={(event) => setSyncConfig({ ...syncConfig, syncApiKey: event.target.value })}
+                placeholder="Optional shared secret"
+              />
+            </div>
+            <div style={{ width: '100%', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>
+              <div>Device ID: {syncStatus?.deviceId || 'Loading...'}</div>
+              <div>Pending changes: {syncStatus?.pendingCount ?? 0}</div>
+              <div>Last sync: {formatSyncTime(syncStatus?.lastSuccessAt)}</div>
+              <div>Last error: {syncStatus?.lastError || 'None'}</div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button
+                className={`btn-gradient ${isSavingSync ? 'btn-disabled' : ''}`}
+                onClick={handleSaveSyncSettings}
+                disabled={isSavingSync}
+              >
+                {isSavingSync ? 'Saving...' : 'Save Sync Settings'}
+              </button>
+              <button
+                className={`btn-gradient ${isRunningSync ? 'btn-disabled' : ''}`}
+                onClick={() => handleRunSync(false)}
+                disabled={isRunningSync || !syncConfig.syncEnabled}
+              >
+                {isRunningSync ? 'Syncing...' : 'Sync Now'}
+              </button>
+              <button
+                className={`btn-gradient ${isRunningSync ? 'btn-disabled' : ''}`}
+                onClick={() => handleRunSync(true)}
+                disabled={isRunningSync || !syncConfig.syncEnabled}
+              >
+                {isRunningSync ? 'Syncing...' : 'Full Resync'}
+              </button>
+            </div>
+          </div>
+        </div>
 
         <div className="settings-section danger-zone">
           <h3>Danger Zone</h3>

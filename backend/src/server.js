@@ -1,6 +1,7 @@
 require('dotenv').config();
 const app = require('./app');
 const { initializeDatabase } = require('./db/init');
+const SyncService = require('./services/SyncService');
 
 function normalizePort(value) {
   const port = Number.parseInt(value, 10);
@@ -15,6 +16,7 @@ function normalizePort(value) {
 async function startServer(port = process.env.PORT) {
   const resolvedPort = normalizePort(port);
   await initializeDatabase();
+  SyncService.startBackgroundSync();
   const server = app.listen(resolvedPort, () => {
     console.log(`POS Backend running on port ${resolvedPort}`);
   });

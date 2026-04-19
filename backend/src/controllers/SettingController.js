@@ -1,4 +1,5 @@
 const SettingService = require('../services/SettingService');
+const SyncService = require('../services/SyncService');
 
 class SettingController {
   getSettings(req, res, next) {
@@ -13,6 +14,9 @@ class SettingController {
   updateSettings(req, res, next) {
     try {
       const settings = SettingService.updateSettings(req.body);
+      SyncService.queueSettingsSnapshot(settings).catch((error) => {
+        console.error('[Sync] Failed to queue settings change:', error.message || error);
+      });
       res.json(settings);
     } catch (error) {
       next(error);

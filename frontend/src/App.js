@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import POSPage from './pages/POSPage';
 import AdminPage from './pages/AdminPage';
 import LicenseActivation from './components/LicenseActivation';
+import SyncStatusIndicator from './components/SyncStatusIndicator';
 import api from './services/api';
 import { OrderProvider } from './context/OrderContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -91,7 +92,11 @@ function App() {
             <Route path="/" element={<Navigate to="/pos" />} />
           </Routes>
           <footer className="app-footer">
-            &copy; {new Date().getFullYear()} Kani Enterprise. All rights reserved.
+            <span style={{ pointerEvents: 'auto' }}>
+              <SyncStatusIndicator />
+            </span>
+            <span style={{ margin: '0 8px' }}>|</span>
+            <span>&copy; {new Date().getFullYear()} Kani Enterprise. All rights reserved.</span>
           </footer>
         </OrderProvider>
       </Router>

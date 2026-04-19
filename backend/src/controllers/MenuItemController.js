@@ -1,5 +1,6 @@
 const MenuItemService = require('../services/MenuItemService');
 const { getUploadedImageUrl } = require('../utils/cloudinary');
+const SyncService = require('../services/SyncService');
 
 function parseBoolean(value, defaultValue = true) {
   if (typeof value === 'boolean') {
@@ -35,6 +36,7 @@ class MenuItemController {
         parseBoolean(is_available, true),
         imageUrl
       );
+      await SyncService.queueMenuItemSnapshot(item);
       res.status(201).json(item);
     } catch (error) {
       next(error);
@@ -87,6 +89,7 @@ class MenuItemController {
         parsedAvailability,
         imageUrl
       );
+      await SyncService.queueMenuItemSnapshot(item);
       res.json(item);
     } catch (error) {
       next(error);
@@ -101,6 +104,7 @@ class MenuItemController {
       }
       const imageUrl = getUploadedImageUrl(req.file);
       const item = await MenuItemService.updateMenuItemImage(id, imageUrl);
+      await SyncService.queueMenuItemSnapshot(item);
       res.json(item);
     } catch (error) {
       next(error);
@@ -112,6 +116,7 @@ class MenuItemController {
       const { id } = req.params;
       const { is_available } = req.body;
       const item = await MenuItemService.toggleAvailability(id, parseBoolean(is_available, true));
+      await SyncService.queueMenuItemSnapshot(item);
       res.json(item);
     } catch (error) {
       next(error);
@@ -122,6 +127,7 @@ class MenuItemController {
     try {
       const { id } = req.params;
       const item = await MenuItemService.deleteMenuItem(id);
+      await SyncService.queueMenuItemSnapshot(item);
       res.json({ message: 'Menu item deleted', item });
     } catch (error) {
       next(error);

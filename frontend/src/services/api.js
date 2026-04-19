@@ -95,4 +95,11 @@ export const settingService = {
   updateLegacy: (data) => api.post('/settings', data),
 };
 
+export const syncService = {
+  getStatus: () => api.get('/sync/status'),
+  getConfig: () => api.get('/sync/config'),
+  updateConfig: (data) => api.put('/sync/config', data),
+  runNow: (fullResync = false) => api.post('/sync/run', { fullResync }),
+};
+
 export default api;

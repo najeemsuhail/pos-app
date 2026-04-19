@@ -19,7 +19,7 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
     if (trimmed.startsWith('TOTAL:')) {
       return 'receipt-line total';
     }
-    if (/^(Subtotal:|Discount:|Tax \(GST\):)/.test(trimmed)) {
+    if (/^(Subtotal:|Discount:|Tax \([^)]+\):)/.test(trimmed)) {
       return 'receipt-line summary';
     }
     if (/^(Bill No|Date|Time|Table)\s*:/.test(trimmed)) {

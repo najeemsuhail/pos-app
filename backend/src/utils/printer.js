@@ -59,7 +59,9 @@ const generateThermalReceipt = (order, items, payments) => {
   if (discountAmount > 0) {
     receipt += `Discount: -Rs. ${discountAmount.toFixed(2)}`.padStart(width) + '\n';
   }
-  receipt += `Tax (${taxRate}%): Rs. ${taxAmount.toFixed(2)}`.padStart(width) + '\n';
+  if (taxAmount > 0) {
+    receipt += `Tax (${taxRate}%): Rs. ${taxAmount.toFixed(2)}`.padStart(width) + '\n';
+  }
   receipt += line + '\n';
   receipt += `TOTAL: Rs. ${finalAmount.toFixed(2)}`.padStart(width) + '\n';
   receipt += line + '\n\n';

@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { menuItemService, categoryService } from '../../services/api';
+
+const createDefaultFormData = () => ({
+  name: '',
+  price: '',
+  category_id: '',
+  is_available: true,
+  image_url: '',
+});
 
 const MenuManagementTab = () => {
   const [items, setItems] = useState([]);
@@ -10,13 +18,8 @@ const MenuManagementTab = () => {
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    category_id: '',
-    is_available: true,
-    image_url: '',
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [formData, setFormData] = useState(createDefaultFormData());
 
   useEffect(() => {
     fetchItems();
@@ -98,7 +101,7 @@ const MenuManagementTab = () => {
         await menuItemService.create(formDataToSend);
       }
 
-      setFormData({ name: '', price: '', category_id: '', is_available: true, image_url: '' });
+      setFormData(createDefaultFormData());
       setEditingId(null);
       setShowForm(false);
       setImagePreview(null);
@@ -137,7 +140,7 @@ const MenuManagementTab = () => {
   };
 
   const handleCancel = () => {
-    setFormData({ name: '', price: '', category_id: '', is_available: true, image_url: '' });
+    setFormData(createDefaultFormData());
     setEditingId(null);
     setShowForm(false);
     setImagePreview(null);
@@ -149,12 +152,22 @@ const MenuManagementTab = () => {
     return category ? category.name : 'Unknown';
   };
 
-  // Add cache-busting to image URLs to prevent browser caching
-  const getCacheBustedImageUrl = (imageUrl) => {
-    if (!imageUrl) return null;
-    const separator = imageUrl.includes('?') ? '&' : '?';
-    return `${imageUrl}${separator}t=${Date.now()}`;
-  };
+  const filteredItems = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) {
+      return items;
+    }
+
+    return items.filter((item) => {
+      const categoryName = (categories.find((category) => category.id === item.category_id)?.name || 'Unknown').toLowerCase();
+      const priceText = String(item.price ?? '').toLowerCase();
+      return (
+        item.name.toLowerCase().includes(query) ||
+        categoryName.includes(query) ||
+        priceText.includes(query)
+      );
+    });
+  }, [items, searchTerm, categories]);
 
   return (
     <div className="admin-tab-content">
@@ -298,31 +311,62 @@ const MenuManagementTab = () => {
 
       {loading && <div className="loading">Loading menu items...</div>}
 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '16px',
+        marginBottom: '18px',
+        flexWrap: 'wrap'
+      }}>
+        <div style={{ flex: '1 1 280px', maxWidth: '420px' }}>
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by item, category, or price"
+            style={{
+              width: '100%',
+              padding: '12px 14px',
+              borderRadius: '10px',
+              border: '2px solid var(--border-color)',
+              background: 'var(--bg-secondary)',
+              color: 'var(--text-primary)',
+              fontSize: '14px'
+            }}
+          />
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: '600' }}>
+          Showing {filteredItems.length} of {items.length} items
+        </div>
+      </div>
+
       <div className="items-grid" style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-        gap: '20px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
+        gap: '16px',
         marginTop: '20px'
       }}>
-        {items.map(item => (
+        {filteredItems.map(item => (
           <div 
             key={item.id}
             style={{
               border: '1px solid var(--border-color)',
-              borderRadius: '8px',
+              borderRadius: '12px',
               overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              transition: 'transform 0.2s',
-              ':hover': { transform: 'translateY(-4px)' }
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
+              display: 'flex',
+              flexDirection: 'column'
             }}
           >
             {item.image_url ? (
               <img 
-                src={getCacheBustedImageUrl(item.image_url)}
+                src={item.image_url}
                 alt={item.name}
                 style={{
                   width: '100%',
-                  height: '180px',
+                  height: '128px',
                   objectFit: 'contain',
                   backgroundColor: 'var(--surface-muted)'
                 }}
@@ -334,29 +378,29 @@ const MenuManagementTab = () => {
             ) : null}
             <div style={{
               width: '100%',
-              height: item.image_url ? '0px' : '180px',
+              height: item.image_url ? '0px' : '128px',
               backgroundColor: 'var(--bg-tertiary)',
               display: item.image_url ? 'none' : 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '48px'
+              fontSize: '40px'
             }}>
               🍔
             </div>
-            <div style={{ padding: '15px' }}>
-              <h4 style={{ marginBottom: '8px', marginTop: '0' }}>{item.name}</h4>
-              <p style={{ marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '14px' }}>
+            <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+              <h4 style={{ margin: '0', fontSize: '16px', lineHeight: '1.3' }}>{item.name}</h4>
+              <p style={{ margin: '0', color: 'var(--text-secondary)', fontSize: '13px' }}>
                 {getCategoryName(item.category_id)}
               </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--success-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginTop: 'auto' }}>
+                <span style={{ fontSize: '17px', fontWeight: 'bold', color: 'var(--success-color)' }}>
                   ₹{parseFloat(item.price).toFixed(2)}
                 </span>
-                <span className={`status ${item.is_available ? 'available' : 'unavailable'}`} style={{ fontSize: '12px' }}>
+                <span className={`status ${item.is_available ? 'available' : 'unavailable'}`} style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
                   {item.is_available ? '✓ Available' : '✗ Unavailable'}
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button 
                   className="btn-edit"
                   onClick={() => handleEdit(item)}
@@ -377,9 +421,9 @@ const MenuManagementTab = () => {
         ))}
       </div>
 
-      {items.length === 0 && !loading && (
+      {filteredItems.length === 0 && !loading && (
         <div className="empty-state">
-          <p>No menu items found. Add one to get started!</p>
+          <p>{items.length === 0 ? 'No menu items found. Add one to get started!' : 'No menu items match your search.'}</p>
         </div>
       )}
     </div>

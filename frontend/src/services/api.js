@@ -63,7 +63,8 @@ export const cancelRequestsByPattern = (pattern) => {
 
 export const authService = {
   login: (username, password) => api.post('/auth/login', { username, password }),
-  register: (name, role, password) => api.post('/auth/register', { name, role, password }),
+  register: (name, role, password, featureAccessOverrides = {}) =>
+    api.post('/auth/register', { name, role, password, featureAccessOverrides }),
 };
 
 export const categoryService = {
@@ -130,6 +131,8 @@ export const userService = {
   getAll: () => api.get('/users'),
   delete: (id) => api.delete(`/users/${id}`),
   changePassword: (data) => api.post('/users/change-password', data),
+  updateFeatureAccess: (id, featureAccessOverrides) =>
+    api.patch(`/users/${id}/feature-access`, { featureAccessOverrides }),
 };
 
 export const adminService = {

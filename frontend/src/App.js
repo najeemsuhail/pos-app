@@ -88,7 +88,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/pos" element={<ProtectedRoute element={<POSPage />} />} />
-            <Route path="/admin" element={<ProtectedRoute element={<AdminPage />} requiredRole="Admin" />} />
+            <Route path="/admin" element={<ProtectedRoute element={<AdminPage />} />} />
             <Route path="/" element={<Navigate to="/pos" />} />
           </Routes>
           <footer className="app-footer">

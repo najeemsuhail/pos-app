@@ -12,11 +12,12 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  role      String
-  password  String
-  createdAt DateTime @default(now()) @map("created_at")
+  id                     Int      @id @default(autoincrement())
+  name                   String   @unique
+  role                   String
+  password               String
+  featureAccessOverrides String?  @map("feature_access_overrides")
+  createdAt              DateTime @default(now()) @map("created_at")
 
   @@map("users")
 }

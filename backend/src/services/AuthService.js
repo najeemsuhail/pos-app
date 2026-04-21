@@ -21,23 +21,25 @@ class AuthService {
         id: user.id,
         name: user.name,
         role: user.role,
+        feature_access_overrides: user.feature_access_overrides || {},
       },
     };
   }
 
-  async createUser(name, role, password) {
+  async createUser(name, role, password, featureAccessOverrides = {}) {
     const existingUser = await UserRepository.findByUsername(name);
     if (existingUser) {
       throw { status: 400, message: 'User already exists' };
     }
 
     const hashedPassword = await hashPassword(password);
-    const user = await UserRepository.create(name, role, hashedPassword);
+    const user = await UserRepository.create(name, role, hashedPassword, featureAccessOverrides);
 
     return {
       id: user.id,
       name: user.name,
       role: user.role,
+      feature_access_overrides: user.feature_access_overrides || {},
     };
   }
 }

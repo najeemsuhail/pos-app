@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const UserRepository = require('../repositories/UserRepository');
+const { hasFeatureAccess } = require('../constants/featureAccess');
 
 const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -9,8 +11,18 @@ const authenticate = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'pos-app-local-secret');
-    req.user = decoded;
-    next();
+    return UserRepository.findById(decoded.id)
+      .then((user) => {
+        if (!user) {
+          return res.status(401).json({ error: 'User no longer exists' });
+        }
+
+        req.user = user;
+        next();
+      })
+      .catch((error) => {
+        res.status(500).json({ error: 'Failed to load user session' });
+      });
   } catch (error) {
     res.status(403).json({ error: 'Invalid or expired token' });
   }
@@ -29,7 +41,21 @@ const authorize = (...roles) => {
   };
 };
 
+const authorizeFeature = (featureKey) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    if (!hasFeatureAccess(req.user.role, featureKey, req.user.feature_access_overrides)) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    next();
+  };
+};
+
 // Alias for authenticate
 const protect = authenticate;
 
-module.exports = { authenticate, authorize, protect };
+module.exports = { authenticate, authorize, authorizeFeature, protect };

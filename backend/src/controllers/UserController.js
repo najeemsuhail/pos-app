@@ -1,5 +1,9 @@
 const UserRepository = require('../repositories/UserRepository');
 const { hashPassword, comparePassword } = require('../utils/auth');
+const {
+  hasFeatureAccess,
+  normalizeUserFeatureAccessOverrides,
+} = require('../constants/featureAccess');
 
 class UserController {
   async getAll(req, res, next) {
@@ -87,9 +91,8 @@ class UserController {
           return res.status(401).json({ error: 'Incorrect current password' });
         }
       } else {
-        // Only Admins can reset other people's passwords
-        if (currentUser.role !== 'Admin') {
-          return res.status(403).json({ error: 'Only admins can reset other passwords' });
+        if (!hasFeatureAccess(currentUser.role, 'userManagement', currentUser.feature_access_overrides)) {
+          return res.status(403).json({ error: 'You do not have permission to reset other passwords' });
         }
       }
 
@@ -97,6 +100,31 @@ class UserController {
       await UserRepository.updatePassword(targetId, hashedPassword);
 
       res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateFeatureAccess(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { featureAccessOverrides = {} } = req.body;
+
+      const user = await UserRepository.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      if (user.role === 'Admin') {
+        return res.status(400).json({ error: 'Admin users always have full access and cannot be restricted here' });
+      }
+
+      const updatedUser = await UserRepository.updateFeatureAccessOverrides(
+        id,
+        normalizeUserFeatureAccessOverrides(featureAccessOverrides)
+      );
+
+      res.json(updatedUser);
     } catch (error) {
       next(error);
     }

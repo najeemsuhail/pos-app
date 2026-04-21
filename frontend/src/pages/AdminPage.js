@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReportsTab from '../components/admin/ReportsTab';
 import OrderHistoryTab from '../components/admin/OrderHistoryTab';
@@ -9,11 +9,17 @@ import UserManagementTab from '../components/admin/UserManagementTab';
 import BackupTab from '../components/admin/BackupTab';
 import SettingsTab from '../components/admin/SettingsTab';
 import ThemeToggle from '../components/ThemeToggle';
+import {
+  hasAdminDashboardAccess,
+  hasFeatureAccess,
+  normalizeUserFeatureAccessOverrides,
+} from '../utils/featureAccess';
 import '../styles/Admin.css';
 
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState('reports');
+  const [activeTab, setActiveTab] = useState('');
   const [user, setUser] = useState(null);
+  const [loadingPermissions, setLoadingPermissions] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,12 +30,20 @@ const AdminPage = () => {
     }
 
     const parsedUser = JSON.parse(storedUser);
-    if (parsedUser.role !== 'Admin') {
+    const userFeatureAccessOverrides = normalizeUserFeatureAccessOverrides(
+      parsedUser.feature_access_overrides
+    );
+
+    if (parsedUser.role !== 'Admin' && !hasAdminDashboardAccess(parsedUser.role, userFeatureAccessOverrides)) {
       navigate('/pos');
+      setLoadingPermissions(false);
       return;
     }
 
+    const tabs = getAvailableTabs(parsedUser.role, userFeatureAccessOverrides);
     setUser(parsedUser);
+    setActiveTab(tabs[0]?.key || '');
+    setLoadingPermissions(false);
   }, [navigate]);
 
   const handleLogout = () => {
@@ -38,9 +52,14 @@ const AdminPage = () => {
     navigate('/');
   };
 
-  if (!user) {
+  if (!user || loadingPermissions) {
     return <div className="admin-loading">Loading...</div>;
   }
+
+  const availableTabs = getAvailableTabs(
+    user.role,
+    normalizeUserFeatureAccessOverrides(user.feature_access_overrides)
+  );
 
   return (
     <div className="admin-container">
@@ -58,30 +77,11 @@ const AdminPage = () => {
       </div>
 
       <div className="admin-tabs">
-        <button className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`} onClick={() => setActiveTab('reports')}>
-          Reports
-        </button>
-        <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-          Order History
-        </button>
-        <button className={`tab-btn ${activeTab === 'menu' ? 'active' : ''}`} onClick={() => setActiveTab('menu')}>
-          Menu Items
-        </button>
-        <button className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`} onClick={() => setActiveTab('categories')}>
-          Categories
-        </button>
-        <button className={`tab-btn ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>
-          Expenses
-        </button>
-        <button className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
-          Users
-        </button>
-        <button className={`tab-btn ${activeTab === 'backup' ? 'active' : ''}`} onClick={() => setActiveTab('backup')}>
-          Backup
-        </button>
-        <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
-          Settings
-        </button>
+        {availableTabs.map((tab) => (
+          <button key={tab.key} className={`tab-btn ${activeTab === tab.key ? 'active' : ''}`} onClick={() => setActiveTab(tab.key)}>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div className="admin-content">
@@ -97,5 +97,23 @@ const AdminPage = () => {
     </div>
   );
 };
+
+function getAvailableTabs(role, userFeatureAccessOverrides = {}) {
+  const tabs = [
+    { key: 'reports', label: 'Reports', featureKey: 'reports' },
+    { key: 'orders', label: 'Order History', featureKey: 'orderHistory' },
+    { key: 'menu', label: 'Menu Items', featureKey: 'menuManagement' },
+    { key: 'categories', label: 'Categories', featureKey: 'categoryManagement' },
+    { key: 'expenses', label: 'Expenses', featureKey: 'expenseManagement' },
+    { key: 'users', label: 'Users', featureKey: 'userManagement' },
+    { key: 'backup', label: 'Backup', featureKey: 'backupManagement' },
+  ].filter((tab) => hasFeatureAccess(role, tab.featureKey, userFeatureAccessOverrides));
+
+  if (role === 'Admin') {
+    tabs.push({ key: 'settings', label: 'Settings' });
+  }
+
+  return tabs;
+}
 
 export default AdminPage;

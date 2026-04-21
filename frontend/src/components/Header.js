@@ -1,22 +1,15 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from './ThemeToggle';
+import {
+  hasAdminDashboardAccess,
+  normalizeUserFeatureAccessOverrides,
+} from '../utils/featureAccess';
 import '../styles/Header.css';
 
 const Header = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, switchTheme, availableThemes, isThemeLocked } = useTheme();
-
-  const themeIcons = {
-    neon: 'N',
-    sunset: 'S',
-    ocean: 'O',
-    mint: 'M',
-    cyberpunk: 'C',
-    light: 'L'
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -25,7 +18,10 @@ const Header = ({ user, onLogout }) => {
     navigate('/login');
   };
 
-  const isAdmin = user?.role === 'Admin';
+  const canAccessDashboard = Boolean(user?.role) && hasAdminDashboardAccess(
+    user.role,
+    normalizeUserFeatureAccessOverrides(user?.feature_access_overrides)
+  );
   const isAdminPage = location.pathname === '/admin';
   const isPOSPage = location.pathname === '/pos';
 
@@ -41,7 +37,7 @@ const Header = ({ user, onLogout }) => {
           <span className="role-badge">{user?.role}</span>
         </div>
 
-        {isAdmin && (
+        {canAccessDashboard && (
           <div className="nav-buttons">
             {isPOSPage && (
               <button

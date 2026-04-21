@@ -15,11 +15,21 @@ function mapUser(user) {
     return null;
   }
 
+  let featureAccessOverrides = {};
+  if (typeof user.featureAccessOverrides === 'string' && user.featureAccessOverrides.trim()) {
+    try {
+      featureAccessOverrides = JSON.parse(user.featureAccessOverrides);
+    } catch (error) {
+      featureAccessOverrides = {};
+    }
+  }
+
   return {
     id: user.id,
     name: user.name,
     role: user.role,
     password: user.password,
+    feature_access_overrides: featureAccessOverrides,
     created_at: user.createdAt,
   };
 }

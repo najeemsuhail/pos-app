@@ -55,12 +55,13 @@ class SettingService {
       if (fs.existsSync(settingsPath)) {
         const data = fs.readFileSync(settingsPath, 'utf8');
         const parsed = JSON.parse(data);
+        const { roleFeatureAccess, ...safeParsed } = parsed;
         return {
           ...defaultSettings,
-          ...parsed,
-          taxRate: Number.isFinite(Number(parsed.taxRate)) ? Number(parsed.taxRate) : defaultSettings.taxRate,
-          tableCount: normalizeTableCount(parsed.tableCount),
-          tableNames: normalizeTableNames(parsed.tableNames, parsed.tableCount),
+          ...safeParsed,
+          taxRate: Number.isFinite(Number(safeParsed.taxRate)) ? Number(safeParsed.taxRate) : defaultSettings.taxRate,
+          tableCount: normalizeTableCount(safeParsed.tableCount),
+          tableNames: normalizeTableNames(safeParsed.tableNames, safeParsed.tableCount),
         };
       }
     } catch (e) {
@@ -74,13 +75,14 @@ class SettingService {
 
   updateSettings(newSettings) {
     const current = this.getSettings();
-    const tableCount = normalizeTableCount(newSettings.tableCount ?? current.tableCount);
+    const { roleFeatureAccess, ...safeNewSettings } = newSettings;
+    const tableCount = normalizeTableCount(safeNewSettings.tableCount ?? current.tableCount);
     const updated = {
       ...current,
-      ...newSettings,
-      taxRate: Number.isFinite(Number(newSettings.taxRate ?? current.taxRate)) ? Number(newSettings.taxRate ?? current.taxRate) : defaultSettings.taxRate,
+      ...safeNewSettings,
+      taxRate: Number.isFinite(Number(safeNewSettings.taxRate ?? current.taxRate)) ? Number(safeNewSettings.taxRate ?? current.taxRate) : defaultSettings.taxRate,
       tableCount,
-      tableNames: normalizeTableNames(newSettings.tableNames ?? current.tableNames, tableCount),
+      tableNames: normalizeTableNames(safeNewSettings.tableNames ?? current.tableNames, tableCount),
     };
     fs.writeFileSync(settingsPath, JSON.stringify(updated, null, 2), 'utf8');
     return updated;

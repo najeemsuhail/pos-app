@@ -18,7 +18,7 @@ class AuthController {
 
   async createUser(req, res, next) {
     try {
-      const { name, role, password } = req.body;
+      const { name, role, password, featureAccessOverrides } = req.body;
 
       if (!name || !role || !password) {
         return res.status(400).json({ error: 'Name, role, and password are required' });
@@ -28,7 +28,7 @@ class AuthController {
         return res.status(400).json({ error: 'Role must be Admin or Staff' });
       }
 
-      const user = await AuthService.createUser(name, role, password);
+      const user = await AuthService.createUser(name, role, password, featureAccessOverrides);
       res.status(201).json(user);
     } catch (error) {
       next(error);

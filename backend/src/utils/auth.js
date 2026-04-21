@@ -3,7 +3,12 @@ const bcrypt = require('bcryptjs');
 
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, email: user.username, role: user.role },
+    {
+      id: user.id,
+      email: user.username,
+      role: user.role,
+      feature_access_overrides: user.feature_access_overrides || {},
+    },
     process.env.JWT_SECRET || 'pos-app-local-secret',
     { expiresIn: process.env.JWT_EXPIRY || '7d' }
   );

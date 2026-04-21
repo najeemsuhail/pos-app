@@ -229,8 +229,13 @@ ipcMain.handle('desktop:get-printers', async () => {
 
 ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
   return new Promise((resolve) => {
+    const useSilentPrint = !!printerName && printerName !== 'browser-default';
+
     let printWindow = new BrowserWindow({
-      show: false,
+      show: !useSilentPrint,
+      width: 420,
+      height: 760,
+      autoHideMenuBar: true,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true
@@ -242,12 +247,15 @@ ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
 
     printWindow.webContents.on('did-finish-load', () => {
       const printOptions = {
-        silent: !!printerName && printerName !== 'browser-default',
+        silent: useSilentPrint,
         printBackground: true,
       };
 
-      if (printerName && printerName !== 'browser-default') {
+      if (useSilentPrint) {
         printOptions.deviceName = printerName;
+      } else {
+        printWindow.show();
+        printWindow.focus();
       }
 
       printWindow.webContents.print(printOptions, (success, errorType) => {

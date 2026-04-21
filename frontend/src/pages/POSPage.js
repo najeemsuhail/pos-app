@@ -8,7 +8,7 @@ import Loader from '../components/Loader';
 import { categoryService, menuItemService, orderService, settingService } from '../services/api';
 import { useOrder } from '../hooks/useOrder';
 import '../styles/POS.css';
-import receiptLogo from '../assets/icon.png';
+import receiptLogo from '../assets/receipt-logo.svg';
 
 const DEFAULT_TABLE_COUNT = 12;
 
@@ -284,7 +284,7 @@ const POSPage = () => {
         className = 'receipt-line meta';
       } else if (trimmed === 'Thank you! Please visit again.') {
         className = 'receipt-line footer';
-      } else if (trimmed === 'Item                 Qty  Amount') {
+      } else if (/^Item\s+Qty\s+Amount$/.test(trimmed)) {
         className = 'receipt-line header-row';
       }
 
@@ -324,9 +324,12 @@ const POSPage = () => {
             }
             .print-brand {
               display: flex;
+              flex-direction: column;
               align-items: center;
+              justify-content: center;
               gap: 12px;
               margin-bottom: 12px;
+              text-align: center;
             }
             .print-logo-frame {
               display: flex;
@@ -370,7 +373,8 @@ const POSPage = () => {
               font-size: 11px;
               line-height: 1.28;
               font-weight: 600;
-              white-space: nowrap;
+              white-space: pre-wrap;
+              overflow-wrap: anywhere;
             }
             .receipt-line.separator { color: #6b7280; }
             .receipt-line.header-row,

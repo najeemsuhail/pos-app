@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles/ReceiptModal.css';
-import receiptLogo from '../assets/icon.png';
+import receiptLogo from '../assets/receipt-logo.svg';
 
 const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
   const lines = receipt.split('\n').filter((line, index, list) => !(line === '' && list[index - 1] === ''));
@@ -28,7 +28,7 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
     if (trimmed === 'Thank you! Please visit again.') {
       return 'receipt-line footer';
     }
-    if (trimmed === 'Item                 Qty  Amount') {
+    if (/^Item\s+Qty\s+Amount$/.test(trimmed)) {
       return 'receipt-line header-row';
     }
     return 'receipt-line';

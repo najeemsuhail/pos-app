@@ -1,8 +1,75 @@
 const SettingService = require('../services/SettingService');
 
+const wrapText = (value, maxWidth) => {
+  const text = String(value || '').trim();
+  if (!text) {
+    return [''];
+  }
+
+  const words = text.split(/\s+/);
+  const lines = [];
+  let current = '';
+
+  words.forEach((word) => {
+    if (word.length > maxWidth) {
+      if (current) {
+        lines.push(current);
+        current = '';
+      }
+
+      for (let index = 0; index < word.length; index += maxWidth) {
+        lines.push(word.slice(index, index + maxWidth));
+      }
+      return;
+    }
+
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= maxWidth) {
+      current = next;
+      return;
+    }
+
+    lines.push(current);
+    current = word;
+  });
+
+  if (current) {
+    lines.push(current);
+  }
+
+  return lines;
+};
+
+const formatKeyValueLine = (label, value, width) => {
+  const safeLabel = String(label || '');
+  const safeValue = String(value || '');
+  const spacing = width - safeLabel.length - safeValue.length;
+
+  if (spacing >= 1) {
+    return `${safeLabel}${' '.repeat(spacing)}${safeValue}`;
+  }
+
+  return `${safeLabel}\n${safeValue.padStart(width)}`;
+};
+
+const formatItemLines = (name, quantity, amount, itemWidth, qtyWidth, amountWidth) => {
+  const wrappedName = wrapText(name, itemWidth);
+  const qtyText = String(quantity).padStart(qtyWidth);
+  const amountText = String(amount).padStart(amountWidth);
+
+  return wrappedName.map((line, index) => {
+    const qtyColumn = index === 0 ? qtyText : ' '.repeat(qtyWidth);
+    const amountColumn = index === 0 ? amountText : ' '.repeat(amountWidth);
+    return `${line.padEnd(itemWidth)}${qtyColumn}${amountColumn}`;
+  });
+};
+
 const generateThermalReceipt = (order, items, payments) => {
   const settings = SettingService.getSettings();
   const width = 40; // 80mm thermal width in characters
+  const itemWidth = 24;
+  const qtyWidth = 4;
+  const amountWidth = width - itemWidth - qtyWidth;
   const line = '='.repeat(width);
   const taxRate = Number(settings.taxRate) || 0;
   const tableLabel = order.table_id
@@ -38,40 +105,43 @@ const generateThermalReceipt = (order, items, payments) => {
   }
   receipt += line + '\n\n';
 
-  receipt += 'Item'.padEnd(20) + 'Qty'.padEnd(5) + 'Amount\n';
+  receipt += 'Item'.padEnd(itemWidth) + 'Qty'.padStart(qtyWidth) + 'Amount'.padStart(amountWidth) + '\n';
   receipt += line + '\n';
 
-  let itemsAmount = 0;
   items.forEach((item) => {
     const price = parseFloat(item.price) || 0;
     const quantity = parseInt(item.quantity) || 1;
     const itemTotal = price * quantity;
-    itemsAmount += itemTotal;
-    
-    const name = item.name.substring(0, 20).padEnd(20);
-    const qty = quantity.toString().padEnd(5);
-    const amount = itemTotal.toFixed(2).padStart(10);
-    receipt += name + qty + amount + '\n';
+
+    const itemLines = formatItemLines(
+      item.name,
+      quantity,
+      itemTotal.toFixed(2),
+      itemWidth,
+      qtyWidth,
+      amountWidth
+    );
+
+    receipt += `${itemLines.join('\n')}\n`;
   });
 
   receipt += '\n' + line + '\n';
-  receipt += `Subtotal: Rs. ${subtotal.toFixed(2)}`.padStart(width) + '\n';
+  receipt += `${formatKeyValueLine('Subtotal', `Rs. ${subtotal.toFixed(2)}`, width)}\n`;
   if (discountAmount > 0) {
-    receipt += `Discount: -Rs. ${discountAmount.toFixed(2)}`.padStart(width) + '\n';
+    receipt += `${formatKeyValueLine('Discount', `-Rs. ${discountAmount.toFixed(2)}`, width)}\n`;
   }
   if (taxAmount > 0) {
-    receipt += `Tax (${taxRate}%): Rs. ${taxAmount.toFixed(2)}`.padStart(width) + '\n';
+    receipt += `${formatKeyValueLine(`Tax (${taxRate}%)`, `Rs. ${taxAmount.toFixed(2)}`, width)}\n`;
   }
   receipt += line + '\n';
-  receipt += `TOTAL: Rs. ${finalAmount.toFixed(2)}`.padStart(width) + '\n';
+  receipt += `${formatKeyValueLine('TOTAL', `Rs. ${finalAmount.toFixed(2)}`, width)}\n`;
   receipt += line + '\n\n';
 
   receipt += 'PAYMENT BREAKDOWN\n';
   receipt += line + '\n';
   payments.forEach((payment) => {
     const paymentAmount = parseFloat(payment.amount) || 0;
-    const methodStr = `${payment.method}: Rs. ${paymentAmount.toFixed(2)}`;
-    receipt += methodStr.padEnd(width) + '\n';
+    receipt += `${formatKeyValueLine(payment.method, `Rs. ${paymentAmount.toFixed(2)}`, width)}\n`;
   });
 
   receipt += '\n' + line + '\n';

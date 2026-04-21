@@ -16,9 +16,11 @@ function formatSyncTime(value) {
 
 const SyncStatusIndicator = () => {
   const [status, setStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
+    let requestAbortController = null;
 
     const loadStatus = async () => {
       const token = localStorage.getItem('token');
@@ -29,14 +31,28 @@ const SyncStatusIndicator = () => {
         return;
       }
 
+      // Don't start a new request if one is already in progress
+      if (isLoading) {
+        return;
+      }
+
       try {
+        setIsLoading(true);
         const response = await syncService.getStatus();
         if (mounted) {
           setStatus(response.data);
         }
       } catch (error) {
         if (mounted) {
-          setStatus(null);
+          // Only set status to null on actual errors, not timeouts
+          // so we can show the previous status while waiting for a response
+          if (error.code !== 'ECONNABORTED') {
+            setStatus(null);
+          }
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
         }
       }
     };
@@ -47,8 +63,12 @@ const SyncStatusIndicator = () => {
     return () => {
       mounted = false;
       clearInterval(interval);
+      // Cancel any in-flight request
+      if (requestAbortController) {
+        requestAbortController.abort();
+      }
     };
-  }, []);
+  }, [isLoading]);
 
   if (!status || !status.syncEnabled) {
     return <span>Cloud sync off</span>;

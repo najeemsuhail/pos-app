@@ -222,6 +222,7 @@ const SettingsTab = () => {
                 className="settings-input"
                 value={storeSettings.storeName}
                 onChange={(event) => setStoreSettings({ ...storeSettings, storeName: event.target.value })}
+                disabled={isSavingSettings}
               />
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
@@ -231,6 +232,7 @@ const SettingsTab = () => {
                 className="settings-input"
                 value={storeSettings.storeAddressLocality}
                 onChange={(event) => setStoreSettings({ ...storeSettings, storeAddressLocality: event.target.value })}
+                disabled={isSavingSettings}
               />
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
@@ -240,6 +242,7 @@ const SettingsTab = () => {
                 className="settings-input"
                 value={storeSettings.storePhone}
                 onChange={(event) => setStoreSettings({ ...storeSettings, storePhone: event.target.value })}
+                disabled={isSavingSettings}
               />
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
@@ -251,6 +254,7 @@ const SettingsTab = () => {
                 min="0"
                 step="0.01"
                 onChange={(event) => setStoreSettings({ ...storeSettings, taxRate: Number(event.target.value) })}
+                disabled={isSavingSettings}
               />
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
@@ -263,6 +267,7 @@ const SettingsTab = () => {
                 max={MAX_TABLE_COUNT}
                 step="1"
                 onChange={(event) => handleTableCountChange(event.target.value)}
+                disabled={isSavingSettings}
               />
               <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-secondary)' }}>
                 Choose between {MIN_TABLE_COUNT} and {MAX_TABLE_COUNT} tables.
@@ -292,6 +297,7 @@ const SettingsTab = () => {
                     value={tableName}
                     onChange={(event) => handleTableNameChange(index, event.target.value)}
                     placeholder={`Table ${index + 1}`}
+                    disabled={isSavingSettings}
                   />
                 </div>
               ))}
@@ -342,6 +348,7 @@ const SettingsTab = () => {
                   checked={syncConfig.syncEnabled}
                   onChange={(event) => setSyncConfig({ ...syncConfig, syncEnabled: event.target.checked })}
                   style={{ marginRight: '8px' }}
+                  disabled={isSavingSync}
                 />
                 Enable Cloud Sync
               </label>
@@ -354,6 +361,7 @@ const SettingsTab = () => {
                 value={syncConfig.syncServerUrl}
                 onChange={(event) => setSyncConfig({ ...syncConfig, syncServerUrl: event.target.value })}
                 placeholder="https://your-sync-server.com"
+                disabled={isSavingSync}
               />
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
@@ -364,6 +372,7 @@ const SettingsTab = () => {
                 value={syncConfig.syncApiKey}
                 onChange={(event) => setSyncConfig({ ...syncConfig, syncApiKey: event.target.value })}
                 placeholder="Optional shared secret"
+                disabled={isSavingSync}
               />
             </div>
             <div style={{ width: '100%', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>

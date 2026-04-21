@@ -16,7 +16,8 @@ function normalizePort(value) {
 async function startServer(port = process.env.PORT) {
   const resolvedPort = normalizePort(port);
   await initializeDatabase();
-  SyncService.startBackgroundSync();
+  // Disabled: Sync now only runs when user manually clicks "Sync Now" button
+  // SyncService.startBackgroundSync();
   const server = app.listen(resolvedPort, () => {
     console.log(`POS Backend running on port ${resolvedPort}`);
   });

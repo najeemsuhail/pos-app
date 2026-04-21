@@ -6,7 +6,8 @@ class CategoryController {
     try {
       const { name } = req.body;
       const category = await CategoryService.createCategory(name);
-      await SyncService.queueCategorySnapshot(category);
+      // Removed: Auto-sync on create. User must click "Sync Now" to sync.
+      // await SyncService.queueCategorySnapshot(category);
       res.status(201).json(category);
     } catch (error) {
       next(error);
@@ -37,7 +38,8 @@ class CategoryController {
       const { id } = req.params;
       const { name } = req.body;
       const category = await CategoryService.updateCategory(id, name);
-      await SyncService.queueCategorySnapshot(category);
+      // Removed: Auto-sync on update. User must click "Sync Now" to sync.
+      // await SyncService.queueCategorySnapshot(category);
       res.json(category);
     } catch (error) {
       next(error);
@@ -48,7 +50,8 @@ class CategoryController {
     try {
       const { id } = req.params;
       const category = await CategoryService.deleteCategory(id);
-      await SyncService.queueCategorySnapshot(category);
+      // Removed: Auto-sync on delete. User must click "Sync Now" to sync.
+      // await SyncService.queueCategorySnapshot(category);
       res.json({ message: 'Category deleted', category });
     } catch (error) {
       next(error);

@@ -17,11 +17,29 @@ const SYNC_CONFIG_PATH = path.join(desktopDataDir, 'sync-config.json');
 const SYNC_STATE_PATH = path.join(desktopDataDir, 'sync-state.json');
 const SYNC_DEVICE_PATH = path.join(desktopDataDir, 'sync-device.json');
 const DEFAULT_INTERVAL_MS = 60 * 1000;
+const SYNC_REQUEST_TIMEOUT = 30 * 1000; // 30 second timeout for sync requests
 
 class SyncService {
   constructor() {
     this.syncInterval = null;
     this.syncInFlight = null;
+  }
+
+  /**
+   * Helper method to make fetch requests with timeout
+   */
+  async fetchWithTimeout(url, options = {}, timeoutMs = SYNC_REQUEST_TIMEOUT) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      return await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   readJsonFile(filePath, fallbackValue) {
@@ -154,22 +172,24 @@ class SyncService {
   }
 
   async markQueueItemsSynced(queueIds) {
-    for (const queueId of queueIds) {
-      await prisma.$executeRawUnsafe(
-        "UPDATE sync_queue SET status = 'synced', last_error = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-        queueId
-      );
-    }
+    if (queueIds.length === 0) return;
+    
+    const placeholders = queueIds.map(() => '?').join(',');
+    await prisma.$executeRawUnsafe(
+      `UPDATE sync_queue SET status = 'synced', last_error = NULL, updated_at = CURRENT_TIMESTAMP WHERE id IN (${placeholders})`,
+      ...queueIds
+    );
   }
 
   async markQueueItemsFailed(queueIds, errorMessage) {
-    for (const queueId of queueIds) {
-      await prisma.$executeRawUnsafe(
-        "UPDATE sync_queue SET retry_count = retry_count + 1, last_error = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status = 'pending'",
-        errorMessage,
-        queueId
-      );
-    }
+    if (queueIds.length === 0) return;
+    
+    const placeholders = queueIds.map(() => '?').join(',');
+    await prisma.$executeRawUnsafe(
+      `UPDATE sync_queue SET retry_count = retry_count + 1, last_error = ?, updated_at = CURRENT_TIMESTAMP WHERE id IN (${placeholders}) AND status = 'pending'`,
+      errorMessage,
+      ...queueIds
+    );
   }
 
   async appendSyncEvent(change, sourceDeviceId) {
@@ -265,23 +285,14 @@ class SyncService {
     const orders = await prisma.order.findMany({ orderBy: { id: 'asc' } });
     const expenses = await prisma.expense.findMany({ orderBy: { id: 'asc' } });
 
-    for (const category of categories) {
-      await this.queueCategorySnapshot(mapCategory(category));
-    }
-
-    for (const menuItem of menuItems) {
-      await this.queueMenuItemSnapshot(mapMenuItem(menuItem));
-    }
-
-    for (const order of orders) {
-      await this.queueOrderSnapshot(order.id);
-    }
-
-    for (const expense of expenses) {
-      await this.queueExpenseSnapshot(mapExpense(expense));
-    }
-
-    await this.queueSettingsSnapshot();
+    // Queue all items in parallel for better performance
+    await Promise.all([
+      ...categories.map((category) => this.queueCategorySnapshot(mapCategory(category))),
+      ...menuItems.map((menuItem) => this.queueMenuItemSnapshot(mapMenuItem(menuItem))),
+      ...orders.map((order) => this.queueOrderSnapshot(order.id)),
+      ...expenses.map((expense) => this.queueExpenseSnapshot(mapExpense(expense))),
+      this.queueSettingsSnapshot(),
+    ]);
   }
 
   getAuthHeaders() {
@@ -302,7 +313,7 @@ class SyncService {
       return;
     }
 
-    const response = await fetch(this.getSyncUrl('/api/sync/push'), {
+    const response = await this.fetchWithTimeout(this.getSyncUrl('/api/sync/push'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -331,7 +342,7 @@ class SyncService {
 
   async pullRemoteChanges(deviceId) {
     const state = this.getState();
-    const response = await fetch(this.getSyncUrl('/api/sync/pull'), {
+    const response = await this.fetchWithTimeout(this.getSyncUrl('/api/sync/pull'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

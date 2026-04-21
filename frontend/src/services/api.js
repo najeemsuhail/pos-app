@@ -2,17 +2,64 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || '/api';
 
+// 10 second timeout for all requests
+const REQUEST_TIMEOUT = 10000;
+
 const api = axios.create({
   baseURL: API_URL,
+  timeout: REQUEST_TIMEOUT,
 });
+
+// Map to track abort controllers for cancellation
+const abortControllers = new Map();
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Create abort controller for this request
+  const controller = new AbortController();
+  const requestKey = `${config.method}:${config.url}`;
+  abortControllers.set(requestKey, controller);
+  config.signal = controller.signal;
+  
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => {
+    const requestKey = `${response.config.method}:${response.config.url}`;
+    abortControllers.delete(requestKey);
+    return response;
+  },
+  (error) => {
+    if (error.config) {
+      const requestKey = `${error.config.method}:${error.config.url}`;
+      abortControllers.delete(requestKey);
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Helper to cancel all pending requests
+export const cancelAllRequests = () => {
+  abortControllers.forEach(controller => controller.abort());
+  abortControllers.clear();
+};
+
+// Helper to cancel requests for a specific pattern
+export const cancelRequestsByPattern = (pattern) => {
+  const keysToDelete = [];
+  abortControllers.forEach((controller, key) => {
+    if (key.includes(pattern)) {
+      controller.abort();
+      keysToDelete.push(key);
+    }
+  });
+  keysToDelete.forEach(key => abortControllers.delete(key));
+};
 
 export const authService = {
   login: (username, password) => api.post('/auth/login', { username, password }),

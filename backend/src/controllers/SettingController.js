@@ -14,9 +14,10 @@ class SettingController {
   updateSettings(req, res, next) {
     try {
       const settings = SettingService.updateSettings(req.body);
-      SyncService.queueSettingsSnapshot(settings).catch((error) => {
-        console.error('[Sync] Failed to queue settings change:', error.message || error);
-      });
+      // Removed: Auto-sync on update. User must click "Sync Now" to sync.
+      // SyncService.queueSettingsSnapshot(settings).catch((error) => {
+      //   console.error('[Sync] Failed to queue settings change:', error.message || error);
+      // });
       res.json(settings);
     } catch (error) {
       next(error);

@@ -175,8 +175,14 @@ class OrderService {
     );
   }
 
-  async payOrder(orderId, payments) {
+  async payOrder(orderId, payments, customerDetails = {}) {
     const order = await this.getOrderById(orderId);
+    const customerName = typeof customerDetails.customer_name === 'string'
+      ? customerDetails.customer_name.trim()
+      : '';
+    const customerPhone = typeof customerDetails.customer_phone === 'string'
+      ? customerDetails.customer_phone.trim()
+      : '';
 
     if ((payments || []).length === 0) {
       throw { status: 400, message: 'At least one payment entry is required' };
@@ -278,6 +284,8 @@ class OrderService {
         data: {
           status,
           paymentStatus,
+          customerName: customerName || null,
+          customerPhone: customerPhone || null,
           updatedAt: new Date(),
         },
       });

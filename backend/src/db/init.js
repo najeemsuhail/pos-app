@@ -43,6 +43,8 @@ async function ensureSchema() {
       bill_number TEXT NOT NULL UNIQUE,
       status TEXT NOT NULL DEFAULT 'pending',
       payment_status TEXT NOT NULL DEFAULT 'unpaid',
+      customer_name TEXT,
+      customer_phone TEXT,
       table_id INTEGER,
       subtotal DECIMAL NOT NULL DEFAULT 0,
       discount_amount DECIMAL NOT NULL DEFAULT 0,
@@ -133,6 +135,8 @@ async function ensureSchema() {
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)');
 
   await ensureColumn('orders', 'payment_status', "TEXT NOT NULL DEFAULT 'unpaid'");
+  await ensureColumn('orders', 'customer_name', 'TEXT');
+  await ensureColumn('orders', 'customer_phone', 'TEXT');
   await ensureColumn('payments', 'source', "TEXT NOT NULL DEFAULT 'Direct'");
   await ensureColumn('payments', 'status', "TEXT NOT NULL DEFAULT 'settled'");
   await ensureColumn('payments', 'settled_amount', 'DECIMAL NOT NULL DEFAULT 0');

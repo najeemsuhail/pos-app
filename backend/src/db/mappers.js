@@ -74,6 +74,8 @@ function mapOrder(order) {
     bill_number: order.billNumber,
     status: order.status,
     payment_status: order.paymentStatus,
+    customer_name: order.customerName,
+    customer_phone: order.customerPhone,
     table_id: order.tableId,
     subtotal: toNumber(order.subtotal),
     discount_amount: toNumber(order.discountAmount),

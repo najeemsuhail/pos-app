@@ -5,6 +5,7 @@ import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../services/api';
 import { generatePDF } from '../../utils/reportPDF';
+import { downloadExcelWorkbook } from '../../utils/excelExport';
 import OrderDetailsModal from './OrderDetailsModal';
 
 const ReportsTab = () => {
@@ -17,10 +18,8 @@ const ReportsTab = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [detailsLoading, setDetailsLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
-  const [orders, setOrders] = useState([]);
   const [itemSortKey, setItemSortKey] = useState('quantity');
   const [itemSortDir, setItemSortDir] = useState('desc');
 
@@ -96,6 +95,213 @@ const ReportsTab = () => {
     if (report) {
       generatePDF(report, reportType);
     }
+  };
+
+  const handleExportExcel = () => {
+    if (!report) {
+      return;
+    }
+
+    const periodLabel = reportType === 'daily'
+      ? report.date
+      : reportType === 'weekly'
+        ? `${report.weekStart} to ${report.weekEnd}`
+        : reportType === 'monthly'
+          ? report.month
+          : `${report.startDate} to ${report.endDate}`;
+
+    const currencyCell = (value, style = 'currency') => ({ value: Number(value || 0), style });
+    const integerCell = (value) => ({ value: Number(value || 0), style: 'integer' });
+    const summaryRows = [
+      { cells: ['Sales Report Export'], style: 'title' },
+      ['Report Type', reportType.charAt(0).toUpperCase() + reportType.slice(1)],
+      ['Period', periodLabel],
+      ['Generated At', new Date().toLocaleString()],
+      [],
+      { cells: ['Metric', 'Value'], style: 'header' },
+      ['Total Orders', integerCell(report.totalOrders)],
+      ['Paid Orders', integerCell(report.paidOrders)],
+      ['Total Sales', currencyCell(report.totalSales)],
+      ['Total Discount', currencyCell(report.totalDiscount)],
+      ['Total Tax', currencyCell(report.totalTax)],
+      ['Total Expenses', currencyCell(report.totalExpenses)],
+      ['Net After Expenses', currencyCell(report.netSalesAfterExpenses)],
+      ['Average Order Value', currencyCell(report.averageOrderValue)],
+    ];
+
+    const profitLossRows = report.profitLoss
+      ? [
+          { cells: ['Profit And Loss'], style: 'title' },
+          ['Period', periodLabel],
+          [],
+          { cells: ['Profit/Loss Metric', 'Amount'], style: 'header' },
+          ['Gross Revenue', currencyCell(report.profitLoss.grossRevenue)],
+          ['Discounts Given', currencyCell(report.profitLoss.discountsGiven)],
+          ['Net Revenue', currencyCell(report.profitLoss.netRevenue)],
+          ['Tax Collected', currencyCell(report.profitLoss.taxCollected)],
+          ['Operating Expenses', currencyCell(report.profitLoss.operatingExpenses)],
+          [
+            report.profitLoss.profitStatus === 'profit' ? 'Operating Profit' : 'Operating Loss',
+            currencyCell(report.profitLoss.operatingProfit, 'totalCurrency'),
+          ],
+        ]
+      : [
+          { cells: ['Profit And Loss'], style: 'title' },
+          { cells: ['Profit/Loss Metric', 'Amount'], style: 'header' },
+        ];
+
+    const revenueRows = revenueAnalytics
+      ? [
+          { cells: ['Revenue Analytics'], style: 'title' },
+          ['Period', periodLabel],
+          [],
+          { cells: ['Revenue Metric', 'Amount'], style: 'header' },
+          ['Gross Revenue', currencyCell(revenueAnalytics.revenue?.gross)],
+          ['Discounts', currencyCell(revenueAnalytics.revenue?.discounts)],
+          ['Tax', currencyCell(revenueAnalytics.revenue?.tax)],
+          ['Expenses', currencyCell(revenueAnalytics.revenue?.expenses)],
+          ['Net Sales', currencyCell(revenueAnalytics.revenue?.net)],
+          ['Net After Expenses', currencyCell(revenueAnalytics.revenue?.netAfterExpenses, 'totalCurrency')],
+          [],
+          { cells: ['Breakdown Label', 'Amount', 'Percentage'], style: 'header' },
+          ...(revenueAnalytics.breakdown || []).map((entry) => [
+            entry.name,
+            currencyCell(entry.value),
+            Number(entry.percentage || 0),
+          ]),
+        ]
+      : [
+          { cells: ['Revenue Analytics'], style: 'title' },
+          { cells: ['Revenue Metric', 'Amount'], style: 'header' },
+        ];
+
+    const paymentRows = [
+      { cells: ['Payment Breakdown'], style: 'title' },
+      ['Period', periodLabel],
+      [],
+      { cells: ['Payment Method', 'Amount'], style: 'header' },
+      ...Object.entries(report.paymentByMethod || {}).map(([method, amount]) => [
+        method,
+        currencyCell(amount),
+      ]),
+      [
+        { value: 'Total', style: 'totalLabel' },
+        currencyCell(
+          Object.values(report.paymentByMethod || {}).reduce((sum, amount) => sum + Number(amount || 0), 0),
+          'totalCurrency'
+        ),
+      ],
+    ];
+
+    const hourlyRows = [
+      { cells: ['Hourly Breakdown'], style: 'title' },
+      ['Period', periodLabel],
+      [],
+      { cells: ['Hour', 'Orders', 'Paid', 'Sales', 'Tax', 'Discount'], style: 'header' },
+      ...(report.hourlyBreakdown || []).map((hour) => [
+        `${String(hour.hour).padStart(2, '0')}:00`,
+        integerCell(hour.orderCount),
+        integerCell(hour.paidCount),
+        currencyCell(hour.sales),
+        currencyCell(hour.tax),
+        currencyCell(hour.discount),
+      ]),
+    ];
+
+    const itemRows = [
+      { cells: ['Items Sold'], style: 'title' },
+      ['Period', periodLabel],
+      [],
+      { cells: ['Item Name', 'Qty Sold', 'Revenue', 'Avg Price', 'Orders'], style: 'header' },
+      ...(report.allItems || []).map((item) => [
+        item.name,
+        integerCell(item.quantity),
+        currencyCell(item.revenue),
+        currencyCell(item.avgPrice),
+        integerCell(item.orderCount),
+      ]),
+      ...(report.allItems && report.allItems.length > 0
+        ? [[
+            { value: 'Total', style: 'totalLabel' },
+            integerCell(report.allItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0)),
+            currencyCell(report.allItems.reduce((sum, item) => sum + Number(item.revenue || 0), 0), 'totalCurrency'),
+            '',
+            '',
+          ]]
+        : []),
+    ];
+
+    const expenseRows = [
+      { cells: ['Expense Breakdown'], style: 'title' },
+      ['Period', periodLabel],
+      [],
+      { cells: ['Category', 'Sub Category', 'Entries', 'Amount'], style: 'header' },
+      ...(report.expensesByCategory || []).flatMap((category) => [
+        [
+          { value: category.category, style: 'textBold' },
+          'TOTAL',
+          integerCell(category.count),
+          currencyCell(category.totalAmount),
+        ],
+        ...((category.subcategories || []).map((sub) => [
+          category.category,
+          sub.name,
+          integerCell(sub.count),
+          currencyCell(sub.amount),
+        ])),
+      ]),
+    ];
+
+    const orderRows = [
+      { cells: ['Orders'], style: 'title' },
+      ['Period', periodLabel],
+      [],
+      { cells: ['Bill #', 'Date & Time', 'Items', 'Subtotal', 'Tax', 'Discount', 'Total', 'Status', 'Payment Status'], style: 'header' },
+      ...((report.orders || []).map((order) => [
+        order.bill_number,
+        { value: order.created_at, type: 'DateTime', style: 'date' },
+        integerCell(order.item_count),
+        currencyCell(order.subtotal),
+        currencyCell(order.tax_amount),
+        currencyCell(order.discount_amount),
+        currencyCell(order.final_amount),
+        order.status,
+        order.payment_status || 'unpaid',
+      ])),
+      ...((report.orders || []).length > 0
+        ? [[
+            { value: 'Total', style: 'totalLabel' },
+            '',
+            integerCell((report.orders || []).reduce((sum, order) => sum + Number(order.item_count || 0), 0)),
+            currencyCell((report.orders || []).reduce((sum, order) => sum + Number(order.subtotal || 0), 0), 'totalCurrency'),
+            currencyCell((report.orders || []).reduce((sum, order) => sum + Number(order.tax_amount || 0), 0), 'totalCurrency'),
+            currencyCell((report.orders || []).reduce((sum, order) => sum + Number(order.discount_amount || 0), 0), 'totalCurrency'),
+            currencyCell((report.orders || []).reduce((sum, order) => sum + Number(order.final_amount || 0), 0), 'totalCurrency'),
+            '',
+            '',
+          ]]
+        : []),
+    ];
+
+    const safePeriod = (reportType === 'daily'
+      ? report.date
+      : reportType === 'weekly'
+        ? `${report.weekStart}_to_${report.weekEnd}`
+        : reportType === 'monthly'
+          ? report.month
+          : `${report.startDate}_to_${report.endDate}`)
+      .replace(/[^a-z0-9_-]/gi, '-');
+
+    downloadExcelWorkbook(`sales-report-${safePeriod}.xlsx`, [
+      { name: 'Summary', columns: [180, 140], rows: summaryRows },
+      { name: 'ProfitLoss', columns: [200, 140], rows: profitLossRows },
+      { name: 'Revenue', columns: [180, 140, 100], rows: revenueRows },
+      { name: 'Payments', columns: [180, 140], rows: paymentRows },
+      { name: 'Hourly', columns: [90, 80, 80, 110, 110, 110], rows: hourlyRows },
+      { name: 'Items', columns: [220, 90, 120, 120, 90], rows: itemRows },
+      { name: 'Expenses', columns: [180, 220, 90, 120], rows: expenseRows },
+      { name: 'Orders', columns: [100, 140, 70, 100, 90, 100, 110, 90, 110], rows: orderRows },
+    ]);
   };
 
   const handleViewOrderDetails = async (orderId) => {
@@ -193,14 +399,24 @@ const ReportsTab = () => {
           </>
         )}
         {report && (
-          <button 
-            onClick={handleExportPDF} 
-            className="btn-success" 
-            title="Download report as PDF"
-            style={{ width: '80px', flex: 'none', height: '38px' }}
-          >
-            PDF
-          </button>
+          <>
+            <button
+              onClick={handleExportPDF}
+              className="btn-success"
+              title="Download report as PDF"
+              style={{ width: '80px', flex: 'none', height: '38px' }}
+            >
+              PDF
+            </button>
+            <button
+              onClick={handleExportExcel}
+              className="btn-secondary"
+              title="Download report as Excel"
+              style={{ width: '80px', flex: 'none', height: '38px' }}
+            >
+              Excel
+            </button>
+          </>
         )}
       </div>
 
@@ -490,19 +706,13 @@ const ReportsTab = () => {
 
 
 
-          {detailsLoading && (
-            <div className="section-container">
-              <div className="loading">Loading orders...</div>
-            </div>
-          )}
-
-          {orders.length > 0 && !detailsLoading && (
+          {report.orders && report.orders.length > 0 && (
             <div className="section-container">
               <h3>Individual Orders</h3>
               <table className="data-table">
                 <thead><tr><th>Bill #</th><th>Date & Time</th><th>Items</th><th>Subtotal</th><th>Tax</th><th>Discount</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {report.orders.map((order) => (
                     <tr key={order.id}>
                       <td><strong>#{order.bill_number}</strong></td>
                       <td>{formatDate(order.created_at)}</td>

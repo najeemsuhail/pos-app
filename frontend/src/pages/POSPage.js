@@ -245,11 +245,11 @@ const POSPage = () => {
     }
   };
 
-  const handlePaymentComplete = async (payments) => {
+  const handlePaymentComplete = async (paymentData) => {
     try {
       setLoading(true);
 
-      const paymentRes = await orderService.pay(currentOrder.id, payments);
+      const paymentRes = await orderService.pay(currentOrder.id, paymentData);
       const updatedOrderRes = await orderService.getById(currentOrder.id);
       setCurrentOrder(updatedOrderRes.data);
       setOrder(updatedOrderRes.data);
@@ -281,12 +281,18 @@ const POSPage = () => {
   };
 
   const handleCloseReceipt = () => {
+    hydrateInProgressRef.current = true;
     setShowReceiptModal(false);
+    setSelectedTableId(null);
     clearCart();
+    setReceipt('');
     setCurrentOrder(null);
     setOrder(null);
     setDiscount(0);
     setPaymentTotal(0);
+    window.setTimeout(() => {
+      hydrateInProgressRef.current = false;
+    }, 0);
   };
 
   const baseTotals = calculateTotals();

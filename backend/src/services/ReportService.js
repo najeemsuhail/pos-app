@@ -106,6 +106,24 @@ class ReportService {
     return { allItems: rankedItems };
   }
 
+  async getOrderSummaries(orders) {
+    if (!orders || orders.length === 0) {
+      return [];
+    }
+
+    const orderItems = await OrderItemRepository.findByOrderIds(orders.map((order) => order.id));
+    const itemCounts = orderItems.reduce((acc, item) => {
+      const orderId = Number(item.order_id);
+      acc[orderId] = (acc[orderId] || 0) + (Number(item.quantity) || 0);
+      return acc;
+    }, {});
+
+    return orders.map((order) => ({
+      ...order,
+      item_count: itemCounts[Number(order.id)] || 0,
+    }));
+  }
+
   async getDailySummary(date = new Date()) {
     const startDate = new Date(date);
     startDate.setHours(0, 0, 0, 0);
@@ -139,6 +157,7 @@ class ReportService {
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
     const { allItems } = await this.getTopBottomItems(orders);
+    const orderSummaries = await this.getOrderSummaries(orders);
 
     return {
       date: date.toISOString().split('T')[0],
@@ -157,6 +176,7 @@ class ReportService {
       averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
       allItems,
+      orders: orderSummaries,
     };
   }
 
@@ -193,6 +213,7 @@ class ReportService {
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
     const { allItems } = await this.getTopBottomItems(orders);
+    const orderSummaries = await this.getOrderSummaries(orders);
 
     return {
       startDate: start.toISOString().split('T')[0],
@@ -212,6 +233,7 @@ class ReportService {
       averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
       allItems,
+      orders: orderSummaries,
     };
   }
 

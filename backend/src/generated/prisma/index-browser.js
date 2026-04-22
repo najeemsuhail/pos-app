@@ -151,6 +151,8 @@ exports.Prisma.OrderScalarFieldEnum = {
   billNumber: 'billNumber',
   status: 'status',
   paymentStatus: 'paymentStatus',
+  customerName: 'customerName',
+  customerPhone: 'customerPhone',
   tableId: 'tableId',
   subtotal: 'subtotal',
   discountAmount: 'discountAmount',

@@ -4506,6 +4506,8 @@ export namespace Prisma {
     billNumber: string | null
     status: string | null
     paymentStatus: string | null
+    customerName: string | null
+    customerPhone: string | null
     tableId: number | null
     subtotal: Decimal | null
     discountAmount: Decimal | null
@@ -4520,6 +4522,8 @@ export namespace Prisma {
     billNumber: string | null
     status: string | null
     paymentStatus: string | null
+    customerName: string | null
+    customerPhone: string | null
     tableId: number | null
     subtotal: Decimal | null
     discountAmount: Decimal | null
@@ -4534,6 +4538,8 @@ export namespace Prisma {
     billNumber: number
     status: number
     paymentStatus: number
+    customerName: number
+    customerPhone: number
     tableId: number
     subtotal: number
     discountAmount: number
@@ -4568,6 +4574,8 @@ export namespace Prisma {
     billNumber?: true
     status?: true
     paymentStatus?: true
+    customerName?: true
+    customerPhone?: true
     tableId?: true
     subtotal?: true
     discountAmount?: true
@@ -4582,6 +4590,8 @@ export namespace Prisma {
     billNumber?: true
     status?: true
     paymentStatus?: true
+    customerName?: true
+    customerPhone?: true
     tableId?: true
     subtotal?: true
     discountAmount?: true
@@ -4596,6 +4606,8 @@ export namespace Prisma {
     billNumber?: true
     status?: true
     paymentStatus?: true
+    customerName?: true
+    customerPhone?: true
     tableId?: true
     subtotal?: true
     discountAmount?: true
@@ -4697,6 +4709,8 @@ export namespace Prisma {
     billNumber: string
     status: string
     paymentStatus: string
+    customerName: string | null
+    customerPhone: string | null
     tableId: number | null
     subtotal: Decimal
     discountAmount: Decimal
@@ -4730,6 +4744,8 @@ export namespace Prisma {
     billNumber?: boolean
     status?: boolean
     paymentStatus?: boolean
+    customerName?: boolean
+    customerPhone?: boolean
     tableId?: boolean
     subtotal?: boolean
     discountAmount?: boolean
@@ -4747,6 +4763,8 @@ export namespace Prisma {
     billNumber?: boolean
     status?: boolean
     paymentStatus?: boolean
+    customerName?: boolean
+    customerPhone?: boolean
     tableId?: boolean
     subtotal?: boolean
     discountAmount?: boolean
@@ -4761,6 +4779,8 @@ export namespace Prisma {
     billNumber?: boolean
     status?: boolean
     paymentStatus?: boolean
+    customerName?: boolean
+    customerPhone?: boolean
     tableId?: boolean
     subtotal?: boolean
     discountAmount?: boolean
@@ -4788,6 +4808,8 @@ export namespace Prisma {
       billNumber: string
       status: string
       paymentStatus: string
+      customerName: string | null
+      customerPhone: string | null
       tableId: number | null
       subtotal: Prisma.Decimal
       discountAmount: Prisma.Decimal
@@ -5194,6 +5216,8 @@ export namespace Prisma {
     readonly billNumber: FieldRef<"Order", 'String'>
     readonly status: FieldRef<"Order", 'String'>
     readonly paymentStatus: FieldRef<"Order", 'String'>
+    readonly customerName: FieldRef<"Order", 'String'>
+    readonly customerPhone: FieldRef<"Order", 'String'>
     readonly tableId: FieldRef<"Order", 'Int'>
     readonly subtotal: FieldRef<"Order", 'Decimal'>
     readonly discountAmount: FieldRef<"Order", 'Decimal'>
@@ -9519,6 +9543,8 @@ export namespace Prisma {
     billNumber: 'billNumber',
     status: 'status',
     paymentStatus: 'paymentStatus',
+    customerName: 'customerName',
+    customerPhone: 'customerPhone',
     tableId: 'tableId',
     subtotal: 'subtotal',
     discountAmount: 'discountAmount',
@@ -9844,6 +9870,8 @@ export namespace Prisma {
     billNumber?: StringFilter<"Order"> | string
     status?: StringFilter<"Order"> | string
     paymentStatus?: StringFilter<"Order"> | string
+    customerName?: StringNullableFilter<"Order"> | string | null
+    customerPhone?: StringNullableFilter<"Order"> | string | null
     tableId?: IntNullableFilter<"Order"> | number | null
     subtotal?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -9860,6 +9888,8 @@ export namespace Prisma {
     billNumber?: SortOrder
     status?: SortOrder
     paymentStatus?: SortOrder
+    customerName?: SortOrderInput | SortOrder
+    customerPhone?: SortOrderInput | SortOrder
     tableId?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -9879,6 +9909,8 @@ export namespace Prisma {
     NOT?: OrderWhereInput | OrderWhereInput[]
     status?: StringFilter<"Order"> | string
     paymentStatus?: StringFilter<"Order"> | string
+    customerName?: StringNullableFilter<"Order"> | string | null
+    customerPhone?: StringNullableFilter<"Order"> | string | null
     tableId?: IntNullableFilter<"Order"> | number | null
     subtotal?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -9895,6 +9927,8 @@ export namespace Prisma {
     billNumber?: SortOrder
     status?: SortOrder
     paymentStatus?: SortOrder
+    customerName?: SortOrderInput | SortOrder
+    customerPhone?: SortOrderInput | SortOrder
     tableId?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -9917,6 +9951,8 @@ export namespace Prisma {
     billNumber?: StringWithAggregatesFilter<"Order"> | string
     status?: StringWithAggregatesFilter<"Order"> | string
     paymentStatus?: StringWithAggregatesFilter<"Order"> | string
+    customerName?: StringNullableWithAggregatesFilter<"Order"> | string | null
+    customerPhone?: StringNullableWithAggregatesFilter<"Order"> | string | null
     tableId?: IntNullableWithAggregatesFilter<"Order"> | number | null
     subtotal?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -10387,6 +10423,8 @@ export namespace Prisma {
     billNumber: string
     status?: string
     paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -10403,6 +10441,8 @@ export namespace Prisma {
     billNumber: string
     status?: string
     paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -10418,6 +10458,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10434,6 +10476,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10450,6 +10494,8 @@ export namespace Prisma {
     billNumber: string
     status?: string
     paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -10463,6 +10509,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10477,6 +10525,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -11077,6 +11127,8 @@ export namespace Prisma {
     billNumber?: SortOrder
     status?: SortOrder
     paymentStatus?: SortOrder
+    customerName?: SortOrder
+    customerPhone?: SortOrder
     tableId?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -11100,6 +11152,8 @@ export namespace Prisma {
     billNumber?: SortOrder
     status?: SortOrder
     paymentStatus?: SortOrder
+    customerName?: SortOrder
+    customerPhone?: SortOrder
     tableId?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -11114,6 +11168,8 @@ export namespace Prisma {
     billNumber?: SortOrder
     status?: SortOrder
     paymentStatus?: SortOrder
+    customerName?: SortOrder
+    customerPhone?: SortOrder
     tableId?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -12119,6 +12175,8 @@ export namespace Prisma {
     billNumber: string
     status?: string
     paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -12134,6 +12192,8 @@ export namespace Prisma {
     billNumber: string
     status?: string
     paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -12190,6 +12250,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12205,6 +12267,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12251,6 +12315,8 @@ export namespace Prisma {
     billNumber: string
     status?: string
     paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -12266,6 +12332,8 @@ export namespace Prisma {
     billNumber: string
     status?: string
     paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -12296,6 +12364,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -12311,6 +12381,8 @@ export namespace Prisma {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string

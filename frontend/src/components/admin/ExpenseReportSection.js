@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
 import html2pdf from 'html2pdf.js';
+import { downloadExcelWorkbook } from '../../utils/excelExport';
 
 const money = (v) => `Rs. ${parseFloat(v || 0).toFixed(2)}`;
 
@@ -175,6 +176,80 @@ const ExpenseReportSection = () => {
     }).from(div).save();
   };
 
+  const handleExportExcel = () => {
+    if (!fetched || expenses.length === 0) {
+      return;
+    }
+
+    const currencyCell = (value, style = 'currency') => ({ value: Number(value || 0), style });
+    const integerCell = (value) => ({ value: Number(value || 0), style: 'integer' });
+    const dateCell = (value) => ({ value, type: 'DateTime', style: 'date' });
+
+    const summaryRows = [
+      { cells: ['Expense Report Export'], style: 'title' },
+      ['Period', periodLabel],
+      ['Generated At', new Date().toLocaleString()],
+      [],
+      { cells: ['Metric', 'Value'], style: 'header' },
+      ['Total Expenses', currencyCell(grandTotal, 'totalCurrency')],
+      ['Total Entries', integerCell(expenses.length)],
+      ['Categories', integerCell(sortedCategories.length)],
+      ['Top Category', topCategory],
+    ];
+
+    const categoryRows = [
+      { cells: ['Category Breakdown'], style: 'title' },
+      ['Period', periodLabel],
+      [],
+      { cells: ['Category', 'Sub Category', 'Entries', 'Amount'], style: 'header' },
+      ...sortedCategories.flatMap(([cat, data]) => [
+        [
+          { value: cat, style: 'textBold' },
+          'TOTAL',
+          integerCell(data.count),
+          currencyCell(data.total),
+        ],
+        ...Object.entries(data.subs)
+          .sort((a, b) => b[1].amount - a[1].amount)
+          .map(([sub, sd]) => [
+            cat,
+            sub,
+            integerCell(sd.count),
+            currencyCell(sd.amount),
+          ]),
+      ]),
+      [
+        { value: 'Grand Total', style: 'totalLabel' },
+        '',
+        integerCell(expenses.length),
+        currencyCell(grandTotal, 'totalCurrency'),
+      ],
+    ];
+
+    const entryRows = [
+      { cells: ['Expense Entries'], style: 'title' },
+      ['Period', periodLabel],
+      [],
+      { cells: ['Expense Date', 'Category', 'Sub Category', 'Amount', 'Payment Method', 'Reference', 'Created At'], style: 'header' },
+      ...expenses.map((expense) => [
+        dateCell(expense.expense_date),
+        expense.category,
+        expense.note,
+        currencyCell(expense.amount),
+        expense.payment_method,
+        expense.reference || '',
+        dateCell(expense.created_at),
+      ]),
+    ];
+
+    const safeLabel = periodLabel.replace(/[^a-z0-9_-]/gi, '-');
+    downloadExcelWorkbook(`expense-report-${safeLabel}.xlsx`, [
+      { name: 'Summary', columns: [180, 160], rows: summaryRows },
+      { name: 'Categories', columns: [180, 220, 90, 120], rows: categoryRows },
+      { name: 'Entries', columns: [120, 140, 220, 110, 120, 140, 140], rows: entryRows },
+    ]);
+  };
+
   return (
     <div className="admin-tab-content">
       <div className="tab-header">
@@ -227,9 +302,14 @@ const ExpenseReportSection = () => {
             Generate Report
           </button>
           {fetched && expenses.length > 0 && (
-            <button className="btn-success" onClick={handleExportPDF} style={{ height: '38px', width: '80px' }}>
-              PDF
-            </button>
+            <>
+              <button className="btn-success" onClick={handleExportPDF} style={{ height: '38px', width: '80px' }}>
+                PDF
+              </button>
+              <button className="btn-secondary" onClick={handleExportExcel} style={{ height: '38px', width: '80px' }}>
+                Excel
+              </button>
+            </>
           )}
         </div>
       </div>

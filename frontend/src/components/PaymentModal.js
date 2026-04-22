@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/PaymentModal.css';
 
 const PAYMENT_OPTIONS = [
@@ -25,6 +25,14 @@ function createPaymentEntry(total = 0) {
 
 const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
   const [payments, setPayments] = useState([createPaymentEntry(total)]);
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+
+  useEffect(() => {
+    setPayments([createPaymentEntry(total)]);
+    setCustomerName('');
+    setCustomerPhone('');
+  }, [total]);
 
   const totalRecorded = payments.reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0);
   const change = totalRecorded - total;
@@ -84,14 +92,18 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
     }
 
     onPaymentComplete(
-      payments.map((payment) => ({
-        method: payment.method,
-        source: payment.source,
-        status: payment.status,
-        amount: Number(payment.amount) || 0,
-        reference_id: payment.reference_id?.trim() || '',
-        aggregator_expense_amount: Number(payment.aggregator_expense_amount) || 0,
-      }))
+      {
+        payments: payments.map((payment) => ({
+          method: payment.method,
+          source: payment.source,
+          status: payment.status,
+          amount: Number(payment.amount) || 0,
+          reference_id: payment.reference_id?.trim() || '',
+          aggregator_expense_amount: Number(payment.aggregator_expense_amount) || 0,
+        })),
+        customer_name: customerName.trim(),
+        customer_phone: customerPhone.trim(),
+      }
     );
   };
 
@@ -120,6 +132,26 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
           <div className="summary-item settlement-summary">
             <span>Settlement:</span>
             <span>{settlementSummary}</span>
+          </div>
+        </div>
+
+        <div className="customer-details-section">
+          <h3>Customer Details</h3>
+          <div className="customer-details-grid">
+            <input
+              type="text"
+              value={customerName}
+              onChange={(event) => setCustomerName(event.target.value)}
+              placeholder="Customer name (optional)"
+              className="payment-reference"
+            />
+            <input
+              type="text"
+              value={customerPhone}
+              onChange={(event) => setCustomerPhone(event.target.value)}
+              placeholder="Phone number (optional)"
+              className="payment-reference"
+            />
           </div>
         </div>
 

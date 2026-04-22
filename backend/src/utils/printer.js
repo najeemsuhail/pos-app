@@ -113,6 +113,12 @@ const generateThermalReceipt = (order, items, payments) => {
   receipt += `Time    : ${new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\n`;
   receipt += `Order   : ${order.status}\n`;
   receipt += `Payment : ${order.payment_status || 'unpaid'}\n`;
+  if (order.customer_name) {
+    receipt += `Customer: ${order.customer_name}\n`;
+  }
+  if (order.customer_phone) {
+    receipt += `Phone   : ${order.customer_phone}\n`;
+  }
   if (tableLabel) {
     receipt += `Table   : ${tableLabel}\n`;
   }

@@ -126,13 +126,20 @@ class OrderController {
   async pay(req, res, next) {
     try {
       const { id } = req.params;
-      const { payments } = req.body;
+      const {
+        payments,
+        customer_name,
+        customer_phone,
+      } = req.body;
 
       if (!payments || !Array.isArray(payments)) {
         return res.status(400).json({ error: 'Payments array is required' });
       }
 
-      const result = await OrderService.payOrder(id, payments);
+      const result = await OrderService.payOrder(id, payments, {
+        customer_name,
+        customer_phone,
+      });
       // Removed: Auto-sync on payment. User must click "Sync Now" to sync.
       // await SyncService.queueOrderSnapshot(id);
       res.json(result);

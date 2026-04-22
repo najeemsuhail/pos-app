@@ -22,7 +22,7 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
     if (/^(Subtotal:|Discount:|Tax \([^)]+\):)/.test(trimmed)) {
       return 'receipt-line summary';
     }
-    if (/^(Bill No|Date|Time|Table)\s*:/.test(trimmed)) {
+    if (/^(Bill No|Date|Time|Table|Customer|Phone|Order|Payment)\s*:/.test(trimmed)) {
       return 'receipt-line meta';
     }
     if (trimmed === 'Thank you! Please visit again.') {
@@ -34,11 +34,20 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
     return 'receipt-line';
   };
 
+  const getLineDisplayText = (line) => {
+    const trimmed = line.trim();
+    if (trimmed === 'Thank you! Please visit again.') {
+      return trimmed;
+    }
+
+    return line || '\u00A0';
+  };
+
   return (
     <div className="modal-overlay">
       <div className="receipt-modal">
         <div className="receipt-header">
-          <h2>Bill #{billNumber}</h2>
+          <h2>Bill #{billNumber || '-'}</h2>
           <button onClick={onClose} className="close-btn">
             ✕
           </button>
@@ -57,7 +66,7 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
           <div className="receipt-paper">
             {lines.map((line, index) => (
               <div key={`${index}-${line}`} className={getLineClassName(line)}>
-                {line || '\u00A0'}
+                {getLineDisplayText(line)}
               </div>
             ))}
           </div>

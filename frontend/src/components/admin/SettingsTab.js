@@ -4,6 +4,7 @@ import { adminService, settingService, syncService } from '../../services/api';
 const DEFAULT_TABLE_COUNT = 12;
 const MIN_TABLE_COUNT = 1;
 const MAX_TABLE_COUNT = 50;
+const DEFAULT_BILL_NUMBER_PREFIX = 'BILL';
 
 const normalizeTableCount = (value) => {
   const parsed = Number.parseInt(value, 10);
@@ -17,6 +18,22 @@ const normalizeTableCount = (value) => {
 
 const buildDefaultTableNames = (tableCount = DEFAULT_TABLE_COUNT) =>
   Array.from({ length: normalizeTableCount(tableCount) }, (_, index) => `Table ${index + 1}`);
+
+const normalizeBillNumberPrefix = (value) => {
+  if (typeof value !== 'string') {
+    return DEFAULT_BILL_NUMBER_PREFIX;
+  }
+
+  const normalized = value
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^A-Z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return normalized || DEFAULT_BILL_NUMBER_PREFIX;
+};
 
 const SettingsTab = () => {
   const defaultTableNames = useMemo(() => buildDefaultTableNames(), []);
@@ -32,6 +49,7 @@ const SettingsTab = () => {
     storeAddressLocality: '',
     storePhone: '',
     taxRate: 5,
+    billNumberPrefix: DEFAULT_BILL_NUMBER_PREFIX,
     tableCount: DEFAULT_TABLE_COUNT,
     tableNames: defaultTableNames,
   });
@@ -62,6 +80,7 @@ const SettingsTab = () => {
     settingService.getAll()
       .then((res) => setStoreSettings({
         ...res.data,
+        billNumberPrefix: normalizeBillNumberPrefix(res.data.billNumberPrefix),
         tableCount: normalizeTableCount(res.data.tableCount),
         tableNames: Array.isArray(res.data.tableNames)
           ? buildDefaultTableNames(res.data.tableCount).map((fallback, index) => res.data.tableNames[index] || fallback)
@@ -133,6 +152,7 @@ const SettingsTab = () => {
       }
       setStoreSettings({
         ...response.data,
+        billNumberPrefix: normalizeBillNumberPrefix(response.data.billNumberPrefix),
         tableCount: normalizeTableCount(response.data.tableCount),
         tableNames: Array.isArray(response.data.tableNames)
           ? buildDefaultTableNames(response.data.tableCount).map((fallback, index) => response.data.tableNames[index] || fallback)
@@ -256,6 +276,20 @@ const SettingsTab = () => {
                 onChange={(event) => setStoreSettings({ ...storeSettings, taxRate: Number(event.target.value) })}
                 disabled={isSavingSettings}
               />
+            </div>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>Bill Prefix</label>
+              <input
+                type="text"
+                className="settings-input"
+                value={storeSettings.billNumberPrefix}
+                onChange={(event) => setStoreSettings({ ...storeSettings, billNumberPrefix: event.target.value })}
+                placeholder={DEFAULT_BILL_NUMBER_PREFIX}
+                disabled={isSavingSettings}
+              />
+              <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-secondary)' }}>
+                Example: {normalizeBillNumberPrefix(storeSettings.billNumberPrefix)}-20260422-0002
+              </small>
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Number of Tables</label>

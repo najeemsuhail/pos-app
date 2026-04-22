@@ -6,6 +6,7 @@ const settingsPath = path.join(desktopDataDir, 'settings.json');
 const DEFAULT_TABLE_COUNT = 12;
 const MIN_TABLE_COUNT = 1;
 const MAX_TABLE_COUNT = 50;
+const DEFAULT_BILL_NUMBER_PREFIX = 'BILL';
 
 function normalizeTableCount(tableCount) {
   const parsed = Number.parseInt(tableCount, 10);
@@ -40,11 +41,28 @@ function normalizeTableNames(tableNames, tableCount = DEFAULT_TABLE_COUNT) {
   });
 }
 
+function normalizeBillNumberPrefix(prefix) {
+  if (typeof prefix !== 'string') {
+    return DEFAULT_BILL_NUMBER_PREFIX;
+  }
+
+  const normalized = prefix
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^A-Z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+  return normalized || DEFAULT_BILL_NUMBER_PREFIX;
+}
+
 const defaultSettings = {
   storeName: 'CHEWBIE CAFE',
   storeAddressLocality: 'Panaji, Goa',
   storePhone: '9876543210',
   taxRate: 5,
+  billNumberPrefix: DEFAULT_BILL_NUMBER_PREFIX,
   tableCount: DEFAULT_TABLE_COUNT,
   tableNames: buildDefaultTableNames(),
 };
@@ -55,11 +73,12 @@ class SettingService {
       if (fs.existsSync(settingsPath)) {
         const data = fs.readFileSync(settingsPath, 'utf8');
         const parsed = JSON.parse(data);
-        const { roleFeatureAccess, ...safeParsed } = parsed;
+        const { roleFeatureAccess, billNumberFormat, ...safeParsed } = parsed;
         return {
           ...defaultSettings,
           ...safeParsed,
           taxRate: Number.isFinite(Number(safeParsed.taxRate)) ? Number(safeParsed.taxRate) : defaultSettings.taxRate,
+          billNumberPrefix: normalizeBillNumberPrefix(safeParsed.billNumberPrefix),
           tableCount: normalizeTableCount(safeParsed.tableCount),
           tableNames: normalizeTableNames(safeParsed.tableNames, safeParsed.tableCount),
         };
@@ -75,12 +94,13 @@ class SettingService {
 
   updateSettings(newSettings) {
     const current = this.getSettings();
-    const { roleFeatureAccess, ...safeNewSettings } = newSettings;
+    const { roleFeatureAccess, billNumberFormat, ...safeNewSettings } = newSettings;
     const tableCount = normalizeTableCount(safeNewSettings.tableCount ?? current.tableCount);
     const updated = {
       ...current,
       ...safeNewSettings,
       taxRate: Number.isFinite(Number(safeNewSettings.taxRate ?? current.taxRate)) ? Number(safeNewSettings.taxRate ?? current.taxRate) : defaultSettings.taxRate,
+      billNumberPrefix: normalizeBillNumberPrefix(safeNewSettings.billNumberPrefix ?? current.billNumberPrefix),
       tableCount,
       tableNames: normalizeTableNames(safeNewSettings.tableNames ?? current.tableNames, tableCount),
     };

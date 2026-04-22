@@ -1,9 +1,14 @@
-const { v4: uuidv4 } = require('uuid');
+const formatBillDate = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
 
-const generateBillNumber = () => {
-  const timestamp = Date.now().toString().slice(-8);
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `BILL-${timestamp}-${random}`;
+  return `${year}${month}${day}`;
+};
+
+const formatDailyBillNumber = (prefix, billDate, sequenceNumber) => {
+  const normalizedSequence = String(sequenceNumber).padStart(4, '0');
+  return `${prefix}-${billDate}-${normalizedSequence}`;
 };
 
 const calculateTax = (amount, taxRate = 5) => {
@@ -18,7 +23,8 @@ const calculateDiscount = (subtotal, discount) => {
 };
 
 module.exports = {
-  generateBillNumber,
+  formatBillDate,
+  formatDailyBillNumber,
   calculateTax,
   calculateDiscount,
 };

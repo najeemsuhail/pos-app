@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import ReceiptModal from '../ReceiptModal';
+import api, { orderService } from '../../services/api';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import OrderDetailsModal from './OrderDetailsModal';
+import { printReceiptContent } from '../../utils/receiptPrint';
 
 const OrderHistoryTab = () => {
   const [orders, setOrders] = useState([]);
@@ -14,6 +16,10 @@ const OrderHistoryTab = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [receiptPreview, setReceiptPreview] = useState('');
+  const [receiptBillNumber, setReceiptBillNumber] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -51,6 +57,50 @@ const OrderHistoryTab = () => {
       setShowModal(true);
     } catch (err) {
       setError('Failed to load order details');
+    }
+  };
+
+  const handleReprint = async (orderId, billNumber) => {
+    try {
+      setIsLoadingReceipt(true);
+      setError('');
+      const response = await orderService.getReceipt(orderId);
+      setReceiptPreview(response.data);
+      setReceiptBillNumber(billNumber);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to load receipt');
+    } finally {
+      setIsLoadingReceipt(false);
+    }
+  };
+
+  const handlePrintReceipt = async () => {
+    try {
+      await printReceiptContent(receiptPreview);
+    } catch (error) {
+      console.error('Receipt print error:', error);
+      setError(`Failed to print receipt: ${error.message}`);
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Cancel this unpaid order? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setIsCancelling(true);
+      setError('');
+      await orderService.cancel(orderId);
+      await fetchOrders();
+
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder((current) => current ? { ...current, status: 'cancelled' } : current);
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to cancel order');
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -167,13 +217,35 @@ const OrderHistoryTab = () => {
                     </span>
                   </td>
                   <td>
-                    <button
-                      onClick={() => handleViewDetails(order.id)}
-                      className="btn-edit"
-                      title="View order details"
-                    >
-                      Details
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => handleViewDetails(order.id)}
+                        className="btn-edit"
+                        title="View order details"
+                      >
+                        Details
+                      </button>
+                      {(order.status === 'paid' || order.status === 'cancelled') && (
+                        <button
+                          onClick={() => handleReprint(order.id, order.bill_number)}
+                          className="btn-secondary"
+                          disabled={isLoadingReceipt}
+                          title="Reprint bill"
+                        >
+                          {isLoadingReceipt ? 'Loading...' : 'Reprint'}
+                        </button>
+                      )}
+                      {order.status === 'pending' && (
+                        <button
+                          onClick={() => handleCancelOrder(order.id)}
+                          className="btn-delete"
+                          disabled={isCancelling}
+                          title="Cancel unpaid order"
+                        >
+                          {isCancelling ? 'Cancelling...' : 'Cancel'}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -185,9 +257,24 @@ const OrderHistoryTab = () => {
       {showModal && selectedOrder && (
         <OrderDetailsModal
           order={selectedOrder}
+          onReprint={handleReprint}
+          onCancel={handleCancelOrder}
+          isCancelling={isCancelling}
           onClose={() => {
             setShowModal(false);
             setSelectedOrder(null);
+          }}
+        />
+      )}
+
+      {receiptPreview && (
+        <ReceiptModal
+          receipt={receiptPreview}
+          billNumber={receiptBillNumber}
+          onPrint={handlePrintReceipt}
+          onClose={() => {
+            setReceiptPreview('');
+            setReceiptBillNumber('');
           }}
         />
       )}

@@ -2,12 +2,73 @@ const OrderRepository = require('../repositories/OrderRepository');
 const OrderItemRepository = require('../repositories/OrderItemRepository');
 const PaymentRepository = require('../repositories/PaymentRepository');
 const MenuItemRepository = require('../repositories/MenuItemRepository');
-const { generateBillNumber, calculateTax, calculateDiscount } = require('../utils/billing');
+const prisma = require('../db/prisma');
+const { mapOrder } = require('../db/mappers');
+const { formatBillDate, formatDailyBillNumber, calculateTax, calculateDiscount } = require('../utils/billing');
+const SettingService = require('./SettingService');
+
+let ensureBillSequenceTablePromise = null;
+
+async function ensureBillSequenceTable() {
+  if (!ensureBillSequenceTablePromise) {
+    ensureBillSequenceTablePromise = prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS bill_sequences (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        business_date TEXT NOT NULL UNIQUE,
+        last_number INTEGER NOT NULL DEFAULT 0,
+        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `).catch((error) => {
+      ensureBillSequenceTablePromise = null;
+      throw error;
+    });
+  }
+
+  return ensureBillSequenceTablePromise;
+}
 
 class OrderService {
   async createOrder(tableId = null) {
-    const billNumber = generateBillNumber();
-    return await OrderRepository.create(billNumber, 0, 0, 0, 0, tableId);
+    const billDate = formatBillDate(new Date());
+    const settings = SettingService.getSettings();
+    await ensureBillSequenceTable();
+
+    return await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        `
+          INSERT INTO bill_sequences (business_date, last_number, updated_at)
+          VALUES (?, 1, CURRENT_TIMESTAMP)
+          ON CONFLICT(business_date) DO UPDATE SET
+            last_number = last_number + 1,
+            updated_at = CURRENT_TIMESTAMP
+        `,
+        billDate
+      );
+
+      const sequenceRows = await tx.$queryRawUnsafe(
+        'SELECT last_number AS lastNumber FROM bill_sequences WHERE business_date = ?',
+        billDate
+      );
+      const nextSequence = Number(sequenceRows?.[0]?.lastNumber);
+
+      if (!Number.isInteger(nextSequence) || nextSequence <= 0) {
+        throw { status: 500, message: 'Failed to generate bill sequence' };
+      }
+
+      const order = await tx.order.create({
+        data: {
+          billNumber: formatDailyBillNumber(settings.billNumberPrefix, billDate, nextSequence),
+          status: 'pending',
+          subtotal: 0,
+          discountAmount: 0,
+          taxAmount: 0,
+          finalAmount: 0,
+          tableId,
+        },
+      });
+
+      return mapOrder(order);
+    });
   }
 
   async getOrderById(id) {

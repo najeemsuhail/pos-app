@@ -1,6 +1,6 @@
 import React from 'react';
 
-const OrderDetailsModal = ({ order, onClose }) => {
+const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling = false }) => {
   const formatCurrency = (amount) => {
     return `₹${parseFloat(amount).toFixed(2)}`;
   };
@@ -21,6 +21,9 @@ const OrderDetailsModal = ({ order, onClose }) => {
         return 'var(--text-secondary)';
     }
   };
+
+  const canCancel = order.status === 'pending';
+  const canReprint = order.status === 'paid' || order.status === 'cancelled';
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -148,6 +151,20 @@ const OrderDetailsModal = ({ order, onClose }) => {
         </div>
 
         <div className="modal-footer">
+          {canReprint && (
+            <button onClick={() => onReprint(order.id, order.bill_number)} className="btn-edit">
+              Reprint Bill
+            </button>
+          )}
+          {canCancel && (
+            <button
+              onClick={() => onCancel(order.id)}
+              className="btn-delete"
+              disabled={isCancelling}
+            >
+              {isCancelling ? 'Cancelling...' : 'Cancel Order'}
+            </button>
+          )}
           <button onClick={onClose} className="btn-secondary">
             Close
           </button>

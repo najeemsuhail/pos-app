@@ -70,6 +70,15 @@ model Order {
   @@map("orders")
 }
 
+model BillSequence {
+  id           Int      @id @default(autoincrement())
+  businessDate String   @unique @map("business_date")
+  lastNumber   Int      @default(0) @map("last_number")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("bill_sequences")
+}
+
 model OrderItem {
   id        Int     @id @default(autoincrement())
   orderId   Int     @map("order_id")

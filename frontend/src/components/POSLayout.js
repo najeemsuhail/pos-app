@@ -33,16 +33,33 @@ const POSLayout = ({
   const searchInputRef = useRef(null);
   const tableRailRef = useRef(null);
 
-  const filteredItems = items.filter((item) => {
-    const matchesCategory = selectedCategory ? item.category_id === selectedCategory : true;
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
   const categoryOptions = useMemo(() => ([
     { id: null, name: 'All' },
     ...categories.map((category) => ({ id: category.id, name: category.name })),
   ]), [categories]);
+
+  const filteredItems = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return items.filter((item) => {
+      const categoryName = categories.find((category) => category.id === item.category_id)?.name || '';
+      const searchableText = [
+        item.name || '',
+        categoryName,
+        String(item.price ?? ''),
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const matchesSearch = normalizedQuery ? searchableText.includes(normalizedQuery) : true;
+      const matchesCategory = normalizedQuery
+        ? true
+        : (selectedCategory ? item.category_id === selectedCategory : true);
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [categories, items, searchQuery, selectedCategory]);
+
   const getTableLabel = (tableId) => tableNames?.[tableId - 1] || `Table ${tableId}`;
 
   const categoryTotals = totals || { subtotal: 0, tax: 0, discount: 0, total: 0 };

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import ReceiptModal from '../ReceiptModal';
-import api, { orderService } from '../../services/api';
+import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
+import ReceiptModal from '../ReceiptModal';
 import OrderDetailsModal from './OrderDetailsModal';
+import SettlementModal from './SettlementModal';
+import api, { orderService } from '../../services/api';
+import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { printReceiptContent } from '../../utils/receiptPrint';
 
 const OrderHistoryTab = () => {
@@ -20,6 +21,8 @@ const OrderHistoryTab = () => {
   const [receiptBillNumber, setReceiptBillNumber] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
   const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
+  const [settlingPaymentId, setSettlingPaymentId] = useState(null);
+  const [paymentToSettle, setPaymentToSettle] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -44,9 +47,10 @@ const OrderHistoryTab = () => {
       setError('Please select both start and end dates');
       return;
     }
+
     fetchOrders({
       startDate: new Date(startDate).toISOString(),
-      endDate: new Date(endDate).toISOString()
+      endDate: new Date(endDate).toISOString(),
     });
   };
 
@@ -77,9 +81,9 @@ const OrderHistoryTab = () => {
   const handlePrintReceipt = async () => {
     try {
       await printReceiptContent(receiptPreview);
-    } catch (error) {
-      console.error('Receipt print error:', error);
-      setError(`Failed to print receipt: ${error.message}`);
+    } catch (printError) {
+      console.error('Receipt print error:', printError);
+      setError(`Failed to print receipt: ${printError.message}`);
     }
   };
 
@@ -95,7 +99,7 @@ const OrderHistoryTab = () => {
       await fetchOrders();
 
       if (selectedOrder?.id === orderId) {
-        setSelectedOrder((current) => current ? { ...current, status: 'cancelled' } : current);
+        setSelectedOrder((current) => (current ? { ...current, status: 'cancelled' } : current));
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to cancel order');
@@ -104,16 +108,54 @@ const OrderHistoryTab = () => {
     }
   };
 
-  const filteredOrders = orders.filter(order => {
+  const refreshSelectedOrder = async (orderId) => {
+    const response = await api.get(`/orders/${orderId}/full`);
+    setSelectedOrder(response.data);
+    return response.data;
+  };
+
+  const handleOpenSettlementModal = (payment) => {
+    setError('');
+    setPaymentToSettle(payment);
+  };
+
+  const handleSubmitSettlement = async ({ settlementAmount, referenceId }) => {
+    if (!selectedOrder || !paymentToSettle) {
+      return;
+    }
+
+    const existingSettledAmount = Number(paymentToSettle.settled_amount || 0);
+    const nextSettledAmount = existingSettledAmount + Number(settlementAmount);
+
+    try {
+      setSettlingPaymentId(paymentToSettle.id);
+      setError('');
+      await orderService.settlePayment(selectedOrder.id, paymentToSettle.id, {
+        settled_amount: nextSettledAmount,
+        reference_id: referenceId,
+      });
+      await fetchOrders();
+      await refreshSelectedOrder(selectedOrder.id);
+      setPaymentToSettle(null);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to settle payment');
+    } finally {
+      setSettlingPaymentId(null);
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
     if (statusFilter !== 'all' && order.status !== statusFilter) {
       return false;
     }
+
     return true;
   });
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'paid':
+      case 'completed':
         return 'var(--success-color)';
       case 'pending':
         return 'var(--warning-color)';
@@ -124,13 +166,9 @@ const OrderHistoryTab = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
-  };
+  const formatDate = (dateString) => new Date(dateString).toLocaleString();
 
-  const formatCurrency = (amount) => {
-    return `₹${parseFloat(amount).toFixed(2)}`;
-  };
+  const formatCurrency = (amount) => `Rs. ${parseFloat(amount).toFixed(2)}`;
 
   return (
     <div className="order-history-tab">
@@ -139,12 +177,24 @@ const OrderHistoryTab = () => {
       <div className="order-filters">
         <div>
           <label>Date Range:</label>
-          <DatePicker selected={parseDateStr(startDate)} onChange={(date) => setStartDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" placeholderText="Start Date" />
-          <DatePicker selected={parseDateStr(endDate)} onChange={(date) => setEndDate(formatDateStr(date))} className="date-input" dateFormat="yyyy-MM-dd" placeholderText="End Date" />
+          <DatePicker
+            selected={parseDateStr(startDate)}
+            onChange={(date) => setStartDate(formatDateStr(date))}
+            className="date-input"
+            dateFormat="yyyy-MM-dd"
+            placeholderText="Start Date"
+          />
+          <DatePicker
+            selected={parseDateStr(endDate)}
+            onChange={(date) => setEndDate(formatDateStr(date))}
+            className="date-input"
+            dateFormat="yyyy-MM-dd"
+            placeholderText="End Date"
+          />
           <button onClick={handleFilterByDate} className="btn-primary">
             Filter by Date
           </button>
-          <button onClick={() => fetchOrders()} className="btn-secondary" style={{marginLeft: '10px'}}>
+          <button onClick={() => fetchOrders()} className="btn-secondary" style={{ marginLeft: '10px' }}>
             Clear Filters
           </button>
         </div>
@@ -153,12 +203,12 @@ const OrderHistoryTab = () => {
           <label>Status:</label>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(event) => setStatusFilter(event.target.value)}
             className="date-input"
           >
             <option value="all">All Orders</option>
             <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
+            <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
@@ -205,12 +255,12 @@ const OrderHistoryTab = () => {
                       className="status"
                       style={{
                         background: getStatusColor(order.status),
-                         color: 'var(--text-on-brand)',
+                        color: 'var(--text-on-brand)',
                         padding: '4px 8px',
                         borderRadius: '4px',
                         fontSize: '11px',
                         fontWeight: 'bold',
-                        textTransform: 'capitalize'
+                        textTransform: 'capitalize',
                       }}
                     >
                       {order.status}
@@ -225,7 +275,7 @@ const OrderHistoryTab = () => {
                       >
                         Details
                       </button>
-                      {(order.status === 'paid' || order.status === 'cancelled') && (
+                      {['completed', 'paid', 'cancelled'].includes(order.status) && (
                         <button
                           onClick={() => handleReprint(order.id, order.bill_number)}
                           className="btn-secondary"
@@ -259,11 +309,27 @@ const OrderHistoryTab = () => {
           order={selectedOrder}
           onReprint={handleReprint}
           onCancel={handleCancelOrder}
+          onSettlePayment={handleOpenSettlementModal}
           isCancelling={isCancelling}
+          settlingPaymentId={settlingPaymentId}
           onClose={() => {
             setShowModal(false);
             setSelectedOrder(null);
+            setPaymentToSettle(null);
           }}
+        />
+      )}
+
+      {paymentToSettle && (
+        <SettlementModal
+          payment={paymentToSettle}
+          isSubmitting={settlingPaymentId === paymentToSettle.id}
+          onClose={() => {
+            if (!settlingPaymentId) {
+              setPaymentToSettle(null);
+            }
+          }}
+          onSubmit={handleSubmitSettlement}
         />
       )}
 

@@ -3,9 +3,19 @@ const OrderItemRepository = require('../repositories/OrderItemRepository');
 const PaymentRepository = require('../repositories/PaymentRepository');
 const MenuItemRepository = require('../repositories/MenuItemRepository');
 const prisma = require('../db/prisma');
-const { mapOrder } = require('../db/mappers');
-const { formatBillDate, formatDailyBillNumber, calculateTax, calculateDiscount } = require('../utils/billing');
+const { mapOrder, mapPayment } = require('../db/mappers');
+const { formatBillDate, formatDailyBillNumber, calculateTax } = require('../utils/billing');
 const SettingService = require('./SettingService');
+const {
+  ORDER_STATUSES,
+  ORDER_PAYMENT_STATUSES,
+  PAYMENT_STATUSES,
+  PAYMENT_SOURCES,
+  normalizePaymentInput,
+  normalizePaymentSource,
+  deriveOrderPaymentStatus,
+  toNumber,
+} = require('../utils/paymentState');
 
 let ensureBillSequenceTablePromise = null;
 
@@ -58,7 +68,8 @@ class OrderService {
       const order = await tx.order.create({
         data: {
           billNumber: formatDailyBillNumber(settings.billNumberPrefix, billDate, nextSequence),
-          status: 'pending',
+          status: ORDER_STATUSES.PENDING,
+          paymentStatus: ORDER_PAYMENT_STATUSES.UNPAID,
           subtotal: 0,
           discountAmount: 0,
           taxAmount: 0,
@@ -167,45 +178,189 @@ class OrderService {
   async payOrder(orderId, payments) {
     const order = await this.getOrderById(orderId);
 
-    if (order.status === 'paid') {
-      throw { status: 400, message: 'Order is already paid' };
+    if ((payments || []).length === 0) {
+      throw { status: 400, message: 'At least one payment entry is required' };
     }
 
-    let totalPaid = 0;
-    const paymentRecords = [];
+    if (toNumber(order.final_amount) <= 0) {
+      throw { status: 400, message: 'Finalize the order before recording payment' };
+    }
 
-    for (const payment of payments) {
-      if (!payment.method || !payment.amount) {
+    if (order.status === ORDER_STATUSES.CANCELLED) {
+      throw { status: 400, message: 'Cannot accept payments for a cancelled order' };
+    }
+
+    if (order.payment_status === ORDER_PAYMENT_STATUSES.PAID) {
+      throw { status: 400, message: 'Order is already fully settled' };
+    }
+
+    const normalizedPayments = payments.map((payment) => {
+      if (!payment.method || payment.amount === undefined || payment.amount === null) {
         throw { status: 400, message: 'Payment method and amount are required' };
       }
 
-      const record = await PaymentRepository.create(
-        orderId,
-        payment.method,
-        payment.amount,
-        payment.reference_id || null
-      );
+      const normalized = normalizePaymentInput(payment);
+      const aggregatorExpenseAmount = toNumber(payment.aggregator_expense_amount ?? payment.aggregatorExpenseAmount);
 
-      paymentRecords.push(record);
-      totalPaid += payment.amount;
+      if (normalized.amount <= 0) {
+        throw { status: 400, message: 'Payment amount must be greater than zero' };
+      }
+
+      if (normalized.settledAmount < 0 || normalized.settledAmount > normalized.amount) {
+        throw { status: 400, message: 'Settled amount must be between 0 and payment amount' };
+      }
+
+      if (aggregatorExpenseAmount < 0) {
+        throw { status: 400, message: 'Aggregator expense amount cannot be negative' };
+      }
+
+      if (aggregatorExpenseAmount > normalized.amount) {
+        throw { status: 400, message: 'Aggregator expense amount cannot exceed payment amount' };
+      }
+
+      return normalized;
+    });
+
+    const result = await prisma.$transaction(async (tx) => {
+      const paymentRecords = [];
+
+      for (const [index, payment] of normalizedPayments.entries()) {
+        const record = await tx.payment.create({
+          data: {
+            orderId: Number(orderId),
+            method: payment.method,
+            source: payment.source,
+            status: payment.status,
+            amount: payment.amount,
+            settledAmount: payment.settledAmount,
+            referenceId: payment.referenceId,
+            settledAt: payment.settledAt
+              ? new Date(payment.settledAt)
+              : payment.status === PAYMENT_STATUSES.SETTLED
+                ? new Date()
+                : null,
+          },
+        });
+
+        paymentRecords.push(record);
+
+        const source = normalizePaymentSource(payment.source);
+        const rawPayment = payments[index] || {};
+        const aggregatorExpenseAmount = toNumber(
+          rawPayment.aggregator_expense_amount ?? rawPayment.aggregatorExpenseAmount
+        );
+
+        if (
+          aggregatorExpenseAmount > 0
+          && (source === PAYMENT_SOURCES.SWIGGY || source === PAYMENT_SOURCES.ZOMATO)
+        ) {
+          await tx.expense.create({
+            data: {
+              expenseDate: new Date(order.created_at || new Date()),
+              category: 'Marketing',
+              note: `${source} expense for bill ${order.bill_number}`,
+              amount: aggregatorExpenseAmount,
+              paymentMethod: source,
+              reference: payment.referenceId || order.bill_number,
+            },
+          });
+        }
+      }
+
+      const allPayments = await tx.payment.findMany({
+        where: { orderId: Number(orderId) },
+      });
+      const paymentStatus = deriveOrderPaymentStatus(order.final_amount, allPayments);
+      const status = order.status === ORDER_STATUSES.CANCELLED ? ORDER_STATUSES.CANCELLED : ORDER_STATUSES.COMPLETED;
+
+      await tx.order.update({
+        where: { id: Number(orderId) },
+        data: {
+          status,
+          paymentStatus,
+          updatedAt: new Date(),
+        },
+      });
+
+      const totalSettled = allPayments.reduce((sum, payment) => sum + toNumber(payment.settledAmount), 0);
+
+      return {
+        payments: paymentRecords.map(mapPayment),
+        payment_status: paymentStatus,
+        change: Math.max(0, totalSettled - toNumber(order.final_amount)),
+      };
+    });
+
+    return result;
+  }
+
+  async settlePayment(orderId, paymentId, settlementData = {}) {
+    const order = await this.getOrderById(orderId);
+
+    if (order.status === ORDER_STATUSES.CANCELLED) {
+      throw { status: 400, message: 'Cannot settle payment for a cancelled order' };
     }
 
-    if (totalPaid < order.final_amount) {
-      throw { status: 400, message: 'Insufficient payment amount' };
+    const payment = await PaymentRepository.findById(paymentId);
+    if (!payment || Number(payment.order_id) !== Number(orderId)) {
+      throw { status: 404, message: 'Payment not found for this order' };
     }
 
-    await OrderRepository.updateStatus(orderId, 'paid');
-    return { payments: paymentRecords, change: totalPaid - order.final_amount };
+    const settledAmount = settlementData.settled_amount ?? payment.amount;
+    const numericSettledAmount = toNumber(settledAmount);
+
+    if (numericSettledAmount <= 0) {
+      throw { status: 400, message: 'Settled amount must be greater than zero' };
+    }
+
+    if (numericSettledAmount > toNumber(payment.amount)) {
+      throw { status: 400, message: 'Settled amount cannot exceed payment amount' };
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const status = numericSettledAmount >= toNumber(payment.amount)
+        ? PAYMENT_STATUSES.SETTLED
+        : PAYMENT_STATUSES.PARTIAL;
+
+      const updatedPayment = await tx.payment.update({
+        where: { id: Number(paymentId) },
+        data: {
+          settledAmount: numericSettledAmount,
+          status,
+          referenceId: settlementData.reference_id ?? payment.reference_id ?? null,
+          settledAt: settlementData.settled_at ? new Date(settlementData.settled_at) : new Date(),
+        },
+      });
+
+      const allPayments = await tx.payment.findMany({
+        where: { orderId: Number(orderId) },
+      });
+      const paymentStatus = deriveOrderPaymentStatus(order.final_amount, allPayments);
+
+      await tx.order.update({
+        where: { id: Number(orderId) },
+        data: {
+          status: ORDER_STATUSES.COMPLETED,
+          paymentStatus,
+          updatedAt: new Date(),
+        },
+      });
+
+      return {
+        payment: mapPayment(updatedPayment),
+        payment_status: paymentStatus,
+      };
+    });
   }
 
   async cancelOrder(orderId) {
     const order = await this.getOrderById(orderId);
 
-    if (order.status === 'paid') {
-      throw { status: 400, message: 'Cannot cancel a paid order' };
+    if (order.status !== ORDER_STATUSES.PENDING) {
+      throw { status: 400, message: 'Only pending orders can be cancelled' };
     }
 
-    return await OrderRepository.updateStatus(orderId, 'cancelled');
+    return await OrderRepository.updateStatuses(orderId, ORDER_STATUSES.CANCELLED, order.payment_status);
   }
 
   async getOrderPayments(orderId) {

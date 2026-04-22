@@ -2,6 +2,12 @@ const OrderRepository = require('../repositories/OrderRepository');
 const OrderItemRepository = require('../repositories/OrderItemRepository');
 const PaymentRepository = require('../repositories/PaymentRepository');
 const ExpenseRepository = require('../repositories/ExpenseRepository');
+const {
+  ORDER_STATUSES,
+  ORDER_PAYMENT_STATUSES,
+  isRecognizedSale,
+  isFullyPaid,
+} = require('../utils/paymentState');
 
 class ReportService {
   buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses) {
@@ -27,6 +33,7 @@ class ReportService {
       const existing = byHour.get(hour) || {
         hour,
         orderCount: 0,
+        completedCount: 0,
         paidCount: 0,
         sales: 0,
         tax: 0,
@@ -37,9 +44,13 @@ class ReportService {
       existing.tax += Number(order.tax_amount) || 0;
       existing.discount += Number(order.discount_amount) || 0;
 
-      if (order.status === 'paid') {
-        existing.paidCount += 1;
+      if (isRecognizedSale(order)) {
+        existing.completedCount += 1;
         existing.sales += Number(order.final_amount) || 0;
+      }
+
+      if (isFullyPaid(order)) {
+        existing.paidCount += 1;
       }
 
       byHour.set(hour, existing);
@@ -50,7 +61,7 @@ class ReportService {
 
   async getTopBottomItems(orders) {
     const paidOrderIds = orders
-      .filter((order) => order.status === 'paid')
+      .filter((order) => isRecognizedSale(order))
       .map((order) => order.id);
 
     if (paidOrderIds.length === 0) {
@@ -106,18 +117,24 @@ class ReportService {
     const payments = await PaymentRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
     const expenses = await ExpenseRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
 
-    const paidOrders = orders.filter((order) => order.status === 'paid');
-    const totalSales = paidOrders.reduce((sum, order) => sum + (Number(order.final_amount) || 0), 0);
-    const totalDiscount = paidOrders.reduce((sum, order) => sum + (Number(order.discount_amount) || 0), 0);
-    const totalTax = paidOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
+    const completedOrders = orders.filter((order) => isRecognizedSale(order));
+    const paidOrders = orders.filter((order) => isFullyPaid(order));
+    const totalSales = completedOrders.reduce((sum, order) => sum + (Number(order.final_amount) || 0), 0);
+    const totalDiscount = completedOrders.reduce((sum, order) => sum + (Number(order.discount_amount) || 0), 0);
+    const totalTax = completedOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
 
     const paymentByMethod = {};
     payments.forEach((payment) => {
-      if (!paymentByMethod[payment.method]) {
-        paymentByMethod[payment.method] = 0;
+      const settledAmount = Number(payment.settled_amount) || 0;
+      if (settledAmount <= 0) {
+        return;
       }
-      paymentByMethod[payment.method] += Number(payment.amount) || 0;
+      const key = [payment.method, payment.source].filter(Boolean).join(' / ');
+      if (!paymentByMethod[key]) {
+        paymentByMethod[key] = 0;
+      }
+      paymentByMethod[key] += settledAmount;
     });
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
@@ -126,6 +143,7 @@ class ReportService {
     return {
       date: date.toISOString().split('T')[0],
       totalOrders: orders.length,
+      completedOrders: completedOrders.length,
       paidOrders: paidOrders.length,
       totalSales,
       totalDiscount,
@@ -136,7 +154,7 @@ class ReportService {
       expensesByCategory: this.groupExpensesByCategory(expenses),
       expenseCount: expenses.length,
       profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
-      averageOrderValue: paidOrders.length > 0 ? totalSales / paidOrders.length : 0,
+      averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
       allItems,
     };
@@ -153,18 +171,24 @@ class ReportService {
     const payments = await PaymentRepository.findByDateRange(start.toISOString(), end.toISOString());
     const expenses = await ExpenseRepository.findByDateRange(start.toISOString(), end.toISOString());
 
-    const paidOrders = orders.filter((order) => order.status === 'paid');
-    const totalSales = paidOrders.reduce((sum, order) => sum + (Number(order.final_amount) || 0), 0);
-    const totalDiscount = paidOrders.reduce((sum, order) => sum + (Number(order.discount_amount) || 0), 0);
-    const totalTax = paidOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
+    const completedOrders = orders.filter((order) => isRecognizedSale(order));
+    const paidOrders = orders.filter((order) => isFullyPaid(order));
+    const totalSales = completedOrders.reduce((sum, order) => sum + (Number(order.final_amount) || 0), 0);
+    const totalDiscount = completedOrders.reduce((sum, order) => sum + (Number(order.discount_amount) || 0), 0);
+    const totalTax = completedOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
 
     const paymentByMethod = {};
     payments.forEach((payment) => {
-      if (!paymentByMethod[payment.method]) {
-        paymentByMethod[payment.method] = 0;
+      const settledAmount = Number(payment.settled_amount) || 0;
+      if (settledAmount <= 0) {
+        return;
       }
-      paymentByMethod[payment.method] += Number(payment.amount) || 0;
+      const key = [payment.method, payment.source].filter(Boolean).join(' / ');
+      if (!paymentByMethod[key]) {
+        paymentByMethod[key] = 0;
+      }
+      paymentByMethod[key] += settledAmount;
     });
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
@@ -174,6 +198,7 @@ class ReportService {
       startDate: start.toISOString().split('T')[0],
       endDate: end.toISOString().split('T')[0],
       totalOrders: orders.length,
+      completedOrders: completedOrders.length,
       paidOrders: paidOrders.length,
       totalSales,
       totalDiscount,
@@ -184,7 +209,7 @@ class ReportService {
       expensesByCategory: this.groupExpensesByCategory(expenses),
       expenseCount: expenses.length,
       profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
-      averageOrderValue: paidOrders.length > 0 ? totalSales / paidOrders.length : 0,
+      averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
       allItems,
     };
@@ -247,8 +272,10 @@ class ReportService {
       expenses: expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0),
       netAfterExpenses: 0,
       paidOrders: 0,
+      completedOrders: 0,
       pendingOrders: 0,
       cancelledOrders: 0,
+      pendingSettlementOrders: 0,
     };
 
     orders.forEach((order) => {
@@ -256,14 +283,24 @@ class ReportService {
       const taxAmount = Number(order.tax_amount) || 0;
       const discountAmount = Number(order.discount_amount) || 0;
 
-      if (order.status === 'paid') {
+      if (isRecognizedSale(order)) {
         revenue.gross += finalAmount + discountAmount;
         revenue.net += finalAmount;
+        revenue.completedOrders += 1;
+      }
+
+      if (isFullyPaid(order)) {
         revenue.paidOrders += 1;
-      } else if (order.status === 'pending') {
+      }
+
+      if (order.status === ORDER_STATUSES.PENDING) {
         revenue.pendingOrders += 1;
-      } else if (order.status === 'cancelled') {
+      } else if (order.status === ORDER_STATUSES.CANCELLED) {
         revenue.cancelledOrders += 1;
+      }
+
+      if (order.payment_status === ORDER_PAYMENT_STATUSES.PENDING_SETTLEMENT) {
+        revenue.pendingSettlementOrders += 1;
       }
 
       revenue.discounts += discountAmount;

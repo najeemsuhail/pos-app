@@ -141,6 +141,16 @@ class OrderController {
     }
   }
 
+  async settlePayment(req, res, next) {
+    try {
+      const { id, paymentId } = req.params;
+      const result = await OrderService.settlePayment(id, paymentId, req.body || {});
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getReceipt(req, res, next) {
     try {
       const { id } = req.params;

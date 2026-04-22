@@ -79,7 +79,8 @@ class SeederService {
         await prisma.order.create({
             data: {
                 billNumber: `INIT-${Date.now()}-${i}`,
-                status: 'paid',
+                status: 'completed',
+                paymentStatus: 'paid',
                 subtotal,
                 taxAmount: subtotal * 0.05,
                 finalAmount,
@@ -89,7 +90,11 @@ class SeederService {
                 payments: {
                     create: {
                         method: Math.random() > 0.5 ? 'UPI' : 'Cash',
+                        source: 'Direct',
+                        status: 'settled',
                         amount: finalAmount,
+                        settledAmount: finalAmount,
+                        settledAt: date,
                         createdAt: date,
                     }
                 }

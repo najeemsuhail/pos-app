@@ -458,6 +458,7 @@ class SyncService {
           update: {
             billNumber: order.bill_number,
             status: order.status,
+            paymentStatus: order.payment_status || 'unpaid',
             tableId: order.table_id,
             subtotal: Number(order.subtotal),
             discountAmount: Number(order.discount_amount),
@@ -469,6 +470,7 @@ class SyncService {
             id: Number(order.id),
             billNumber: order.bill_number,
             status: order.status,
+            paymentStatus: order.payment_status || 'unpaid',
             tableId: order.table_id,
             subtotal: Number(order.subtotal),
             discountAmount: Number(order.discount_amount),
@@ -507,8 +509,12 @@ class SyncService {
               id: Number(payment.id),
               orderId: Number(payment.order_id),
               method: payment.method,
+              source: payment.source || 'Direct',
+              status: payment.status || 'pending',
               amount: Number(payment.amount),
+              settledAmount: Number(payment.settled_amount || 0),
               referenceId: payment.reference_id || null,
+              settledAt: payment.settled_at ? new Date(payment.settled_at) : null,
               createdAt: new Date(payment.created_at),
             },
           });

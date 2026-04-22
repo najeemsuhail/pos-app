@@ -124,6 +124,7 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   role: 'role',
   password: 'password',
+  featureAccessOverrides: 'featureAccessOverrides',
   createdAt: 'createdAt'
 };
 
@@ -149,12 +150,20 @@ exports.Prisma.OrderScalarFieldEnum = {
   id: 'id',
   billNumber: 'billNumber',
   status: 'status',
+  paymentStatus: 'paymentStatus',
   tableId: 'tableId',
   subtotal: 'subtotal',
   discountAmount: 'discountAmount',
   taxAmount: 'taxAmount',
   finalAmount: 'finalAmount',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BillSequenceScalarFieldEnum = {
+  id: 'id',
+  businessDate: 'businessDate',
+  lastNumber: 'lastNumber',
   updatedAt: 'updatedAt'
 };
 
@@ -172,8 +181,12 @@ exports.Prisma.PaymentScalarFieldEnum = {
   id: 'id',
   orderId: 'orderId',
   method: 'method',
+  source: 'source',
+  status: 'status',
   amount: 'amount',
+  settledAmount: 'settledAmount',
   referenceId: 'referenceId',
+  settledAt: 'settledAt',
   createdAt: 'createdAt'
 };
 
@@ -204,6 +217,7 @@ exports.Prisma.ModelName = {
   Category: 'Category',
   MenuItem: 'MenuItem',
   Order: 'Order',
+  BillSequence: 'BillSequence',
   OrderItem: 'OrderItem',
   Payment: 'Payment',
   Expense: 'Expense'

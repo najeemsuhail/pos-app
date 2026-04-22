@@ -1,17 +1,22 @@
 import React from 'react';
 
-const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling = false }) => {
-  const formatCurrency = (amount) => {
-    return `₹${parseFloat(amount).toFixed(2)}`;
-  };
+const OrderDetailsModal = ({
+  order,
+  onClose,
+  onReprint,
+  onCancel,
+  onSettlePayment,
+  isCancelling = false,
+  settlingPaymentId = null,
+}) => {
+  const formatCurrency = (amount) => `Rs. ${parseFloat(amount || 0).toFixed(2)}`;
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
-  };
+  const formatDate = (dateString) => new Date(dateString).toLocaleString();
 
   const getStatusColor = (status) => {
     switch (status) {
       case 'paid':
+      case 'completed':
         return 'var(--success-color)';
       case 'pending':
         return 'var(--warning-color)';
@@ -22,21 +27,35 @@ const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling =
     }
   };
 
+  const getPaymentStatusColor = (status) => {
+    switch (status) {
+      case 'paid':
+        return 'var(--success-color)';
+      case 'pending_settlement':
+      case 'partial':
+        return 'var(--warning-color)';
+      case 'unpaid':
+        return 'var(--text-secondary)';
+      default:
+        return 'var(--text-secondary)';
+    }
+  };
+
   const canCancel = order.status === 'pending';
-  const canReprint = order.status === 'paid' || order.status === 'cancelled';
+  const canReprint = ['completed', 'paid', 'cancelled'].includes(order.status);
+  const canSettlePayment = (payment) => ['pending', 'partial'].includes(payment.status);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={(event) => event.stopPropagation()}>
         <div className="modal-header">
           <h2>Order Details</h2>
           <button onClick={onClose} className="modal-close">
-            ✕
+            x
           </button>
         </div>
 
         <div className="modal-body">
-          {/* Order Summary */}
           <div className="order-summary">
             <div className="summary-row">
               <label>Bill Number:</label>
@@ -57,15 +76,31 @@ const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling =
                   fontSize: '12px',
                   fontWeight: 'bold',
                   textTransform: 'capitalize',
-                  display: 'inline-block'
+                  display: 'inline-block',
                 }}
               >
                 {order.status}
               </span>
             </div>
+            <div className="summary-row">
+              <label>Payment Status:</label>
+              <span
+                style={{
+                  background: getPaymentStatusColor(order.payment_status),
+                  color: 'var(--text-on-brand)',
+                  padding: '4px 12px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  textTransform: 'capitalize',
+                  display: 'inline-block',
+                }}
+              >
+                {order.payment_status || 'unpaid'}
+              </span>
+            </div>
           </div>
 
-          {/* Order Items */}
           {order.items && order.items.length > 0 && (
             <div className="order-section">
               <h3>Items</h3>
@@ -83,9 +118,7 @@ const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling =
                     <tr key={index}>
                       <td>{item.name}</td>
                       <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                      <td style={{ textAlign: 'right' }}>
-                        {formatCurrency(item.price)}
-                      </td>
+                      <td style={{ textAlign: 'right' }}>{formatCurrency(item.price)}</td>
                       <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
                         {formatCurrency(parseFloat(item.price) * item.quantity)}
                       </td>
@@ -96,7 +129,6 @@ const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling =
             </div>
           )}
 
-          {/* Amount Breakdown */}
           <div className="order-section amount-breakdown">
             <div className="breakdown-row">
               <label>Subtotal:</label>
@@ -122,7 +154,6 @@ const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling =
             </div>
           </div>
 
-          {/* Payments */}
           {order.payments && order.payments.length > 0 && (
             <div className="order-section">
               <h3>Payments</h3>
@@ -130,18 +161,42 @@ const OrderDetailsModal = ({ order, onClose, onReprint, onCancel, isCancelling =
                 <thead>
                   <tr>
                     <th>Method</th>
+                    <th>Source</th>
+                    <th>Status</th>
                     <th style={{ textAlign: 'right' }}>Amount</th>
+                    <th style={{ textAlign: 'right' }}>Settled</th>
                     <th>Reference</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {order.payments.map((payment, index) => (
                     <tr key={index}>
                       <td>{payment.method}</td>
+                      <td>{payment.source || 'Direct'}</td>
+                      <td>{payment.status || 'pending'}</td>
                       <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
                         {formatCurrency(payment.amount)}
                       </td>
+                      <td style={{ textAlign: 'right' }}>
+                        {formatCurrency(payment.settled_amount || 0)}
+                      </td>
                       <td>{payment.reference_id || '-'}</td>
+                      <td>
+                        {canSettlePayment(payment) ? (
+                          <button
+                            onClick={() => onSettlePayment(payment)}
+                            className="btn-edit"
+                            disabled={settlingPaymentId === payment.id}
+                          >
+                            {settlingPaymentId === payment.id ? 'Settling...' : 'Settle'}
+                          </button>
+                        ) : (
+                          <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+                            Settled
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -24,6 +24,9 @@ router.post('/:id/finalize', authenticate, authorize('Admin', 'Staff'), (req, re
   OrderController.finalize(req, res, next)
 );
 router.post('/:id/payments', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.pay(req, res, next));
+router.post('/:id/payments/:paymentId/settle', authenticate, authorize('Admin', 'Staff'), (req, res, next) =>
+  OrderController.settlePayment(req, res, next)
+);
 router.post('/:id/cancel', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.cancel(req, res, next));
 router.get('/:id/receipt', authenticate, (req, res, next) => OrderController.getReceipt(req, res, next));
 

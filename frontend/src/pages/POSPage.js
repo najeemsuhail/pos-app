@@ -249,7 +249,10 @@ const POSPage = () => {
     try {
       setLoading(true);
 
-      await orderService.pay(currentOrder.id, payments);
+      const paymentRes = await orderService.pay(currentOrder.id, payments);
+      const updatedOrderRes = await orderService.getById(currentOrder.id);
+      setCurrentOrder(updatedOrderRes.data);
+      setOrder(updatedOrderRes.data);
 
       const receiptRes = await orderService.getReceipt(currentOrder.id);
       setReceipt(receiptRes.data);
@@ -257,6 +260,10 @@ const POSPage = () => {
 
       setShowPaymentModal(false);
       setShowReceiptModal(true);
+
+      if (paymentRes.data?.payment_status === 'pending_settlement') {
+        window.alert('Order completed. Payment is pending settlement and will be collected later.');
+      }
     } catch (error) {
       alert('Error processing payment: ' + (error.response?.data?.error || error.message));
     } finally {

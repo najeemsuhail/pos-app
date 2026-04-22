@@ -64,6 +64,17 @@ const formatItemLines = (name, quantity, amount, itemWidth, qtyWidth, amountWidt
   });
 };
 
+const getCustomerPaymentLabel = (payment) => {
+  const source = String(payment?.source || '').trim().toLowerCase();
+  const method = String(payment?.method || '').trim();
+
+  if (source === 'swiggy' || source === 'zomato') {
+    return 'Online';
+  }
+
+  return method || 'Payment';
+};
+
 const generateThermalReceipt = (order, items, payments) => {
   const settings = SettingService.getSettings();
   const width = 40; // 80mm thermal width in characters
@@ -100,6 +111,8 @@ const generateThermalReceipt = (order, items, payments) => {
   receipt += `Bill No : ${order.bill_number}\n`;
   receipt += `Date    : ${new Date(order.created_at).toLocaleDateString()}\n`;
   receipt += `Time    : ${new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\n`;
+  receipt += `Order   : ${order.status}\n`;
+  receipt += `Payment : ${order.payment_status || 'unpaid'}\n`;
   if (tableLabel) {
     receipt += `Table   : ${tableLabel}\n`;
   }
@@ -141,7 +154,8 @@ const generateThermalReceipt = (order, items, payments) => {
   receipt += line + '\n';
   payments.forEach((payment) => {
     const paymentAmount = parseFloat(payment.amount) || 0;
-    receipt += `${formatKeyValueLine(payment.method, `Rs. ${paymentAmount.toFixed(2)}`, width)}\n`;
+    const paymentLabel = getCustomerPaymentLabel(payment);
+    receipt += `${formatKeyValueLine(paymentLabel, `Rs. ${paymentAmount.toFixed(2)}`, width)}\n`;
   });
 
   receipt += '\n' + line + '\n';

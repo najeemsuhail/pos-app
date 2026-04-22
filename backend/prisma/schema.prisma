@@ -54,6 +54,7 @@ model Order {
   id           Int     @id @default(autoincrement())
   billNumber   String  @unique @map("bill_number")
   status       String  @default("pending")
+  paymentStatus String @default("unpaid") @map("payment_status")
   tableId      Int?    @map("table_id")
   subtotal     Decimal @default(0)
   discountAmount Decimal @default(0) @map("discount_amount")
@@ -99,8 +100,12 @@ model Payment {
   id          Int     @id @default(autoincrement())
   orderId     Int     @map("order_id")
   method      String
+  source      String  @default("Direct")
+  status      String  @default("settled")
   amount      Decimal
+  settledAmount Decimal @default(0) @map("settled_amount")
   referenceId String?  @map("reference_id")
+  settledAt   DateTime? @map("settled_at")
   createdAt   DateTime @default(now()) @map("created_at")
   
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)

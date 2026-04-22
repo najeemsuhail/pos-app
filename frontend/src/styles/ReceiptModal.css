@@ -2,9 +2,9 @@
   background-color: var(--card-bg);
   color: var(--text-primary);
   border-radius: 16px;
-  width: 90%;
-  max-width: 560px;
-  max-height: 88vh;
+  width: min(94vw, 920px);
+  max-width: 920px;
+  max-height: 94vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
 }
@@ -41,7 +41,7 @@
 }
 
 .receipt-content {
-  padding: 18px;
+  padding: 24px;
   background: linear-gradient(180deg, var(--surface-muted) 0%, var(--bg-secondary) 100%);
   color: var(--text-primary);
 }
@@ -100,9 +100,9 @@
 }
 
 .receipt-paper {
-  max-width: 360px;
+  max-width: 520px;
   margin: 0 auto;
-  padding: 16px 14px;
+  padding: 20px 18px;
   border: 1px solid var(--border-color);
   border-radius: 16px;
   background: #fffef9;
@@ -182,7 +182,8 @@
 
 @media (max-width: 640px) {
   .receipt-modal {
-    width: calc(100% - 20px);
+    width: calc(100% - 16px);
+    max-height: 96vh;
   }
 
   .receipt-brand {

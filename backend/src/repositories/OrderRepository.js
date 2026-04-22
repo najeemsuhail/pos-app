@@ -2,11 +2,12 @@ const prisma = require('../db/prisma');
 const { mapOrder } = require('../db/mappers');
 
 class OrderRepository {
-  async create(billNumber, subtotal, discountAmount, taxAmount, finalAmount, tableId = null) {
+  async create(billNumber, subtotal, discountAmount, taxAmount, finalAmount, tableId = null, status = 'pending', paymentStatus = 'unpaid') {
     const order = await prisma.order.create({
       data: {
         billNumber,
-        status: 'pending',
+        status,
+        paymentStatus,
         subtotal,
         discountAmount,
         taxAmount,
@@ -31,7 +32,7 @@ class OrderRepository {
     return mapOrder(order);
   }
 
-  async update(id, subtotal, discountAmount, taxAmount, finalAmount) {
+  async update(id, subtotal, discountAmount, taxAmount, finalAmount, paymentStatus = undefined) {
     const order = await prisma.order.update({
       where: { id: Number(id) },
       data: {
@@ -39,6 +40,7 @@ class OrderRepository {
         discountAmount,
         taxAmount,
         finalAmount,
+        ...(paymentStatus ? { paymentStatus } : {}),
         updatedAt: new Date(),
       },
     });
@@ -50,6 +52,29 @@ class OrderRepository {
       where: { id: Number(id) },
       data: {
         status,
+        updatedAt: new Date(),
+      },
+    });
+    return mapOrder(order);
+  }
+
+  async updatePaymentStatus(id, paymentStatus) {
+    const order = await prisma.order.update({
+      where: { id: Number(id) },
+      data: {
+        paymentStatus,
+        updatedAt: new Date(),
+      },
+    });
+    return mapOrder(order);
+  }
+
+  async updateStatuses(id, status, paymentStatus) {
+    const order = await prisma.order.update({
+      where: { id: Number(id) },
+      data: {
+        status,
+        paymentStatus,
         updatedAt: new Date(),
       },
     });

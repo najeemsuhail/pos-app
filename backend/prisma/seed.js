@@ -204,7 +204,8 @@ async function main() {
         await prisma.order.create({
             data: {
                 billNumber: `INV-${Date.now()}-${i}`,
-                status: 'paid',
+                status: 'completed',
+                paymentStatus: 'paid',
                 subtotal,
                 taxAmount,
                 finalAmount,
@@ -216,7 +217,11 @@ async function main() {
                 payments: {
                     create: {
                         method: Math.random() > 0.4 ? 'UPI' : 'Cash',
+                        source: 'Direct',
+                        status: 'settled',
                         amount: finalAmount,
+                        settledAmount: finalAmount,
+                        settledAt: date,
                         createdAt: date,
                     },
                 },
@@ -271,4 +276,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

@@ -73,6 +73,7 @@ function mapOrder(order) {
     id: order.id,
     bill_number: order.billNumber,
     status: order.status,
+    payment_status: order.paymentStatus,
     table_id: order.tableId,
     subtotal: toNumber(order.subtotal),
     discount_amount: toNumber(order.discountAmount),
@@ -108,8 +109,12 @@ function mapPayment(payment) {
     id: payment.id,
     order_id: payment.orderId,
     method: payment.method,
+    source: payment.source,
+    status: payment.status,
     amount: toNumber(payment.amount),
+    settled_amount: toNumber(payment.settledAmount),
     reference_id: payment.referenceId,
+    settled_at: payment.settledAt,
     created_at: payment.createdAt,
   };
 }

@@ -42,6 +42,7 @@ async function ensureSchema() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       bill_number TEXT NOT NULL UNIQUE,
       status TEXT NOT NULL DEFAULT 'pending',
+      payment_status TEXT NOT NULL DEFAULT 'unpaid',
       table_id INTEGER,
       subtotal DECIMAL NOT NULL DEFAULT 0,
       discount_amount DECIMAL NOT NULL DEFAULT 0,
@@ -71,8 +72,12 @@ async function ensureSchema() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       order_id INTEGER NOT NULL,
       method TEXT NOT NULL,
+      source TEXT NOT NULL DEFAULT 'Direct',
+      status TEXT NOT NULL DEFAULT 'settled',
       amount DECIMAL NOT NULL,
+      settled_amount DECIMAL NOT NULL DEFAULT 0,
       reference_id TEXT,
+      settled_at DATETIME,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
     )
@@ -126,6 +131,46 @@ async function ensureSchema() {
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status, updated_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)');
+
+  await ensureColumn('orders', 'payment_status', "TEXT NOT NULL DEFAULT 'unpaid'");
+  await ensureColumn('payments', 'source', "TEXT NOT NULL DEFAULT 'Direct'");
+  await ensureColumn('payments', 'status', "TEXT NOT NULL DEFAULT 'settled'");
+  await ensureColumn('payments', 'settled_amount', 'DECIMAL NOT NULL DEFAULT 0');
+  await ensureColumn('payments', 'settled_at', 'DATETIME');
+
+  await prisma.$executeRawUnsafe(
+    "UPDATE orders SET payment_status = 'paid' WHERE status = 'paid' AND (payment_status IS NULL OR payment_status = '' OR payment_status = 'unpaid')"
+  );
+  await prisma.$executeRawUnsafe(
+    "UPDATE orders SET status = 'completed' WHERE status = 'paid'"
+  );
+  await prisma.$executeRawUnsafe(
+    "UPDATE payments SET source = 'Direct' WHERE source IS NULL OR TRIM(source) = ''"
+  );
+  await prisma.$executeRawUnsafe(
+    "UPDATE payments SET status = CASE WHEN LOWER(COALESCE(method, '')) = 'credit' OR LOWER(COALESCE(source, '')) IN ('swiggy', 'zomato') THEN 'pending' ELSE 'settled' END WHERE status IS NULL OR TRIM(status) = ''"
+  );
+  await prisma.$executeRawUnsafe(
+    "UPDATE payments SET settled_amount = CASE WHEN status = 'settled' AND (settled_amount IS NULL OR settled_amount = 0) THEN amount ELSE COALESCE(settled_amount, 0) END"
+  );
+  await prisma.$executeRawUnsafe(
+    "UPDATE payments SET settled_at = created_at WHERE status = 'settled' AND settled_at IS NULL"
+  );
+}
+
+async function hasColumn(tableName, columnName) {
+  const columns = await prisma.$queryRawUnsafe(`PRAGMA table_info(${tableName})`);
+  return columns.some((column) => column.name === columnName);
+}
+
+async function ensureColumn(tableName, columnName, definition) {
+  if (await hasColumn(tableName, columnName)) {
+    return;
+  }
+
+  await prisma.$executeRawUnsafe(
+    `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`
+  );
 }
 
 async function ensureDefaultAdmin() {

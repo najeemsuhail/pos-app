@@ -34,6 +34,11 @@ export type MenuItem = $Result.DefaultSelection<Prisma.$MenuItemPayload>
  */
 export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
 /**
+ * Model BillSequence
+ * 
+ */
+export type BillSequence = $Result.DefaultSelection<Prisma.$BillSequencePayload>
+/**
  * Model OrderItem
  * 
  */
@@ -211,6 +216,16 @@ export class PrismaClient<
     * ```
     */
   get order(): Prisma.OrderDelegate<ExtArgs>;
+
+  /**
+   * `prisma.billSequence`: Exposes CRUD operations for the **BillSequence** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BillSequences
+    * const billSequences = await prisma.billSequence.findMany()
+    * ```
+    */
+  get billSequence(): Prisma.BillSequenceDelegate<ExtArgs>;
 
   /**
    * `prisma.orderItem`: Exposes CRUD operations for the **OrderItem** model.
@@ -686,6 +701,7 @@ export namespace Prisma {
     Category: 'Category',
     MenuItem: 'MenuItem',
     Order: 'Order',
+    BillSequence: 'BillSequence',
     OrderItem: 'OrderItem',
     Payment: 'Payment',
     Expense: 'Expense'
@@ -704,7 +720,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "category" | "menuItem" | "order" | "orderItem" | "payment" | "expense"
+      modelProps: "user" | "category" | "menuItem" | "order" | "billSequence" | "orderItem" | "payment" | "expense"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -985,6 +1001,76 @@ export namespace Prisma {
           count: {
             args: Prisma.OrderCountArgs<ExtArgs>
             result: $Utils.Optional<OrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      BillSequence: {
+        payload: Prisma.$BillSequencePayload<ExtArgs>
+        fields: Prisma.BillSequenceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BillSequenceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BillSequenceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>
+          }
+          findFirst: {
+            args: Prisma.BillSequenceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BillSequenceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>
+          }
+          findMany: {
+            args: Prisma.BillSequenceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>[]
+          }
+          create: {
+            args: Prisma.BillSequenceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>
+          }
+          createMany: {
+            args: Prisma.BillSequenceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BillSequenceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>[]
+          }
+          delete: {
+            args: Prisma.BillSequenceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>
+          }
+          update: {
+            args: Prisma.BillSequenceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>
+          }
+          deleteMany: {
+            args: Prisma.BillSequenceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BillSequenceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.BillSequenceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillSequencePayload>
+          }
+          aggregate: {
+            args: Prisma.BillSequenceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBillSequence>
+          }
+          groupBy: {
+            args: Prisma.BillSequenceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BillSequenceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BillSequenceCountArgs<ExtArgs>
+            result: $Utils.Optional<BillSequenceCountAggregateOutputType> | number
           }
         }
       }
@@ -1485,6 +1571,7 @@ export namespace Prisma {
     name: string | null
     role: string | null
     password: string | null
+    featureAccessOverrides: string | null
     createdAt: Date | null
   }
 
@@ -1493,6 +1580,7 @@ export namespace Prisma {
     name: string | null
     role: string | null
     password: string | null
+    featureAccessOverrides: string | null
     createdAt: Date | null
   }
 
@@ -1501,6 +1589,7 @@ export namespace Prisma {
     name: number
     role: number
     password: number
+    featureAccessOverrides: number
     createdAt: number
     _all: number
   }
@@ -1519,6 +1608,7 @@ export namespace Prisma {
     name?: true
     role?: true
     password?: true
+    featureAccessOverrides?: true
     createdAt?: true
   }
 
@@ -1527,6 +1617,7 @@ export namespace Prisma {
     name?: true
     role?: true
     password?: true
+    featureAccessOverrides?: true
     createdAt?: true
   }
 
@@ -1535,6 +1626,7 @@ export namespace Prisma {
     name?: true
     role?: true
     password?: true
+    featureAccessOverrides?: true
     createdAt?: true
     _all?: true
   }
@@ -1630,6 +1722,7 @@ export namespace Prisma {
     name: string
     role: string
     password: string
+    featureAccessOverrides: string | null
     createdAt: Date
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
@@ -1657,6 +1750,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     password?: boolean
+    featureAccessOverrides?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
@@ -1665,6 +1759,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     password?: boolean
+    featureAccessOverrides?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["user"]>
 
@@ -1673,6 +1768,7 @@ export namespace Prisma {
     name?: boolean
     role?: boolean
     password?: boolean
+    featureAccessOverrides?: boolean
     createdAt?: boolean
   }
 
@@ -1685,6 +1781,7 @@ export namespace Prisma {
       name: string
       role: string
       password: string
+      featureAccessOverrides: string | null
       createdAt: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
@@ -2083,6 +2180,7 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'String'>
     readonly password: FieldRef<"User", 'String'>
+    readonly featureAccessOverrides: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
   }
     
@@ -4407,6 +4505,7 @@ export namespace Prisma {
     id: number | null
     billNumber: string | null
     status: string | null
+    paymentStatus: string | null
     tableId: number | null
     subtotal: Decimal | null
     discountAmount: Decimal | null
@@ -4420,6 +4519,7 @@ export namespace Prisma {
     id: number | null
     billNumber: string | null
     status: string | null
+    paymentStatus: string | null
     tableId: number | null
     subtotal: Decimal | null
     discountAmount: Decimal | null
@@ -4433,6 +4533,7 @@ export namespace Prisma {
     id: number
     billNumber: number
     status: number
+    paymentStatus: number
     tableId: number
     subtotal: number
     discountAmount: number
@@ -4466,6 +4567,7 @@ export namespace Prisma {
     id?: true
     billNumber?: true
     status?: true
+    paymentStatus?: true
     tableId?: true
     subtotal?: true
     discountAmount?: true
@@ -4479,6 +4581,7 @@ export namespace Prisma {
     id?: true
     billNumber?: true
     status?: true
+    paymentStatus?: true
     tableId?: true
     subtotal?: true
     discountAmount?: true
@@ -4492,6 +4595,7 @@ export namespace Prisma {
     id?: true
     billNumber?: true
     status?: true
+    paymentStatus?: true
     tableId?: true
     subtotal?: true
     discountAmount?: true
@@ -4592,6 +4696,7 @@ export namespace Prisma {
     id: number
     billNumber: string
     status: string
+    paymentStatus: string
     tableId: number | null
     subtotal: Decimal
     discountAmount: Decimal
@@ -4624,6 +4729,7 @@ export namespace Prisma {
     id?: boolean
     billNumber?: boolean
     status?: boolean
+    paymentStatus?: boolean
     tableId?: boolean
     subtotal?: boolean
     discountAmount?: boolean
@@ -4640,6 +4746,7 @@ export namespace Prisma {
     id?: boolean
     billNumber?: boolean
     status?: boolean
+    paymentStatus?: boolean
     tableId?: boolean
     subtotal?: boolean
     discountAmount?: boolean
@@ -4653,6 +4760,7 @@ export namespace Prisma {
     id?: boolean
     billNumber?: boolean
     status?: boolean
+    paymentStatus?: boolean
     tableId?: boolean
     subtotal?: boolean
     discountAmount?: boolean
@@ -4679,6 +4787,7 @@ export namespace Prisma {
       id: number
       billNumber: string
       status: string
+      paymentStatus: string
       tableId: number | null
       subtotal: Prisma.Decimal
       discountAmount: Prisma.Decimal
@@ -5084,6 +5193,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Order", 'Int'>
     readonly billNumber: FieldRef<"Order", 'String'>
     readonly status: FieldRef<"Order", 'String'>
+    readonly paymentStatus: FieldRef<"Order", 'String'>
     readonly tableId: FieldRef<"Order", 'Int'>
     readonly subtotal: FieldRef<"Order", 'Decimal'>
     readonly discountAmount: FieldRef<"Order", 'Decimal'>
@@ -5454,6 +5564,908 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BillSequence
+   */
+
+  export type AggregateBillSequence = {
+    _count: BillSequenceCountAggregateOutputType | null
+    _avg: BillSequenceAvgAggregateOutputType | null
+    _sum: BillSequenceSumAggregateOutputType | null
+    _min: BillSequenceMinAggregateOutputType | null
+    _max: BillSequenceMaxAggregateOutputType | null
+  }
+
+  export type BillSequenceAvgAggregateOutputType = {
+    id: number | null
+    lastNumber: number | null
+  }
+
+  export type BillSequenceSumAggregateOutputType = {
+    id: number | null
+    lastNumber: number | null
+  }
+
+  export type BillSequenceMinAggregateOutputType = {
+    id: number | null
+    businessDate: string | null
+    lastNumber: number | null
+    updatedAt: Date | null
+  }
+
+  export type BillSequenceMaxAggregateOutputType = {
+    id: number | null
+    businessDate: string | null
+    lastNumber: number | null
+    updatedAt: Date | null
+  }
+
+  export type BillSequenceCountAggregateOutputType = {
+    id: number
+    businessDate: number
+    lastNumber: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BillSequenceAvgAggregateInputType = {
+    id?: true
+    lastNumber?: true
+  }
+
+  export type BillSequenceSumAggregateInputType = {
+    id?: true
+    lastNumber?: true
+  }
+
+  export type BillSequenceMinAggregateInputType = {
+    id?: true
+    businessDate?: true
+    lastNumber?: true
+    updatedAt?: true
+  }
+
+  export type BillSequenceMaxAggregateInputType = {
+    id?: true
+    businessDate?: true
+    lastNumber?: true
+    updatedAt?: true
+  }
+
+  export type BillSequenceCountAggregateInputType = {
+    id?: true
+    businessDate?: true
+    lastNumber?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BillSequenceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BillSequence to aggregate.
+     */
+    where?: BillSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillSequences to fetch.
+     */
+    orderBy?: BillSequenceOrderByWithRelationInput | BillSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BillSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BillSequences
+    **/
+    _count?: true | BillSequenceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BillSequenceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BillSequenceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BillSequenceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BillSequenceMaxAggregateInputType
+  }
+
+  export type GetBillSequenceAggregateType<T extends BillSequenceAggregateArgs> = {
+        [P in keyof T & keyof AggregateBillSequence]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBillSequence[P]>
+      : GetScalarType<T[P], AggregateBillSequence[P]>
+  }
+
+
+
+
+  export type BillSequenceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BillSequenceWhereInput
+    orderBy?: BillSequenceOrderByWithAggregationInput | BillSequenceOrderByWithAggregationInput[]
+    by: BillSequenceScalarFieldEnum[] | BillSequenceScalarFieldEnum
+    having?: BillSequenceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BillSequenceCountAggregateInputType | true
+    _avg?: BillSequenceAvgAggregateInputType
+    _sum?: BillSequenceSumAggregateInputType
+    _min?: BillSequenceMinAggregateInputType
+    _max?: BillSequenceMaxAggregateInputType
+  }
+
+  export type BillSequenceGroupByOutputType = {
+    id: number
+    businessDate: string
+    lastNumber: number
+    updatedAt: Date
+    _count: BillSequenceCountAggregateOutputType | null
+    _avg: BillSequenceAvgAggregateOutputType | null
+    _sum: BillSequenceSumAggregateOutputType | null
+    _min: BillSequenceMinAggregateOutputType | null
+    _max: BillSequenceMaxAggregateOutputType | null
+  }
+
+  type GetBillSequenceGroupByPayload<T extends BillSequenceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BillSequenceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BillSequenceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BillSequenceGroupByOutputType[P]>
+            : GetScalarType<T[P], BillSequenceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BillSequenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    businessDate?: boolean
+    lastNumber?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["billSequence"]>
+
+  export type BillSequenceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    businessDate?: boolean
+    lastNumber?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["billSequence"]>
+
+  export type BillSequenceSelectScalar = {
+    id?: boolean
+    businessDate?: boolean
+    lastNumber?: boolean
+    updatedAt?: boolean
+  }
+
+
+  export type $BillSequencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BillSequence"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      businessDate: string
+      lastNumber: number
+      updatedAt: Date
+    }, ExtArgs["result"]["billSequence"]>
+    composites: {}
+  }
+
+  type BillSequenceGetPayload<S extends boolean | null | undefined | BillSequenceDefaultArgs> = $Result.GetResult<Prisma.$BillSequencePayload, S>
+
+  type BillSequenceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<BillSequenceFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: BillSequenceCountAggregateInputType | true
+    }
+
+  export interface BillSequenceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BillSequence'], meta: { name: 'BillSequence' } }
+    /**
+     * Find zero or one BillSequence that matches the filter.
+     * @param {BillSequenceFindUniqueArgs} args - Arguments to find a BillSequence
+     * @example
+     * // Get one BillSequence
+     * const billSequence = await prisma.billSequence.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BillSequenceFindUniqueArgs>(args: SelectSubset<T, BillSequenceFindUniqueArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one BillSequence that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {BillSequenceFindUniqueOrThrowArgs} args - Arguments to find a BillSequence
+     * @example
+     * // Get one BillSequence
+     * const billSequence = await prisma.billSequence.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BillSequenceFindUniqueOrThrowArgs>(args: SelectSubset<T, BillSequenceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first BillSequence that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillSequenceFindFirstArgs} args - Arguments to find a BillSequence
+     * @example
+     * // Get one BillSequence
+     * const billSequence = await prisma.billSequence.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BillSequenceFindFirstArgs>(args?: SelectSubset<T, BillSequenceFindFirstArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first BillSequence that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillSequenceFindFirstOrThrowArgs} args - Arguments to find a BillSequence
+     * @example
+     * // Get one BillSequence
+     * const billSequence = await prisma.billSequence.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BillSequenceFindFirstOrThrowArgs>(args?: SelectSubset<T, BillSequenceFindFirstOrThrowArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more BillSequences that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillSequenceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BillSequences
+     * const billSequences = await prisma.billSequence.findMany()
+     * 
+     * // Get first 10 BillSequences
+     * const billSequences = await prisma.billSequence.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const billSequenceWithIdOnly = await prisma.billSequence.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BillSequenceFindManyArgs>(args?: SelectSubset<T, BillSequenceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a BillSequence.
+     * @param {BillSequenceCreateArgs} args - Arguments to create a BillSequence.
+     * @example
+     * // Create one BillSequence
+     * const BillSequence = await prisma.billSequence.create({
+     *   data: {
+     *     // ... data to create a BillSequence
+     *   }
+     * })
+     * 
+     */
+    create<T extends BillSequenceCreateArgs>(args: SelectSubset<T, BillSequenceCreateArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many BillSequences.
+     * @param {BillSequenceCreateManyArgs} args - Arguments to create many BillSequences.
+     * @example
+     * // Create many BillSequences
+     * const billSequence = await prisma.billSequence.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BillSequenceCreateManyArgs>(args?: SelectSubset<T, BillSequenceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BillSequences and returns the data saved in the database.
+     * @param {BillSequenceCreateManyAndReturnArgs} args - Arguments to create many BillSequences.
+     * @example
+     * // Create many BillSequences
+     * const billSequence = await prisma.billSequence.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BillSequences and only return the `id`
+     * const billSequenceWithIdOnly = await prisma.billSequence.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BillSequenceCreateManyAndReturnArgs>(args?: SelectSubset<T, BillSequenceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a BillSequence.
+     * @param {BillSequenceDeleteArgs} args - Arguments to delete one BillSequence.
+     * @example
+     * // Delete one BillSequence
+     * const BillSequence = await prisma.billSequence.delete({
+     *   where: {
+     *     // ... filter to delete one BillSequence
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BillSequenceDeleteArgs>(args: SelectSubset<T, BillSequenceDeleteArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one BillSequence.
+     * @param {BillSequenceUpdateArgs} args - Arguments to update one BillSequence.
+     * @example
+     * // Update one BillSequence
+     * const billSequence = await prisma.billSequence.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BillSequenceUpdateArgs>(args: SelectSubset<T, BillSequenceUpdateArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more BillSequences.
+     * @param {BillSequenceDeleteManyArgs} args - Arguments to filter BillSequences to delete.
+     * @example
+     * // Delete a few BillSequences
+     * const { count } = await prisma.billSequence.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BillSequenceDeleteManyArgs>(args?: SelectSubset<T, BillSequenceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BillSequences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillSequenceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BillSequences
+     * const billSequence = await prisma.billSequence.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BillSequenceUpdateManyArgs>(args: SelectSubset<T, BillSequenceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one BillSequence.
+     * @param {BillSequenceUpsertArgs} args - Arguments to update or create a BillSequence.
+     * @example
+     * // Update or create a BillSequence
+     * const billSequence = await prisma.billSequence.upsert({
+     *   create: {
+     *     // ... data to create a BillSequence
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BillSequence we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BillSequenceUpsertArgs>(args: SelectSubset<T, BillSequenceUpsertArgs<ExtArgs>>): Prisma__BillSequenceClient<$Result.GetResult<Prisma.$BillSequencePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of BillSequences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillSequenceCountArgs} args - Arguments to filter BillSequences to count.
+     * @example
+     * // Count the number of BillSequences
+     * const count = await prisma.billSequence.count({
+     *   where: {
+     *     // ... the filter for the BillSequences we want to count
+     *   }
+     * })
+    **/
+    count<T extends BillSequenceCountArgs>(
+      args?: Subset<T, BillSequenceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BillSequenceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BillSequence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillSequenceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BillSequenceAggregateArgs>(args: Subset<T, BillSequenceAggregateArgs>): Prisma.PrismaPromise<GetBillSequenceAggregateType<T>>
+
+    /**
+     * Group by BillSequence.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillSequenceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BillSequenceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BillSequenceGroupByArgs['orderBy'] }
+        : { orderBy?: BillSequenceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BillSequenceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBillSequenceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BillSequence model
+   */
+  readonly fields: BillSequenceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BillSequence.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BillSequenceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BillSequence model
+   */ 
+  interface BillSequenceFieldRefs {
+    readonly id: FieldRef<"BillSequence", 'Int'>
+    readonly businessDate: FieldRef<"BillSequence", 'String'>
+    readonly lastNumber: FieldRef<"BillSequence", 'Int'>
+    readonly updatedAt: FieldRef<"BillSequence", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BillSequence findUnique
+   */
+  export type BillSequenceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * Filter, which BillSequence to fetch.
+     */
+    where: BillSequenceWhereUniqueInput
+  }
+
+  /**
+   * BillSequence findUniqueOrThrow
+   */
+  export type BillSequenceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * Filter, which BillSequence to fetch.
+     */
+    where: BillSequenceWhereUniqueInput
+  }
+
+  /**
+   * BillSequence findFirst
+   */
+  export type BillSequenceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * Filter, which BillSequence to fetch.
+     */
+    where?: BillSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillSequences to fetch.
+     */
+    orderBy?: BillSequenceOrderByWithRelationInput | BillSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BillSequences.
+     */
+    cursor?: BillSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillSequences.
+     */
+    distinct?: BillSequenceScalarFieldEnum | BillSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * BillSequence findFirstOrThrow
+   */
+  export type BillSequenceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * Filter, which BillSequence to fetch.
+     */
+    where?: BillSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillSequences to fetch.
+     */
+    orderBy?: BillSequenceOrderByWithRelationInput | BillSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BillSequences.
+     */
+    cursor?: BillSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillSequences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillSequences.
+     */
+    distinct?: BillSequenceScalarFieldEnum | BillSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * BillSequence findMany
+   */
+  export type BillSequenceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * Filter, which BillSequences to fetch.
+     */
+    where?: BillSequenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillSequences to fetch.
+     */
+    orderBy?: BillSequenceOrderByWithRelationInput | BillSequenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BillSequences.
+     */
+    cursor?: BillSequenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillSequences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillSequences.
+     */
+    skip?: number
+    distinct?: BillSequenceScalarFieldEnum | BillSequenceScalarFieldEnum[]
+  }
+
+  /**
+   * BillSequence create
+   */
+  export type BillSequenceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * The data needed to create a BillSequence.
+     */
+    data: XOR<BillSequenceCreateInput, BillSequenceUncheckedCreateInput>
+  }
+
+  /**
+   * BillSequence createMany
+   */
+  export type BillSequenceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BillSequences.
+     */
+    data: BillSequenceCreateManyInput | BillSequenceCreateManyInput[]
+  }
+
+  /**
+   * BillSequence createManyAndReturn
+   */
+  export type BillSequenceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many BillSequences.
+     */
+    data: BillSequenceCreateManyInput | BillSequenceCreateManyInput[]
+  }
+
+  /**
+   * BillSequence update
+   */
+  export type BillSequenceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * The data needed to update a BillSequence.
+     */
+    data: XOR<BillSequenceUpdateInput, BillSequenceUncheckedUpdateInput>
+    /**
+     * Choose, which BillSequence to update.
+     */
+    where: BillSequenceWhereUniqueInput
+  }
+
+  /**
+   * BillSequence updateMany
+   */
+  export type BillSequenceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BillSequences.
+     */
+    data: XOR<BillSequenceUpdateManyMutationInput, BillSequenceUncheckedUpdateManyInput>
+    /**
+     * Filter which BillSequences to update
+     */
+    where?: BillSequenceWhereInput
+  }
+
+  /**
+   * BillSequence upsert
+   */
+  export type BillSequenceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * The filter to search for the BillSequence to update in case it exists.
+     */
+    where: BillSequenceWhereUniqueInput
+    /**
+     * In case the BillSequence found by the `where` argument doesn't exist, create a new BillSequence with this data.
+     */
+    create: XOR<BillSequenceCreateInput, BillSequenceUncheckedCreateInput>
+    /**
+     * In case the BillSequence was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BillSequenceUpdateInput, BillSequenceUncheckedUpdateInput>
+  }
+
+  /**
+   * BillSequence delete
+   */
+  export type BillSequenceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
+    /**
+     * Filter which BillSequence to delete.
+     */
+    where: BillSequenceWhereUniqueInput
+  }
+
+  /**
+   * BillSequence deleteMany
+   */
+  export type BillSequenceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BillSequences to delete
+     */
+    where?: BillSequenceWhereInput
+  }
+
+  /**
+   * BillSequence without action
+   */
+  export type BillSequenceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillSequence
+     */
+    select?: BillSequenceSelect<ExtArgs> | null
   }
 
 
@@ -6484,20 +7496,26 @@ export namespace Prisma {
     id: number | null
     orderId: number | null
     amount: Decimal | null
+    settledAmount: Decimal | null
   }
 
   export type PaymentSumAggregateOutputType = {
     id: number | null
     orderId: number | null
     amount: Decimal | null
+    settledAmount: Decimal | null
   }
 
   export type PaymentMinAggregateOutputType = {
     id: number | null
     orderId: number | null
     method: string | null
+    source: string | null
+    status: string | null
     amount: Decimal | null
+    settledAmount: Decimal | null
     referenceId: string | null
+    settledAt: Date | null
     createdAt: Date | null
   }
 
@@ -6505,8 +7523,12 @@ export namespace Prisma {
     id: number | null
     orderId: number | null
     method: string | null
+    source: string | null
+    status: string | null
     amount: Decimal | null
+    settledAmount: Decimal | null
     referenceId: string | null
+    settledAt: Date | null
     createdAt: Date | null
   }
 
@@ -6514,8 +7536,12 @@ export namespace Prisma {
     id: number
     orderId: number
     method: number
+    source: number
+    status: number
     amount: number
+    settledAmount: number
     referenceId: number
+    settledAt: number
     createdAt: number
     _all: number
   }
@@ -6525,20 +7551,26 @@ export namespace Prisma {
     id?: true
     orderId?: true
     amount?: true
+    settledAmount?: true
   }
 
   export type PaymentSumAggregateInputType = {
     id?: true
     orderId?: true
     amount?: true
+    settledAmount?: true
   }
 
   export type PaymentMinAggregateInputType = {
     id?: true
     orderId?: true
     method?: true
+    source?: true
+    status?: true
     amount?: true
+    settledAmount?: true
     referenceId?: true
+    settledAt?: true
     createdAt?: true
   }
 
@@ -6546,8 +7578,12 @@ export namespace Prisma {
     id?: true
     orderId?: true
     method?: true
+    source?: true
+    status?: true
     amount?: true
+    settledAmount?: true
     referenceId?: true
+    settledAt?: true
     createdAt?: true
   }
 
@@ -6555,8 +7591,12 @@ export namespace Prisma {
     id?: true
     orderId?: true
     method?: true
+    source?: true
+    status?: true
     amount?: true
+    settledAmount?: true
     referenceId?: true
+    settledAt?: true
     createdAt?: true
     _all?: true
   }
@@ -6651,8 +7691,12 @@ export namespace Prisma {
     id: number
     orderId: number
     method: string
+    source: string
+    status: string
     amount: Decimal
+    settledAmount: Decimal
     referenceId: string | null
+    settledAt: Date | null
     createdAt: Date
     _count: PaymentCountAggregateOutputType | null
     _avg: PaymentAvgAggregateOutputType | null
@@ -6679,8 +7723,12 @@ export namespace Prisma {
     id?: boolean
     orderId?: boolean
     method?: boolean
+    source?: boolean
+    status?: boolean
     amount?: boolean
+    settledAmount?: boolean
     referenceId?: boolean
+    settledAt?: boolean
     createdAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["payment"]>
@@ -6689,8 +7737,12 @@ export namespace Prisma {
     id?: boolean
     orderId?: boolean
     method?: boolean
+    source?: boolean
+    status?: boolean
     amount?: boolean
+    settledAmount?: boolean
     referenceId?: boolean
+    settledAt?: boolean
     createdAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["payment"]>
@@ -6699,8 +7751,12 @@ export namespace Prisma {
     id?: boolean
     orderId?: boolean
     method?: boolean
+    source?: boolean
+    status?: boolean
     amount?: boolean
+    settledAmount?: boolean
     referenceId?: boolean
+    settledAt?: boolean
     createdAt?: boolean
   }
 
@@ -6720,8 +7776,12 @@ export namespace Prisma {
       id: number
       orderId: number
       method: string
+      source: string
+      status: string
       amount: Prisma.Decimal
+      settledAmount: Prisma.Decimal
       referenceId: string | null
+      settledAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["payment"]>
     composites: {}
@@ -7120,8 +8180,12 @@ export namespace Prisma {
     readonly id: FieldRef<"Payment", 'Int'>
     readonly orderId: FieldRef<"Payment", 'Int'>
     readonly method: FieldRef<"Payment", 'String'>
+    readonly source: FieldRef<"Payment", 'String'>
+    readonly status: FieldRef<"Payment", 'String'>
     readonly amount: FieldRef<"Payment", 'Decimal'>
+    readonly settledAmount: FieldRef<"Payment", 'Decimal'>
     readonly referenceId: FieldRef<"Payment", 'String'>
+    readonly settledAt: FieldRef<"Payment", 'DateTime'>
     readonly createdAt: FieldRef<"Payment", 'DateTime'>
   }
     
@@ -8419,6 +9483,7 @@ export namespace Prisma {
     name: 'name',
     role: 'role',
     password: 'password',
+    featureAccessOverrides: 'featureAccessOverrides',
     createdAt: 'createdAt'
   };
 
@@ -8453,6 +9518,7 @@ export namespace Prisma {
     id: 'id',
     billNumber: 'billNumber',
     status: 'status',
+    paymentStatus: 'paymentStatus',
     tableId: 'tableId',
     subtotal: 'subtotal',
     discountAmount: 'discountAmount',
@@ -8463,6 +9529,16 @@ export namespace Prisma {
   };
 
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+  export const BillSequenceScalarFieldEnum: {
+    id: 'id',
+    businessDate: 'businessDate',
+    lastNumber: 'lastNumber',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BillSequenceScalarFieldEnum = (typeof BillSequenceScalarFieldEnum)[keyof typeof BillSequenceScalarFieldEnum]
 
 
   export const OrderItemScalarFieldEnum: {
@@ -8482,8 +9558,12 @@ export namespace Prisma {
     id: 'id',
     orderId: 'orderId',
     method: 'method',
+    source: 'source',
+    status: 'status',
     amount: 'amount',
+    settledAmount: 'settledAmount',
     referenceId: 'referenceId',
+    settledAt: 'settledAt',
     createdAt: 'createdAt'
   };
 
@@ -8578,6 +9658,7 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     role?: StringFilter<"User"> | string
     password?: StringFilter<"User"> | string
+    featureAccessOverrides?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
   }
 
@@ -8586,6 +9667,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     password?: SortOrder
+    featureAccessOverrides?: SortOrderInput | SortOrder
     createdAt?: SortOrder
   }
 
@@ -8597,6 +9679,7 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     role?: StringFilter<"User"> | string
     password?: StringFilter<"User"> | string
+    featureAccessOverrides?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
   }, "id" | "name">
 
@@ -8605,6 +9688,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     password?: SortOrder
+    featureAccessOverrides?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
@@ -8621,6 +9705,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"User"> | string
     role?: StringWithAggregatesFilter<"User"> | string
     password?: StringWithAggregatesFilter<"User"> | string
+    featureAccessOverrides?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
@@ -8758,6 +9843,7 @@ export namespace Prisma {
     id?: IntFilter<"Order"> | number
     billNumber?: StringFilter<"Order"> | string
     status?: StringFilter<"Order"> | string
+    paymentStatus?: StringFilter<"Order"> | string
     tableId?: IntNullableFilter<"Order"> | number | null
     subtotal?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -8773,6 +9859,7 @@ export namespace Prisma {
     id?: SortOrder
     billNumber?: SortOrder
     status?: SortOrder
+    paymentStatus?: SortOrder
     tableId?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -8791,6 +9878,7 @@ export namespace Prisma {
     OR?: OrderWhereInput[]
     NOT?: OrderWhereInput | OrderWhereInput[]
     status?: StringFilter<"Order"> | string
+    paymentStatus?: StringFilter<"Order"> | string
     tableId?: IntNullableFilter<"Order"> | number | null
     subtotal?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -8806,6 +9894,7 @@ export namespace Prisma {
     id?: SortOrder
     billNumber?: SortOrder
     status?: SortOrder
+    paymentStatus?: SortOrder
     tableId?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -8827,6 +9916,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Order"> | number
     billNumber?: StringWithAggregatesFilter<"Order"> | string
     status?: StringWithAggregatesFilter<"Order"> | string
+    paymentStatus?: StringWithAggregatesFilter<"Order"> | string
     tableId?: IntNullableWithAggregatesFilter<"Order"> | number | null
     subtotal?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -8834,6 +9924,55 @@ export namespace Prisma {
     finalAmount?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+  }
+
+  export type BillSequenceWhereInput = {
+    AND?: BillSequenceWhereInput | BillSequenceWhereInput[]
+    OR?: BillSequenceWhereInput[]
+    NOT?: BillSequenceWhereInput | BillSequenceWhereInput[]
+    id?: IntFilter<"BillSequence"> | number
+    businessDate?: StringFilter<"BillSequence"> | string
+    lastNumber?: IntFilter<"BillSequence"> | number
+    updatedAt?: DateTimeFilter<"BillSequence"> | Date | string
+  }
+
+  export type BillSequenceOrderByWithRelationInput = {
+    id?: SortOrder
+    businessDate?: SortOrder
+    lastNumber?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BillSequenceWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    businessDate?: string
+    AND?: BillSequenceWhereInput | BillSequenceWhereInput[]
+    OR?: BillSequenceWhereInput[]
+    NOT?: BillSequenceWhereInput | BillSequenceWhereInput[]
+    lastNumber?: IntFilter<"BillSequence"> | number
+    updatedAt?: DateTimeFilter<"BillSequence"> | Date | string
+  }, "id" | "businessDate">
+
+  export type BillSequenceOrderByWithAggregationInput = {
+    id?: SortOrder
+    businessDate?: SortOrder
+    lastNumber?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BillSequenceCountOrderByAggregateInput
+    _avg?: BillSequenceAvgOrderByAggregateInput
+    _max?: BillSequenceMaxOrderByAggregateInput
+    _min?: BillSequenceMinOrderByAggregateInput
+    _sum?: BillSequenceSumOrderByAggregateInput
+  }
+
+  export type BillSequenceScalarWhereWithAggregatesInput = {
+    AND?: BillSequenceScalarWhereWithAggregatesInput | BillSequenceScalarWhereWithAggregatesInput[]
+    OR?: BillSequenceScalarWhereWithAggregatesInput[]
+    NOT?: BillSequenceScalarWhereWithAggregatesInput | BillSequenceScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"BillSequence"> | number
+    businessDate?: StringWithAggregatesFilter<"BillSequence"> | string
+    lastNumber?: IntWithAggregatesFilter<"BillSequence"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"BillSequence"> | Date | string
   }
 
   export type OrderItemWhereInput = {
@@ -8913,8 +10052,12 @@ export namespace Prisma {
     id?: IntFilter<"Payment"> | number
     orderId?: IntFilter<"Payment"> | number
     method?: StringFilter<"Payment"> | string
+    source?: StringFilter<"Payment"> | string
+    status?: StringFilter<"Payment"> | string
     amount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     referenceId?: StringNullableFilter<"Payment"> | string | null
+    settledAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     order?: XOR<OrderRelationFilter, OrderWhereInput>
   }
@@ -8923,8 +10066,12 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     method?: SortOrder
+    source?: SortOrder
+    status?: SortOrder
     amount?: SortOrder
+    settledAmount?: SortOrder
     referenceId?: SortOrderInput | SortOrder
+    settledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     order?: OrderOrderByWithRelationInput
   }
@@ -8936,8 +10083,12 @@ export namespace Prisma {
     NOT?: PaymentWhereInput | PaymentWhereInput[]
     orderId?: IntFilter<"Payment"> | number
     method?: StringFilter<"Payment"> | string
+    source?: StringFilter<"Payment"> | string
+    status?: StringFilter<"Payment"> | string
     amount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     referenceId?: StringNullableFilter<"Payment"> | string | null
+    settledAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     order?: XOR<OrderRelationFilter, OrderWhereInput>
   }, "id">
@@ -8946,8 +10097,12 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     method?: SortOrder
+    source?: SortOrder
+    status?: SortOrder
     amount?: SortOrder
+    settledAmount?: SortOrder
     referenceId?: SortOrderInput | SortOrder
+    settledAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: PaymentCountOrderByAggregateInput
     _avg?: PaymentAvgOrderByAggregateInput
@@ -8963,8 +10118,12 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Payment"> | number
     orderId?: IntWithAggregatesFilter<"Payment"> | number
     method?: StringWithAggregatesFilter<"Payment"> | string
+    source?: StringWithAggregatesFilter<"Payment"> | string
+    status?: StringWithAggregatesFilter<"Payment"> | string
     amount?: DecimalWithAggregatesFilter<"Payment"> | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalWithAggregatesFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     referenceId?: StringNullableWithAggregatesFilter<"Payment"> | string | null
+    settledAt?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
   }
 
@@ -9041,6 +10200,7 @@ export namespace Prisma {
     name: string
     role: string
     password: string
+    featureAccessOverrides?: string | null
     createdAt?: Date | string
   }
 
@@ -9049,6 +10209,7 @@ export namespace Prisma {
     name: string
     role: string
     password: string
+    featureAccessOverrides?: string | null
     createdAt?: Date | string
   }
 
@@ -9056,6 +10217,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9064,6 +10226,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9072,6 +10235,7 @@ export namespace Prisma {
     name: string
     role: string
     password: string
+    featureAccessOverrides?: string | null
     createdAt?: Date | string
   }
 
@@ -9079,6 +10243,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9087,6 +10252,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9220,6 +10386,7 @@ export namespace Prisma {
   export type OrderCreateInput = {
     billNumber: string
     status?: string
+    paymentStatus?: string
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -9235,6 +10402,7 @@ export namespace Prisma {
     id?: number
     billNumber: string
     status?: string
+    paymentStatus?: string
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -9249,6 +10417,7 @@ export namespace Prisma {
   export type OrderUpdateInput = {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -9264,6 +10433,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -9279,6 +10449,7 @@ export namespace Prisma {
     id?: number
     billNumber: string
     status?: string
+    paymentStatus?: string
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -9291,6 +10462,7 @@ export namespace Prisma {
   export type OrderUpdateManyMutationInput = {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -9304,12 +10476,59 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     finalAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillSequenceCreateInput = {
+    businessDate: string
+    lastNumber?: number
+    updatedAt?: Date | string
+  }
+
+  export type BillSequenceUncheckedCreateInput = {
+    id?: number
+    businessDate: string
+    lastNumber?: number
+    updatedAt?: Date | string
+  }
+
+  export type BillSequenceUpdateInput = {
+    businessDate?: StringFieldUpdateOperationsInput | string
+    lastNumber?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillSequenceUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    businessDate?: StringFieldUpdateOperationsInput | string
+    lastNumber?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillSequenceCreateManyInput = {
+    id?: number
+    businessDate: string
+    lastNumber?: number
+    updatedAt?: Date | string
+  }
+
+  export type BillSequenceUpdateManyMutationInput = {
+    businessDate?: StringFieldUpdateOperationsInput | string
+    lastNumber?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillSequenceUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    businessDate?: StringFieldUpdateOperationsInput | string
+    lastNumber?: IntFieldUpdateOperationsInput | number
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9380,8 +10599,12 @@ export namespace Prisma {
 
   export type PaymentCreateInput = {
     method: string
+    source?: string
+    status?: string
     amount: Decimal | DecimalJsLike | number | string
+    settledAmount?: Decimal | DecimalJsLike | number | string
     referenceId?: string | null
+    settledAt?: Date | string | null
     createdAt?: Date | string
     order: OrderCreateNestedOneWithoutPaymentsInput
   }
@@ -9390,15 +10613,23 @@ export namespace Prisma {
     id?: number
     orderId: number
     method: string
+    source?: string
+    status?: string
     amount: Decimal | DecimalJsLike | number | string
+    settledAmount?: Decimal | DecimalJsLike | number | string
     referenceId?: string | null
+    settledAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type PaymentUpdateInput = {
     method?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutPaymentsNestedInput
   }
@@ -9407,8 +10638,12 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     orderId?: IntFieldUpdateOperationsInput | number
     method?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9416,15 +10651,23 @@ export namespace Prisma {
     id?: number
     orderId: number
     method: string
+    source?: string
+    status?: string
     amount: Decimal | DecimalJsLike | number | string
+    settledAmount?: Decimal | DecimalJsLike | number | string
     referenceId?: string | null
+    settledAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type PaymentUpdateManyMutationInput = {
     method?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9432,8 +10675,12 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     orderId?: IntFieldUpdateOperationsInput | number
     method?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -9536,6 +10783,20 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -9547,11 +10808,17 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
     role?: SortOrder
     password?: SortOrder
+    featureAccessOverrides?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -9564,6 +10831,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     password?: SortOrder
+    featureAccessOverrides?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -9572,6 +10840,7 @@ export namespace Prisma {
     name?: SortOrder
     role?: SortOrder
     password?: SortOrder
+    featureAccessOverrides?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -9610,6 +10879,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -9689,20 +10975,6 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type CategoryRelationFilter = {
     is?: CategoryWhereInput
     isNot?: CategoryWhereInput
@@ -9712,11 +10984,6 @@ export namespace Prisma {
     every?: OrderItemWhereInput
     some?: OrderItemWhereInput
     none?: OrderItemWhereInput
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type OrderItemOrderByRelationAggregateInput = {
@@ -9784,23 +11051,6 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | null
@@ -9826,6 +11076,7 @@ export namespace Prisma {
     id?: SortOrder
     billNumber?: SortOrder
     status?: SortOrder
+    paymentStatus?: SortOrder
     tableId?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -9848,6 +11099,7 @@ export namespace Prisma {
     id?: SortOrder
     billNumber?: SortOrder
     status?: SortOrder
+    paymentStatus?: SortOrder
     tableId?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -9861,6 +11113,7 @@ export namespace Prisma {
     id?: SortOrder
     billNumber?: SortOrder
     status?: SortOrder
+    paymentStatus?: SortOrder
     tableId?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
@@ -9893,6 +11146,37 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type BillSequenceCountOrderByAggregateInput = {
+    id?: SortOrder
+    businessDate?: SortOrder
+    lastNumber?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BillSequenceAvgOrderByAggregateInput = {
+    id?: SortOrder
+    lastNumber?: SortOrder
+  }
+
+  export type BillSequenceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    businessDate?: SortOrder
+    lastNumber?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BillSequenceMinOrderByAggregateInput = {
+    id?: SortOrder
+    businessDate?: SortOrder
+    lastNumber?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BillSequenceSumOrderByAggregateInput = {
+    id?: SortOrder
+    lastNumber?: SortOrder
   }
 
   export type OrderRelationFilter = {
@@ -9951,12 +11235,27 @@ export namespace Prisma {
     quantity?: SortOrder
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type PaymentCountOrderByAggregateInput = {
     id?: SortOrder
     orderId?: SortOrder
     method?: SortOrder
+    source?: SortOrder
+    status?: SortOrder
     amount?: SortOrder
+    settledAmount?: SortOrder
     referenceId?: SortOrder
+    settledAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -9964,14 +11263,19 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     amount?: SortOrder
+    settledAmount?: SortOrder
   }
 
   export type PaymentMaxOrderByAggregateInput = {
     id?: SortOrder
     orderId?: SortOrder
     method?: SortOrder
+    source?: SortOrder
+    status?: SortOrder
     amount?: SortOrder
+    settledAmount?: SortOrder
     referenceId?: SortOrder
+    settledAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -9979,8 +11283,12 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     method?: SortOrder
+    source?: SortOrder
+    status?: SortOrder
     amount?: SortOrder
+    settledAmount?: SortOrder
     referenceId?: SortOrder
+    settledAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -9988,6 +11296,21 @@ export namespace Prisma {
     id?: SortOrder
     orderId?: SortOrder
     amount?: SortOrder
+    settledAmount?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type ExpenseCountOrderByAggregateInput = {
@@ -10035,6 +11358,10 @@ export namespace Prisma {
 
   export type StringFieldUpdateOperationsInput = {
     set?: string
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -10121,10 +11448,6 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
   }
 
   export type CategoryUpdateOneRequiredWithoutMenuItemsNestedInput = {
@@ -10289,6 +11612,10 @@ export namespace Prisma {
     connect?: OrderWhereUniqueInput
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type OrderUpdateOneRequiredWithoutPaymentsNestedInput = {
     create?: XOR<OrderCreateWithoutPaymentsInput, OrderUncheckedCreateWithoutPaymentsInput>
     connectOrCreate?: OrderCreateOrConnectWithoutPaymentsInput
@@ -10320,6 +11647,20 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -10377,6 +11718,34 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -10415,20 +11784,6 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[]
@@ -10443,34 +11798,6 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
-  }
-
-  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -10498,6 +11825,31 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type MenuItemCreateWithoutCategoryInput = {
@@ -10685,16 +12037,24 @@ export namespace Prisma {
 
   export type PaymentCreateWithoutOrderInput = {
     method: string
+    source?: string
+    status?: string
     amount: Decimal | DecimalJsLike | number | string
+    settledAmount?: Decimal | DecimalJsLike | number | string
     referenceId?: string | null
+    settledAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type PaymentUncheckedCreateWithoutOrderInput = {
     id?: number
     method: string
+    source?: string
+    status?: string
     amount: Decimal | DecimalJsLike | number | string
+    settledAmount?: Decimal | DecimalJsLike | number | string
     referenceId?: string | null
+    settledAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -10746,14 +12106,19 @@ export namespace Prisma {
     id?: IntFilter<"Payment"> | number
     orderId?: IntFilter<"Payment"> | number
     method?: StringFilter<"Payment"> | string
+    source?: StringFilter<"Payment"> | string
+    status?: StringFilter<"Payment"> | string
     amount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFilter<"Payment"> | Decimal | DecimalJsLike | number | string
     referenceId?: StringNullableFilter<"Payment"> | string | null
+    settledAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
   }
 
   export type OrderCreateWithoutItemsInput = {
     billNumber: string
     status?: string
+    paymentStatus?: string
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -10768,6 +12133,7 @@ export namespace Prisma {
     id?: number
     billNumber: string
     status?: string
+    paymentStatus?: string
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -10823,6 +12189,7 @@ export namespace Prisma {
   export type OrderUpdateWithoutItemsInput = {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10837,6 +12204,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10882,6 +12250,7 @@ export namespace Prisma {
   export type OrderCreateWithoutPaymentsInput = {
     billNumber: string
     status?: string
+    paymentStatus?: string
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -10896,6 +12265,7 @@ export namespace Prisma {
     id?: number
     billNumber: string
     status?: string
+    paymentStatus?: string
     tableId?: number | null
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
@@ -10925,6 +12295,7 @@ export namespace Prisma {
   export type OrderUpdateWithoutPaymentsInput = {
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -10939,6 +12310,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     billNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -11037,8 +12409,12 @@ export namespace Prisma {
   export type PaymentCreateManyOrderInput = {
     id?: number
     method: string
+    source?: string
+    status?: string
     amount: Decimal | DecimalJsLike | number | string
+    settledAmount?: Decimal | DecimalJsLike | number | string
     referenceId?: string | null
+    settledAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -11070,24 +12446,36 @@ export namespace Prisma {
 
   export type PaymentUpdateWithoutOrderInput = {
     method?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentUncheckedUpdateWithoutOrderInput = {
     id?: IntFieldUpdateOperationsInput | number
     method?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentUncheckedUpdateManyWithoutOrderInput = {
     id?: IntFieldUpdateOperationsInput | number
     method?: StringFieldUpdateOperationsInput | string
+    source?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11124,6 +12512,10 @@ export namespace Prisma {
      * @deprecated Use OrderDefaultArgs instead
      */
     export type OrderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrderDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use BillSequenceDefaultArgs instead
+     */
+    export type BillSequenceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BillSequenceDefaultArgs<ExtArgs>
     /**
      * @deprecated Use OrderItemDefaultArgs instead
      */

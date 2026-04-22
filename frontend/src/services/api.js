@@ -96,6 +96,7 @@ export const orderService = {
   syncItems: (orderId, items) => api.put(`/orders/${orderId}/sync-items`, { items }),
   finalize: (orderId, data) => api.post(`/orders/${orderId}/finalize`, data),
   pay: (orderId, payments) => api.post(`/orders/${orderId}/payments`, { payments }),
+  settlePayment: (orderId, paymentId, data) => api.post(`/orders/${orderId}/payments/${paymentId}/settle`, data),
   getReceipt: (orderId) => api.get(`/orders/${orderId}/receipt`),
   cancel: (orderId) => api.post(`/orders/${orderId}/cancel`),
 };

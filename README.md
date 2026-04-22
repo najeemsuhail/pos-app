@@ -95,3 +95,28 @@ The Electron app menu includes:
 
 - `File > Open Data Folder`
 - `File > Export Database Backup`
+
+## Remote License Ledger
+
+To prevent lifetime trial reuse across reinstall/reset attempts, you can run a hosted license ledger on the same Vercel deployment.
+
+Server-side Vercel env vars:
+
+- `LICENSE_LEDGER_SUPABASE_URL`
+- `LICENSE_LEDGER_SUPABASE_SERVICE_ROLE_KEY`
+- `LICENSE_LEDGER_SHARED_SECRET`
+- optional: `LICENSE_ACTIVATION_SALT`
+
+Desktop/local backend env vars:
+
+- `LICENSE_LEDGER_URL`
+- `LICENSE_LEDGER_SHARED_SECRET`
+
+Important:
+
+- Set `LICENSE_LEDGER_URL` only on desktop/local clients.
+- Do not set `LICENSE_LEDGER_URL` on the hosted Vercel server, or it will recurse back into itself.
+
+Create the Supabase table using:
+
+- [backend/sql/license_ledger.sql](./backend/sql/license_ledger.sql)

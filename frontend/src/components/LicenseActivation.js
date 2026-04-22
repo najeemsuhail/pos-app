@@ -62,11 +62,19 @@ const LicenseActivation = ({ onActivated, licenseStatus }) => {
     <div className="license-activation-page">
       <div className="license-activation-card">
         <div className="license-activation-header">
-          <h2>{trialInfo?.expired ? 'Trial Expired' : 'Activation Required'}</h2>
+          <h2>
+            {trialInfo?.tampered
+              ? 'Trial Locked'
+              : trialInfo?.expired
+                ? 'Trial Expired'
+                : 'Activation Required'}
+          </h2>
           <p>
-            {trialInfo?.expired
-              ? 'Your 7-day trial has ended. Please provide your Machine ID to the developer to receive an unlock key.'
-              : 'Please provide your Machine ID to the developer to receive an unlock key.'}
+            {trialInfo?.tampered
+              ? 'Trial tampering was detected on this machine. Please provide your Machine ID to the developer to receive an unlock key.'
+              : trialInfo?.expired
+                ? 'Your 7-day trial has ended. Please provide your Machine ID to the developer to receive an unlock key.'
+                : 'Please provide your Machine ID to the developer to receive an unlock key.'}
           </p>
         </div>
 

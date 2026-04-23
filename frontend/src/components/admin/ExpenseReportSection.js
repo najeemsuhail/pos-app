@@ -71,7 +71,7 @@ const ExpenseReportSection = () => {
       setFetched(true);
       setExpandedCats({});
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to fetch expense report');
+      setError(err.response?.data?.error || 'Failed to fetch operating expense report');
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ const ExpenseReportSection = () => {
 
     div.innerHTML = `
       <div style="text-align:center; margin-bottom:24px; border-bottom:2px solid #333; padding-bottom:16px;">
-        <h1 style="margin:0; color:#2c3e50;">Chewbiecafe — Expense Report</h1>
+        <h1 style="margin:0; color:#2c3e50;">Chewbiecafe — Operating Expense Report</h1>
         <p style="margin:6px 0; color:#666;">${periodLabel}</p>
         <p style="margin:4px 0; color:#999; font-size:12px;">Generated: ${new Date().toLocaleString()}</p>
       </div>
@@ -163,7 +163,7 @@ const ExpenseReportSection = () => {
         </tfoot>
       </table>
       <div style="margin-top:40px; padding-top:16px; border-top:1px solid #ddd; text-align:center; color:#999; font-size:11px;">
-        Computer-generated expense report — Chewbiecafe POS System
+        Computer-generated operating expense report — Chewbiecafe POS System
       </div>`;
 
     const filename = `Expense-Report-${periodLabel.replace(/[^a-z0-9]/gi, '-')}.pdf`;
@@ -184,23 +184,22 @@ const ExpenseReportSection = () => {
     const currencyCell = (value, style = 'currency') => ({ value: Number(value || 0), style });
     const integerCell = (value) => ({ value: Number(value || 0), style: 'integer' });
     const dateCell = (value) => ({ value, type: 'DateTime', style: 'date' });
+    const generatedAt = new Date().toLocaleString();
 
     const summaryRows = [
-      { cells: ['Expense Report Export'], style: 'title' },
-      ['Period', periodLabel],
-      ['Generated At', new Date().toLocaleString()],
-      [],
+      { cells: ['Operating Expense Report Export'], style: 'title' },
       { cells: ['Metric', 'Value'], style: 'header' },
       ['Total Expenses', currencyCell(grandTotal, 'totalCurrency')],
       ['Total Entries', integerCell(expenses.length)],
       ['Categories', integerCell(sortedCategories.length)],
       ['Top Category', topCategory],
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const categoryRows = [
       { cells: ['Category Breakdown'], style: 'title' },
-      ['Period', periodLabel],
-      [],
       { cells: ['Category', 'Sub Category', 'Entries', 'Amount'], style: 'header' },
       ...sortedCategories.flatMap(([cat, data]) => [
         [
@@ -224,12 +223,13 @@ const ExpenseReportSection = () => {
         integerCell(expenses.length),
         currencyCell(grandTotal, 'totalCurrency'),
       ],
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const entryRows = [
-      { cells: ['Expense Entries'], style: 'title' },
-      ['Period', periodLabel],
-      [],
+      { cells: ['Operating Expense Entries'], style: 'title' },
       { cells: ['Expense Date', 'Category', 'Sub Category', 'Amount', 'Payment Method', 'Reference', 'Created At'], style: 'header' },
       ...expenses.map((expense) => [
         dateCell(expense.expense_date),
@@ -240,10 +240,13 @@ const ExpenseReportSection = () => {
         expense.reference || '',
         dateCell(expense.created_at),
       ]),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const safeLabel = periodLabel.replace(/[^a-z0-9_-]/gi, '-');
-    downloadExcelWorkbook(`expense-report-${safeLabel}.xlsx`, [
+    downloadExcelWorkbook(`operating-expense-report-${safeLabel}.xlsx`, [
       { name: 'Summary', columns: [180, 160], rows: summaryRows },
       { name: 'Categories', columns: [180, 220, 90, 120], rows: categoryRows },
       { name: 'Entries', columns: [120, 140, 220, 110, 120, 140, 140], rows: entryRows },
@@ -253,11 +256,16 @@ const ExpenseReportSection = () => {
   return (
     <div className="admin-tab-content">
       <div className="tab-header">
-        <h2>Expense Report</h2>
+        <div>
+          <h2>Operating Expense Report</h2>
+          <p className="compact-muted">
+            Supplier purchases are tracked in the Purchases tab. This section is only for operating expenses.
+          </p>
+        </div>
       </div>
 
       {/* Period Selector */}
-      <div className="section-container" style={{ marginBottom: '20px' }}>
+      <div className="section-container" style={{ marginBottom: '16px' }}>
         <div className="radio-group" style={{ marginBottom: '16px' }}>
           {['daily', 'weekly', 'monthly', 'range'].map((p) => (
             <label key={p}>
@@ -315,7 +323,7 @@ const ExpenseReportSection = () => {
       </div>
 
       {error && <div className="error-message">{error}</div>}
-      {loading && <div className="loading">Loading expense report...</div>}
+      {loading && <div className="loading">Loading operating expense report...</div>}
 
       {fetched && !loading && (
         <>
@@ -340,11 +348,11 @@ const ExpenseReportSection = () => {
           </div>
 
           {expenses.length === 0 ? (
-            <div className="section-container" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-              No expenses found for this period.
+            <div className="section-container compact-table" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+              No operating expenses found for this period.
             </div>
           ) : (
-            <div className="section-container">
+            <div className="section-container compact-table">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <h3 style={{ margin: 0 }}>{periodLabel}</h3>
                 <button

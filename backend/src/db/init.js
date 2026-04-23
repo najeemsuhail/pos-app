@@ -99,6 +99,51 @@ async function ensureSchema() {
   `);
 
   await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS suppliers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      phone TEXT,
+      email TEXT,
+      address TEXT,
+      notes TEXT,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS purchases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      supplier_id INTEGER NOT NULL,
+      purchase_date DATETIME NOT NULL,
+      invoice_number TEXT,
+      payment_status TEXT NOT NULL DEFAULT 'unpaid',
+      subtotal DECIMAL NOT NULL DEFAULT 0,
+      tax_amount DECIMAL NOT NULL DEFAULT 0,
+      discount_amount DECIMAL NOT NULL DEFAULT 0,
+      total_amount DECIMAL NOT NULL DEFAULT 0,
+      paid_amount DECIMAL NOT NULL DEFAULT 0,
+      note TEXT,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS purchase_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchase_id INTEGER NOT NULL,
+      item_name TEXT NOT NULL,
+      quantity DECIMAL NOT NULL,
+      unit TEXT,
+      unit_price DECIMAL NOT NULL,
+      total_price DECIMAL NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (purchase_id) REFERENCES purchases (id) ON DELETE CASCADE
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS sync_queue (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       entity_type TEXT NOT NULL,
@@ -131,6 +176,10 @@ async function ensureSchema() {
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchases_supplier_id ON purchases(supplier_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchases_purchase_date ON purchases(purchase_date)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchases_payment_status ON purchases(payment_status)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchase_items_purchase_id ON purchase_items(purchase_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status, updated_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)');
 

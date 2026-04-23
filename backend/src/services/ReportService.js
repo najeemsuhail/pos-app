@@ -5,11 +5,40 @@ const ExpenseRepository = require('../repositories/ExpenseRepository');
 const {
   ORDER_STATUSES,
   ORDER_PAYMENT_STATUSES,
+  PAYMENT_METHODS,
+  PAYMENT_SOURCES,
   isRecognizedSale,
   isFullyPaid,
+  normalizePaymentMethod,
+  normalizePaymentSource,
 } = require('../utils/paymentState');
 
 class ReportService {
+  buildPaymentBreakdown(payments) {
+    const paymentByMethod = {};
+
+    payments.forEach((payment) => {
+      const settledAmount = Number(payment.settled_amount) || 0;
+      const method = normalizePaymentMethod(payment.method);
+      const source = normalizePaymentSource(payment.source);
+
+      if (settledAmount <= 0) {
+        return;
+      }
+
+      // Include all payment methods and sources
+      const key = source === PAYMENT_SOURCES.DIRECT ? method : `${method} (${source})`;
+
+      if (!paymentByMethod[key]) {
+        paymentByMethod[key] = 0;
+      }
+
+      paymentByMethod[key] += settledAmount;
+    });
+
+    return paymentByMethod;
+  }
+
   buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses) {
     const netRevenue = totalSales;
     const operatingProfit = netRevenue - totalExpenses;
@@ -142,18 +171,7 @@ class ReportService {
     const totalTax = completedOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
 
-    const paymentByMethod = {};
-    payments.forEach((payment) => {
-      const settledAmount = Number(payment.settled_amount) || 0;
-      if (settledAmount <= 0) {
-        return;
-      }
-      const key = [payment.method, payment.source].filter(Boolean).join(' / ');
-      if (!paymentByMethod[key]) {
-        paymentByMethod[key] = 0;
-      }
-      paymentByMethod[key] += settledAmount;
-    });
+    const paymentByMethod = this.buildPaymentBreakdown(payments);
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
     const { allItems } = await this.getTopBottomItems(orders);
@@ -198,18 +216,7 @@ class ReportService {
     const totalTax = completedOrders.reduce((sum, order) => sum + (Number(order.tax_amount) || 0), 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
 
-    const paymentByMethod = {};
-    payments.forEach((payment) => {
-      const settledAmount = Number(payment.settled_amount) || 0;
-      if (settledAmount <= 0) {
-        return;
-      }
-      const key = [payment.method, payment.source].filter(Boolean).join(' / ');
-      if (!paymentByMethod[key]) {
-        paymentByMethod[key] = 0;
-      }
-      paymentByMethod[key] += settledAmount;
-    });
+    const paymentByMethod = this.buildPaymentBreakdown(payments);
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
     const { allItems } = await this.getTopBottomItems(orders);

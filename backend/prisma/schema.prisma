@@ -129,3 +129,57 @@ model Expense {
   @@index([expenseDate])
   @@map("expenses")
 }
+
+model Supplier {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  phone       String?
+  email       String?
+  address     String?
+  notes       String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  purchases   Purchase[]
+
+  @@map("suppliers")
+}
+
+model Purchase {
+  id             Int            @id @default(autoincrement())
+  supplierId     Int            @map("supplier_id")
+  purchaseDate   DateTime       @map("purchase_date")
+  invoiceNumber  String?        @map("invoice_number")
+  paymentStatus  String         @default("unpaid") @map("payment_status")
+  subtotal       Decimal        @default(0)
+  taxAmount      Decimal        @default(0) @map("tax_amount")
+  discountAmount Decimal        @default(0) @map("discount_amount")
+  totalAmount    Decimal        @default(0) @map("total_amount")
+  paidAmount     Decimal        @default(0) @map("paid_amount")
+  note           String?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  supplier Supplier       @relation(fields: [supplierId], references: [id])
+  items    PurchaseItem[]
+
+  @@index([supplierId])
+  @@index([purchaseDate])
+  @@index([paymentStatus])
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id          Int      @id @default(autoincrement())
+  purchaseId  Int      @map("purchase_id")
+  itemName    String   @map("item_name")
+  quantity    Decimal
+  unit        String?
+  unitPrice   Decimal  @map("unit_price")
+  totalPrice  Decimal  @map("total_price")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseId])
+  @@map("purchase_items")
+}

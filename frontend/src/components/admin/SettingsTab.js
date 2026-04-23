@@ -479,7 +479,8 @@ const SettingsTab = () => {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .settings-container {
-          max-width: 900px;
+          max-width: 760px;
+          margin-right: auto;
         }
         .danger-zone {
           border: 1px solid #ff4d4d;
@@ -500,6 +501,8 @@ const SettingsTab = () => {
           display: flex;
           flex-direction: column;
           gap: 20px;
+          width: min(100%, 640px);
+          margin-right: auto;
         }
         .setting-info h4 {
           margin: 0 0 8px 0;
@@ -558,6 +561,12 @@ const SettingsTab = () => {
           cursor: not-allowed;
         }
         @media (max-width: 768px) {
+          .settings-container {
+            max-width: 100%;
+          }
+          .setting-card {
+            width: 100%;
+          }
           .table-settings-grid {
             grid-template-columns: 1fr;
           }

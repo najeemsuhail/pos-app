@@ -6,7 +6,7 @@ import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
-const DEFAULT_EXPENSE_CATEGORIES = ['Rent', 'Utilities', 'Supplies', 'Salary', 'Maintenance', 'Transport', 'Marketing', 'Other'];
+const DEFAULT_EXPENSE_CATEGORIES = ['Rent', 'Utilities', 'Office Supplies', 'Salary', 'Maintenance', 'Transport', 'Marketing', 'Other'];
 const PAYMENT_METHODS = ['Cash', 'UPI', 'Card', 'Bank Transfer'];
 const today = new Date().toISOString().split('T')[0];
 
@@ -31,7 +31,7 @@ const ExpenseManagementTab = () => {
   const EXPENSE_CATEGORIES = [...DEFAULT_EXPENSE_CATEGORIES, ...customCategories];
   const [formData, setFormData] = useState({
     expense_date: today,
-    category: 'Supplies',
+    category: 'Utilities',
     note: '',
     amount: '',
     payment_method: 'Cash',
@@ -121,7 +121,7 @@ const ExpenseManagementTab = () => {
       await expenseService.create(formData);
       setFormData({
         expense_date: today,
-        category: 'Supplies',
+        category: 'Utilities',
         note: '',
         amount: '',
         payment_method: 'Cash',
@@ -145,7 +145,7 @@ const ExpenseManagementTab = () => {
       }
       const note = (editingExpense.note || '').trim();
       if (!note) {
-        setError('Sub Category is required');
+        setError('Description is required');
         return;
       }
       
@@ -249,9 +249,14 @@ const ExpenseManagementTab = () => {
 
   return (
     <div className="admin-tab-content">
-      <div className="tab-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Daily Expenses</h2>
-        <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '8px' }}>
+      <div className="tab-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
+        <div>
+          <h2>Operating Expenses</h2>
+          <p className="compact-muted">
+            Track rent, utilities, salary, maintenance, transport, and other non-supplier costs here.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setViewMode('ledger')}
             style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', background: 'var(--primary-color)', color: 'var(--text-on-brand)' }}
@@ -269,27 +274,27 @@ const ExpenseManagementTab = () => {
 
       {error && <div className="error-message">{error}</div>}
 
-      <div className="section-container" style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3>{showAddForm ? 'Add New Expense' : 'Quick Actions'}</h3>
+      <div className="section-container" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <h3>{showAddForm ? 'Add Operating Expense' : 'Quick Actions'}</h3>
           <button 
             className={`btn-${showAddForm ? 'secondary' : 'primary'}`} 
             onClick={() => setShowAddForm(!showAddForm)}
           >
-            {showAddForm ? 'Cancel' : 'Add Expense'}
+            {showAddForm ? 'Cancel' : 'Add Operating Expense'}
           </button>
         </div>
 
         {showAddForm && (
-          <form className="admin-form" onSubmit={handleSubmit} style={{ marginTop: '20px', border: 'none', padding: 0 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+          <form className="admin-form" onSubmit={handleSubmit} style={{ marginTop: '14px', border: 'none', padding: 0 }}>
+            <div className="compact-grid-2">
               <div className="form-group">
                 <label>Date *</label>
                 <DatePicker selected={parseDateStr(formData.expense_date)} onChange={(date) => setFormData({ ...formData, expense_date: formatDateStr(date) })} required className="date-input" dateFormat="yyyy-MM-dd" />
               </div>
               <div className="form-group">
                 <label>Category *</label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div className="compact-inline-actions">
                   <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} required style={{ flex: 1 }}>
                     {EXPENSE_CATEGORIES.map((category) => (
                       <option key={category} value={category}>{category}</option>
@@ -300,7 +305,7 @@ const ExpenseManagementTab = () => {
                   </button>
                 </div>
                 {showAddCategory && (
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                  <div className="compact-inline-actions" style={{ marginTop: '8px' }}>
                     <input
                       type="text"
                       value={newCategoryInput}
@@ -314,7 +319,7 @@ const ExpenseManagementTab = () => {
                   </div>
                 )}
                 {customCategories.length > 0 && (
-                  <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  <div className="compact-inline-actions" style={{ marginTop: '8px', gap: '6px' }}>
                     {customCategories.map((cat) => (
                       <span key={cat} style={{ background: 'var(--surface-muted)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '2px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {cat}
@@ -339,12 +344,12 @@ const ExpenseManagementTab = () => {
             </div>
 
             <div className="form-group">
-              <label>Sub Category *</label>
+              <label>Description *</label>
               <input 
                 type="text" 
                 value={formData.note} 
                 onChange={(e) => setFormData({ ...formData, note: e.target.value })} 
-                placeholder="e.g., Groceries, gas refill, technician visit" 
+                  placeholder="e.g., Electricity bill, gas refill, technician visit" 
                 required 
                 list="prev-notes-list"
               />
@@ -356,13 +361,13 @@ const ExpenseManagementTab = () => {
             </div>
 
             <div className="form-actions">
-              <button type="submit" className="btn-success">Save Expense</button>
+              <button type="submit" className="btn-success">Save Operating Expense</button>
             </div>
           </form>
         )}
       </div>
 
-      <div className="report-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-end' }}>
+      <div className="report-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end', marginBottom: '8px' }}>
         <div>
           <label>Start Date:</label>
           <DatePicker selected={parseDateStr(filters.startDate)} onChange={(date) => setFilters({ ...filters, startDate: formatDateStr(date) })} className="date-input" dateFormat="yyyy-MM-dd" />
@@ -436,11 +441,11 @@ const ExpenseManagementTab = () => {
         </div>
       )}
 
-      {loading && <div className="loading">Loading expenses...</div>}
+      {loading && <div className="loading">Loading operating expenses...</div>}
 
       {!loading && (
-        <div className="section-container">
-          <h3>Expense Ledger</h3>
+        <div className="section-container compact-table">
+          <h3>Operating Expense Ledger</h3>
           <table className="data-table">
             <thead>
               <tr>
@@ -458,7 +463,7 @@ const ExpenseManagementTab = () => {
                 >
                   Category <span style={{ marginLeft: '4px', opacity: sortBy.startsWith('category_') ? 1 : 0.45 }}>{getSortArrow('category')}</span>
                 </th>
-                <th>Sub Category</th>
+                <th>Description</th>
                 <th>Method</th>
                 <th>Reference</th>
                 <th
@@ -488,7 +493,7 @@ const ExpenseManagementTab = () => {
               ))}
               {filteredExpenses.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center' }}>No expenses found matching your criteria.</td>
+                  <td colSpan="7" style={{ textAlign: 'center' }}>No operating expenses found matching your criteria.</td>
                 </tr>
               )}
             </tbody>
@@ -500,11 +505,11 @@ const ExpenseManagementTab = () => {
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '760px', width: '100%' }}>
             <div className="modal-header">
-              <h3>Edit Expense</h3>
+              <h3>Edit Operating Expense</h3>
               <button type="button" className="modal-close" onClick={() => setEditingExpense(null)}>&times;</button>
             </div>
-            <form onSubmit={handleUpdate} className="admin-form" style={{ border: 'none', padding: 20, marginBottom: 0, background: 'transparent' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+            <form onSubmit={handleUpdate} className="admin-form compact-admin-form" style={{ border: 'none', padding: 12, marginBottom: 0, background: 'transparent' }}>
+              <div className="compact-grid-2">
                 <div className="form-group">
                   <label>Date</label>
                   <DatePicker 
@@ -535,7 +540,7 @@ const ExpenseManagementTab = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>Sub Category</label>
+                <label>Description</label>
                 <input 
                   type="text" 
                   value={editingExpense.note} 
@@ -550,7 +555,7 @@ const ExpenseManagementTab = () => {
               </div>
               <div className="form-actions">
                 <button type="button" className="btn-secondary" onClick={() => setEditingExpense(null)}>Cancel</button>
-                <button type="submit" className="btn-success">Update Expense</button>
+                <button type="submit" className="btn-success">Update Operating Expense</button>
               </div>
             </form>
           </div>

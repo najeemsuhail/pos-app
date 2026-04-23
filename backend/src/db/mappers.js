@@ -138,6 +138,75 @@ function mapExpense(expense) {
   };
 }
 
+function mapSupplier(supplier) {
+  if (!supplier) {
+    return null;
+  }
+
+  const purchases = Array.isArray(supplier.purchases) ? supplier.purchases : [];
+  const totalPurchased = purchases.reduce((sum, purchase) => sum + (toNumber(purchase.totalAmount) || 0), 0);
+  const totalPaid = purchases.reduce((sum, purchase) => sum + (toNumber(purchase.paidAmount) || 0), 0);
+
+  return {
+    id: supplier.id,
+    name: supplier.name,
+    phone: supplier.phone,
+    email: supplier.email,
+    address: supplier.address,
+    notes: supplier.notes,
+    created_at: supplier.createdAt,
+    purchase_count: purchases.length,
+    total_purchased: totalPurchased,
+    total_paid: totalPaid,
+    outstanding_amount: Math.max(0, totalPurchased - totalPaid),
+  };
+}
+
+function mapPurchaseItem(item) {
+  if (!item) {
+    return null;
+  }
+
+  return {
+    id: item.id,
+    purchase_id: item.purchaseId,
+    item_name: item.itemName,
+    quantity: toNumber(item.quantity),
+    unit: item.unit,
+    unit_price: toNumber(item.unitPrice),
+    total_price: toNumber(item.totalPrice),
+    created_at: item.createdAt,
+  };
+}
+
+function mapPurchase(purchase) {
+  if (!purchase) {
+    return null;
+  }
+
+  const totalAmount = toNumber(purchase.totalAmount) || 0;
+  const paidAmount = toNumber(purchase.paidAmount) || 0;
+
+  return {
+    id: purchase.id,
+    supplier_id: purchase.supplierId,
+    purchase_date: purchase.purchaseDate,
+    invoice_number: purchase.invoiceNumber,
+    payment_status: purchase.paymentStatus,
+    subtotal: toNumber(purchase.subtotal),
+    tax_amount: toNumber(purchase.taxAmount),
+    discount_amount: toNumber(purchase.discountAmount),
+    total_amount: totalAmount,
+    paid_amount: paidAmount,
+    due_amount: Math.max(0, totalAmount - paidAmount),
+    note: purchase.note,
+    created_at: purchase.createdAt,
+    updated_at: purchase.updatedAt,
+    supplier: purchase.supplier ? mapSupplier(purchase.supplier) : null,
+    items: Array.isArray(purchase.items) ? purchase.items.map(mapPurchaseItem) : [],
+  };
+}
+
 module.exports = {
   mapUser,
   mapCategory,
@@ -146,4 +215,7 @@ module.exports = {
   mapOrderItem,
   mapPayment,
   mapExpense,
+  mapSupplier,
+  mapPurchaseItem,
+  mapPurchase,
 };

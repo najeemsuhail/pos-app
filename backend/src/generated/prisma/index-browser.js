@@ -203,6 +203,43 @@ exports.Prisma.ExpenseScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.SupplierScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  notes: 'notes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PurchaseScalarFieldEnum = {
+  id: 'id',
+  supplierId: 'supplierId',
+  purchaseDate: 'purchaseDate',
+  invoiceNumber: 'invoiceNumber',
+  paymentStatus: 'paymentStatus',
+  subtotal: 'subtotal',
+  taxAmount: 'taxAmount',
+  discountAmount: 'discountAmount',
+  totalAmount: 'totalAmount',
+  paidAmount: 'paidAmount',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PurchaseItemScalarFieldEnum = {
+  id: 'id',
+  purchaseId: 'purchaseId',
+  itemName: 'itemName',
+  quantity: 'quantity',
+  unit: 'unit',
+  unitPrice: 'unitPrice',
+  totalPrice: 'totalPrice',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -222,7 +259,10 @@ exports.Prisma.ModelName = {
   BillSequence: 'BillSequence',
   OrderItem: 'OrderItem',
   Payment: 'Payment',
-  Expense: 'Expense'
+  Expense: 'Expense',
+  Supplier: 'Supplier',
+  Purchase: 'Purchase',
+  PurchaseItem: 'PurchaseItem'
 };
 
 /**

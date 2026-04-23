@@ -112,12 +112,9 @@ const ReportsTab = () => {
 
     const currencyCell = (value, style = 'currency') => ({ value: Number(value || 0), style });
     const integerCell = (value) => ({ value: Number(value || 0), style: 'integer' });
+    const generatedAt = new Date().toLocaleString();
     const summaryRows = [
       { cells: ['Sales Report Export'], style: 'title' },
-      ['Report Type', reportType.charAt(0).toUpperCase() + reportType.slice(1)],
-      ['Period', periodLabel],
-      ['Generated At', new Date().toLocaleString()],
-      [],
       { cells: ['Metric', 'Value'], style: 'header' },
       ['Total Orders', integerCell(report.totalOrders)],
       ['Paid Orders', integerCell(report.paidOrders)],
@@ -127,13 +124,15 @@ const ReportsTab = () => {
       ['Total Expenses', currencyCell(report.totalExpenses)],
       ['Net After Expenses', currencyCell(report.netSalesAfterExpenses)],
       ['Average Order Value', currencyCell(report.averageOrderValue)],
+      [],
+      ['Report Type', reportType.charAt(0).toUpperCase() + reportType.slice(1)],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const profitLossRows = report.profitLoss
       ? [
           { cells: ['Profit And Loss'], style: 'title' },
-          ['Period', periodLabel],
-          [],
           { cells: ['Profit/Loss Metric', 'Amount'], style: 'header' },
           ['Gross Revenue', currencyCell(report.profitLoss.grossRevenue)],
           ['Discounts Given', currencyCell(report.profitLoss.discountsGiven)],
@@ -144,16 +143,27 @@ const ReportsTab = () => {
             report.profitLoss.profitStatus === 'profit' ? 'Operating Profit' : 'Operating Loss',
             currencyCell(report.profitLoss.operatingProfit, 'totalCurrency'),
           ],
+          [],
+          ['Period', periodLabel],
+          ['Generated At', generatedAt],
         ]
       : [
           { cells: ['Profit And Loss'], style: 'title' },
           { cells: ['Profit/Loss Metric', 'Amount'], style: 'header' },
+          [],
+          ['Period', periodLabel],
+          ['Generated At', generatedAt],
         ];
 
     const revenueRows = revenueAnalytics
       ? [
           { cells: ['Revenue Analytics'], style: 'title' },
-          ['Period', periodLabel],
+          { cells: ['Breakdown Label', 'Amount', 'Percentage'], style: 'header' },
+          ...(revenueAnalytics.breakdown || []).map((entry) => [
+            entry.name,
+            currencyCell(entry.value),
+            Number(entry.percentage || 0),
+          ]),
           [],
           { cells: ['Revenue Metric', 'Amount'], style: 'header' },
           ['Gross Revenue', currencyCell(revenueAnalytics.revenue?.gross)],
@@ -163,22 +173,19 @@ const ReportsTab = () => {
           ['Net Sales', currencyCell(revenueAnalytics.revenue?.net)],
           ['Net After Expenses', currencyCell(revenueAnalytics.revenue?.netAfterExpenses, 'totalCurrency')],
           [],
-          { cells: ['Breakdown Label', 'Amount', 'Percentage'], style: 'header' },
-          ...(revenueAnalytics.breakdown || []).map((entry) => [
-            entry.name,
-            currencyCell(entry.value),
-            Number(entry.percentage || 0),
-          ]),
+          ['Period', periodLabel],
+          ['Generated At', generatedAt],
         ]
       : [
           { cells: ['Revenue Analytics'], style: 'title' },
           { cells: ['Revenue Metric', 'Amount'], style: 'header' },
+          [],
+          ['Period', periodLabel],
+          ['Generated At', generatedAt],
         ];
 
     const paymentRows = [
       { cells: ['Payment Breakdown'], style: 'title' },
-      ['Period', periodLabel],
-      [],
       { cells: ['Payment Method', 'Amount'], style: 'header' },
       ...Object.entries(report.paymentByMethod || {}).map(([method, amount]) => [
         method,
@@ -191,12 +198,13 @@ const ReportsTab = () => {
           'totalCurrency'
         ),
       ],
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const hourlyRows = [
       { cells: ['Hourly Breakdown'], style: 'title' },
-      ['Period', periodLabel],
-      [],
       { cells: ['Hour', 'Orders', 'Paid', 'Sales', 'Tax', 'Discount'], style: 'header' },
       ...(report.hourlyBreakdown || []).map((hour) => [
         `${String(hour.hour).padStart(2, '0')}:00`,
@@ -206,12 +214,13 @@ const ReportsTab = () => {
         currencyCell(hour.tax),
         currencyCell(hour.discount),
       ]),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const itemRows = [
       { cells: ['Items Sold'], style: 'title' },
-      ['Period', periodLabel],
-      [],
       { cells: ['Item Name', 'Qty Sold', 'Revenue', 'Avg Price', 'Orders'], style: 'header' },
       ...(report.allItems || []).map((item) => [
         item.name,
@@ -229,12 +238,13 @@ const ReportsTab = () => {
             '',
           ]]
         : []),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const expenseRows = [
       { cells: ['Expense Breakdown'], style: 'title' },
-      ['Period', periodLabel],
-      [],
       { cells: ['Category', 'Sub Category', 'Entries', 'Amount'], style: 'header' },
       ...(report.expensesByCategory || []).flatMap((category) => [
         [
@@ -250,12 +260,13 @@ const ReportsTab = () => {
           currencyCell(sub.amount),
         ])),
       ]),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const orderRows = [
       { cells: ['Orders'], style: 'title' },
-      ['Period', periodLabel],
-      [],
       { cells: ['Bill #', 'Date & Time', 'Items', 'Subtotal', 'Tax', 'Discount', 'Total', 'Status', 'Payment Status'], style: 'header' },
       ...((report.orders || []).map((order) => [
         order.bill_number,
@@ -281,6 +292,9 @@ const ReportsTab = () => {
             '',
           ]]
         : []),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
     ];
 
     const safePeriod = (reportType === 'daily'

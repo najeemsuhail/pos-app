@@ -117,6 +117,19 @@ export const expenseService = {
   delete: (id) => api.delete(`/expenses/${id}`),
 };
 
+export const purchaseService = {
+  getSuppliers: () => api.get('/purchases/suppliers'),
+  createSupplier: (data) => api.post('/purchases/suppliers', data),
+  updateSupplier: (id, data) => api.patch(`/purchases/suppliers/${id}`, data),
+  deleteSupplier: (id) => api.delete(`/purchases/suppliers/${id}`),
+  getAll: (startDate, endDate, supplierId) => api.get('/purchases', { params: { startDate, endDate, supplierId } }),
+  getSummary: (startDate, endDate, supplierId) => api.get('/purchases/summary', { params: { startDate, endDate, supplierId } }),
+  create: (data) => api.post('/purchases', data),
+  update: (id, data) => api.patch(`/purchases/${id}`, data),
+  delete: (id) => api.delete(`/purchases/${id}`),
+  recordPayment: (id, data) => api.post(`/purchases/${id}/payments`, data),
+};
+
 export const backupService = {
   getAll: () => api.get('/backups'),
   create: () => api.post('/backups'),

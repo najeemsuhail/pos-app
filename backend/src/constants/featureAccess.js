@@ -4,6 +4,7 @@ const CONFIGURABLE_FEATURES = [
   'menuManagement',
   'categoryManagement',
   'expenseManagement',
+  'purchaseManagement',
   'userManagement',
   'backupManagement',
 ];

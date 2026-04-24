@@ -454,7 +454,7 @@ const PurchaseManagementTab = () => {
                 <td>{money(supplier.outstanding_amount)}</td>
                 <td style={{ display: 'flex', gap: '8px' }}>
                   <button className="btn-secondary" onClick={() => handleEditSupplier(supplier)} style={{ padding: '6px 12px', fontSize: '12px' }}>Edit</button>
-                  <button className="btn-secondary" onClick={() => handleDeleteSupplier(supplier.id)} style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--danger-color)' }}>Delete</button>
+                  <button className="btn-delete" onClick={() => handleDeleteSupplier(supplier.id)} style={{ padding: '6px 12px', fontSize: '12px' }}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -515,7 +515,7 @@ const PurchaseManagementTab = () => {
                   </td>
                   <td style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn-secondary" onClick={() => handleEditPurchase(purchase)} style={{ padding: '6px 12px', fontSize: '12px' }}>Edit</button>
-                    <button className="btn-secondary" onClick={() => handleDeletePurchase(purchase.id)} style={{ padding: '6px 12px', fontSize: '12px', background: 'var(--danger-color)' }}>Delete</button>
+                    <button className="btn-delete" onClick={() => handleDeletePurchase(purchase.id)} style={{ padding: '6px 12px', fontSize: '12px' }}>Delete</button>
                   </td>
                 </tr>
               ))}

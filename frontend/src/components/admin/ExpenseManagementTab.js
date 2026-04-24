@@ -59,6 +59,27 @@ const ExpenseManagementTab = () => {
     return sortBy.endsWith('_asc') ? '▲' : '▼';
   };
 
+  const renderViewModeSwitcher = () => (
+    <div className="tab-toggle" role="tablist" aria-label="Expense view switcher">
+      <button
+        type="button"
+        className={`tab-toggle-button ${viewMode === 'ledger' ? 'active' : ''}`}
+        aria-pressed={viewMode === 'ledger'}
+        onClick={() => setViewMode('ledger')}
+      >
+        Ledger
+      </button>
+      <button
+        type="button"
+        className={`tab-toggle-button ${viewMode === 'report' ? 'active' : ''}`}
+        aria-pressed={viewMode === 'report'}
+        onClick={() => setViewMode('report')}
+      >
+        Report
+      </button>
+    </div>
+  );
+
   const handleAddCategory = () => {
     const trimmed = newCategoryInput.trim();
     if (!trimmed || EXPENSE_CATEGORIES.includes(trimmed)) {
@@ -228,20 +249,7 @@ const ExpenseManagementTab = () => {
   if (viewMode === 'report') {
     return (
       <div className="admin-tab-content">
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid var(--border-color)', paddingBottom: '12px' }}>
-          <button
-            onClick={() => setViewMode('ledger')}
-            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '500', background: 'transparent', color: 'var(--text-secondary)' }}
-          >
-            Ledger
-          </button>
-          <button
-            onClick={() => setViewMode('report')}
-            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', background: 'var(--primary-color)', color: 'var(--text-on-brand)' }}
-          >
-            Report
-          </button>
-        </div>
+        {renderViewModeSwitcher()}
         <ExpenseReportSection />
       </div>
     );
@@ -256,20 +264,7 @@ const ExpenseManagementTab = () => {
             Track rent, utilities, salary, maintenance, transport, and other non-supplier costs here.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid var(--border-color)', paddingBottom: '8px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setViewMode('ledger')}
-            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '600', background: 'var(--primary-color)', color: 'var(--text-on-brand)' }}
-          >
-            Ledger
-          </button>
-          <button
-            onClick={() => setViewMode('report')}
-            style={{ padding: '8px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '500', background: 'transparent', color: 'var(--text-secondary)' }}
-          >
-            Report
-          </button>
-        </div>
+        {renderViewModeSwitcher()}
       </div>
 
       {error && <div className="error-message">{error}</div>}

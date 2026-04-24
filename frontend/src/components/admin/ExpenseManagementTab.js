@@ -286,7 +286,7 @@ const ExpenseManagementTab = () => {
         </div>
 
         {showAddForm && (
-          <form className="admin-form" onSubmit={handleSubmit} style={{ marginTop: '14px' }}>
+          <form className="admin-form" onSubmit={handleSubmit} style={{ marginTop: '14px', border: 'none', padding: 0 }}>
             <div className="compact-grid-2">
               <div className="form-group">
                 <label>Date *</label>

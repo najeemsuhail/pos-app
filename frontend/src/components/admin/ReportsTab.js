@@ -469,7 +469,7 @@ const ReportsTab = () => {
                 <div className="report-card"><h4>Gross Revenue</h4><p className="report-value">Rs. {parseFloat(report.profitLoss.grossRevenue).toFixed(2)}</p></div>
                 <div className="report-card"><h4>Net Revenue</h4><p className="report-value">Rs. {parseFloat(report.profitLoss.netRevenue).toFixed(2)}</p></div>
                 <div className="report-card"><h4>Operating Expenses</h4><p className="report-value">Rs. {parseFloat(report.profitLoss.operatingExpenses).toFixed(2)}</p></div>
-                <div className="report-card">
+                <div className={`report-card profit-card ${report.profitLoss.profitStatus === 'profit' ? 'profit' : 'loss'}`}>
                   <h4>{report.profitLoss.profitStatus === 'profit' ? 'Operating Profit' : 'Operating Loss'}</h4>
                   <p className="report-value" style={{ color: report.profitLoss.profitStatus === 'profit' ? 'var(--success-color)' : 'var(--danger-color)' }}>
                     Rs. {parseFloat(Math.abs(report.profitLoss.operatingProfit)).toFixed(2)}

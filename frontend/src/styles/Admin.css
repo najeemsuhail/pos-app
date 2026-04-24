@@ -327,6 +327,18 @@
   flex-wrap: wrap;
 }
 
+.compact-inline-actions input,
+.compact-inline-actions select,
+.compact-inline-actions button {
+  min-height: 44px;
+}
+
+.compact-inline-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ========== BUTTONS ========== */
 .btn-success {
   background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
@@ -839,6 +851,28 @@
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.report-card.profit-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.report-card.profit-card h4 {
+  color: var(--text-secondary);
+}
+
+.report-card.profit-card.profit {
+  border-left: 4px solid var(--success-color);
+}
+
+.report-card.profit-card.loss {
+  border-left: 4px solid var(--danger-color);
+}
+
+.report-card.profit-card .report-value {
+  color: var(--text-primary);
 }
 
 .report-card h4 {

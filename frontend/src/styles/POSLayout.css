@@ -111,9 +111,16 @@
 
 .table-carousel {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
   gap: 10px;
   align-items: center;
+}
+
+.table-carousel.has-nav {
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+}
+
+.table-carousel.no-nav {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .table-nav-btn {
@@ -129,10 +136,22 @@
   transition: all 0.2s ease;
 }
 
+.table-nav-btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+  box-shadow: none;
+}
+
 .table-nav-btn:hover,
 .table-nav-btn:focus-visible {
   background: var(--bg-secondary);
   box-shadow: var(--shadow-sm);
+  outline: none;
+}
+
+.table-nav-btn:disabled:hover,
+.table-nav-btn:disabled:focus-visible {
+  background: var(--bg-tertiary);
   outline: none;
 }
 
@@ -471,16 +490,29 @@
 }
 
 .pos-item-image {
-  object-fit: contain;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pos-item-image-fallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-primary);
   font-size: 12px;
   font-weight: 700;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 45%),
+    linear-gradient(135deg, rgba(255, 159, 64, 0.26), rgba(54, 162, 235, 0.22)),
+    var(--surface-muted);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+}
+
+.pos-item-image-fallback-icon {
+  font-size: 28px;
+  line-height: 1;
 }
 
 .pos-item-card-body {

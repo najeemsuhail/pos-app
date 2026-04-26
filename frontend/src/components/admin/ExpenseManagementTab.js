@@ -66,6 +66,7 @@ const ExpenseManagementTab = () => {
         className={`tab-toggle-button ${viewMode === 'ledger' ? 'active' : ''}`}
         aria-pressed={viewMode === 'ledger'}
         onClick={() => setViewMode('ledger')}
+        style={{ width: '120px' }}
       >
         Ledger
       </button>
@@ -74,6 +75,7 @@ const ExpenseManagementTab = () => {
         className={`tab-toggle-button ${viewMode === 'report' ? 'active' : ''}`}
         aria-pressed={viewMode === 'report'}
         onClick={() => setViewMode('report')}
+        style={{ width: '120px' }}
       >
         Report
       </button>
@@ -281,7 +283,8 @@ const ExpenseManagementTab = () => {
         </div>
 
         {showAddForm && (
-          <form className="admin-form" onSubmit={handleSubmit} style={{ marginTop: '14px', border: 'none', padding: 0 }}>
+          <form className="admin-form" onSubmit={handleSubmit} style={{ marginTop: '14px', marginBottom: 0 }}>
+            <h3>Add Operating Expense</h3>
             <div className="compact-grid-2">
               <div className="form-group">
                 <label>Date *</label>
@@ -316,7 +319,7 @@ const ExpenseManagementTab = () => {
                 {customCategories.length > 0 && (
                   <div className="compact-inline-actions" style={{ marginTop: '8px', gap: '6px' }}>
                     {customCategories.map((cat) => (
-                      <span key={cat} style={{ background: 'var(--surface-muted)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '2px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span key={cat} style={{ border: '1px solid var(--border-color)', borderRadius: '12px', padding: '2px 10px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {cat}
                         <button type="button" onClick={() => handleDeleteCategory(cat)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger-color)', fontWeight: 'bold', padding: 0, lineHeight: 1 }}>✕</button>
                       </span>

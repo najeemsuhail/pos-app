@@ -27,6 +27,9 @@ const POSLayout = ({
   const [showHelp, setShowHelp] = useState(false);
   const [categoriesCollapsed, setCategoriesCollapsed] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [showTableNav, setShowTableNav] = useState(false);
+  const [canScrollTableLeft, setCanScrollTableLeft] = useState(false);
+  const [canScrollTableRight, setCanScrollTableRight] = useState(false);
 
   const billItemsRef = useRef(null);
   const prevCartLengthRef = useRef(0);
@@ -268,6 +271,45 @@ const POSLayout = ({
     });
   };
 
+  useEffect(() => {
+    const updateTableNavState = () => {
+      if (!tableRailRef.current) {
+        setShowTableNav(false);
+        setCanScrollTableLeft(false);
+        setCanScrollTableRight(false);
+        return;
+      }
+
+      const rail = tableRailRef.current;
+      const hasOverflow = rail.scrollWidth > rail.clientWidth + 4;
+      const maxScrollLeft = Math.max(0, rail.scrollWidth - rail.clientWidth);
+
+      setShowTableNav(hasOverflow);
+      setCanScrollTableLeft(hasOverflow && rail.scrollLeft > 4);
+      setCanScrollTableRight(hasOverflow && rail.scrollLeft < maxScrollLeft - 4);
+    };
+
+    const handleResize = () => {
+      window.requestAnimationFrame(updateTableNavState);
+    };
+
+    updateTableNavState();
+    const rail = tableRailRef.current;
+
+    if (rail) {
+      rail.addEventListener('scroll', updateTableNavState, { passive: true });
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      if (rail) {
+        rail.removeEventListener('scroll', updateTableNavState);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [tableNumbers, tableNames, showTableNav]);
+
   return (
     <>
     <div className={`pos-container ${categoriesCollapsed ? 'categories-collapsed' : ''}`}>
@@ -285,10 +327,18 @@ const POSLayout = ({
             Help
           </button>
         </div>
-        <div className="table-carousel">
-          <button className="table-nav-btn" type="button" onClick={() => scrollTables(-1)} aria-label="Scroll tables left">
-            &lt;
-          </button>
+        <div className={`table-carousel ${showTableNav ? 'has-nav' : 'no-nav'}`}>
+          {showTableNav && (
+            <button
+              className="table-nav-btn"
+              type="button"
+              onClick={() => scrollTables(-1)}
+              aria-label="Scroll tables left"
+              disabled={!canScrollTableLeft}
+            >
+              &lt;
+            </button>
+          )}
           <div className="table-rail" ref={tableRailRef}>
             {tableNumbers.map((tableId) => {
               const activeOrder = activeTableOrders.find((order) => order.table_id === tableId);
@@ -308,9 +358,17 @@ const POSLayout = ({
               );
             })}
           </div>
-          <button className="table-nav-btn" type="button" onClick={() => scrollTables(1)} aria-label="Scroll tables right">
-            &gt;
-          </button>
+          {showTableNav && (
+            <button
+              className="table-nav-btn"
+              type="button"
+              onClick={() => scrollTables(1)}
+              aria-label="Scroll tables right"
+              disabled={!canScrollTableRight}
+            >
+              &gt;
+            </button>
+          )}
         </div>
       </section>
 
@@ -405,7 +463,8 @@ const POSLayout = ({
                 />
               ) : null}
               <div className="pos-item-image-fallback" style={{ display: item.image_url ? 'none' : 'flex' }}>
-                No Image
+                <span className="pos-item-image-fallback-icon" aria-hidden="true">🍽</span>
+                <span>Sample Image</span>
               </div>
               <div className="pos-item-card-body">
                 <div className="pos-item-name">{item.name}</div>

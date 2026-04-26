@@ -176,9 +176,9 @@
 }
 
 .tab-toggle-button {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid transparent;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   padding: 10px 18px;
   min-width: 110px;
   border-radius: 999px;
@@ -194,6 +194,7 @@
 
 .tab-toggle-button:hover {
   background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .tab-toggle-button.active {
@@ -1028,8 +1029,10 @@
 }
 
 .category-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   padding: 20px;
   border-radius: 8px;
   display: flex;

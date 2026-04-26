@@ -150,8 +150,6 @@ const AttendanceManagementTab = () => {
   const getStatusMeta = (status) =>
     STATUS_OPTIONS.find((option) => option.value === status) || STATUS_OPTIONS[0];
 
-  const selectedStatusMeta = getStatusMeta(formData.status);
-
   return (
     <div className="admin-tab-content">
       <div className="tab-header" style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
@@ -177,23 +175,9 @@ const AttendanceManagementTab = () => {
       {success && <div className="success-message">{success}</div>}
 
       {showForm && (
-        <div className="section-container attendance-form-shell" style={{ marginBottom: 16 }}>
-          <div className="attendance-form-header">
-            <div>
-              <h3>Daily Attendance Entry</h3>
-              <p>Mark one staff member per date. Saving the same staff and date will update the existing record.</p>
-            </div>
-            <div
-              className="attendance-status-preview"
-              style={{
-                borderColor: selectedStatusMeta.color,
-                color: selectedStatusMeta.color,
-              }}
-            >
-              {selectedStatusMeta.label}
-            </div>
-          </div>
-          <form className="admin-form" onSubmit={handleSubmit} style={{ border: 'none', padding: 0, marginBottom: 0 }}>
+        <form className="admin-form" onSubmit={handleSubmit}>
+          <h3>Daily Attendance Entry</h3>
+         
             <div className="compact-grid-3 attendance-form-grid">
               <div className="form-group">
                 <label>Staff Member *</label>
@@ -271,8 +255,7 @@ const AttendanceManagementTab = () => {
             <div className="form-actions">
               <button type="submit" className="btn-success">Save Attendance</button>
             </div>
-          </form>
-        </div>
+        </form>
       )}
 
       <div className="report-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end', marginBottom: 16 }}>
@@ -481,56 +464,6 @@ const AttendanceManagementTab = () => {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            .attendance-form-shell {
-              background: linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 92%, white 8%), var(--bg-secondary));
-            }
-            .attendance-form-header {
-              display: flex;
-              justify-content: space-between;
-              gap: 16px;
-              align-items: flex-start;
-              margin-bottom: 18px;
-              padding-bottom: 14px;
-              border-bottom: 1px solid var(--border-color);
-            }
-            .attendance-form-header h3 {
-              margin: 0 0 6px 0;
-            }
-            .attendance-form-header p {
-              margin: 0;
-              color: var(--text-secondary);
-              max-width: 620px;
-              line-height: 1.45;
-            }
-            .attendance-status-preview {
-              min-width: 120px;
-              padding: 10px 14px;
-              border: 1px solid;
-              border-radius: 999px;
-              background: var(--bg-primary);
-              text-align: center;
-              font-weight: 700;
-              box-shadow: var(--shadow-sm);
-            }
-            .attendance-form-grid .form-group,
-            .attendance-notes-group {
-              min-width: 0;
-            }
-            .attendance-form-grid select,
-            .attendance-form-grid input,
-            .attendance-notes-group textarea {
-              width: 100%;
-            }
-            .attendance-notes-group textarea {
-              resize: vertical;
-              min-height: 96px;
-              padding: 12px 14px;
-              border: 2px solid var(--border-color);
-              border-radius: 10px;
-              background: var(--bg-primary);
-              color: var(--text-primary);
-              font: inherit;
-            }
             .attendance-summary-grid {
               margin-top: 18px;
             }
@@ -570,18 +503,10 @@ const AttendanceManagementTab = () => {
             .attendance-summary-card-leave::before {
               background: #2b6cb0;
             }
-            @media (max-width: 768px) {
-              .attendance-form-header {
-                flex-direction: column;
-                align-items: stretch;
-              }
-              .attendance-status-preview {
-                width: 100%;
-              }
-            }
           `,
         }}
       />
+
     </div>
   );
 };

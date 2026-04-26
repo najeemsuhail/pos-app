@@ -138,6 +138,31 @@ function mapExpense(expense) {
   };
 }
 
+function mapAttendance(attendance) {
+  if (!attendance) {
+    return null;
+  }
+
+  return {
+    id: attendance.id,
+    user_id: attendance.userId,
+    attendance_date: attendance.attendanceDate,
+    status: attendance.status,
+    check_in: attendance.checkIn,
+    check_out: attendance.checkOut,
+    notes: attendance.notes,
+    created_at: attendance.createdAt,
+    updated_at: attendance.updatedAt,
+    user: attendance.user
+      ? {
+          id: attendance.user.id,
+          name: attendance.user.name,
+          role: attendance.user.role,
+        }
+      : null,
+  };
+}
+
 function mapSupplier(supplier) {
   if (!supplier) {
     return null;
@@ -215,6 +240,7 @@ module.exports = {
   mapOrderItem,
   mapPayment,
   mapExpense,
+  mapAttendance,
   mapSupplier,
   mapPurchaseItem,
   mapPurchase,

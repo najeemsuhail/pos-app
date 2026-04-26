@@ -117,6 +117,17 @@ export const expenseService = {
   delete: (id) => api.delete(`/expenses/${id}`),
 };
 
+export const attendanceService = {
+  getAll: (startDate, endDate, userId) =>
+    api.get('/attendance', { params: { startDate, endDate, userId } }),
+  getSummary: (startDate, endDate, userId) =>
+    api.get('/attendance/summary', { params: { startDate, endDate, userId } }),
+  getStaff: () => api.get('/attendance/staff'),
+  create: (data) => api.post('/attendance', data),
+  update: (id, data) => api.patch(`/attendance/${id}`, data),
+  delete: (id) => api.delete(`/attendance/${id}`),
+};
+
 export const purchaseService = {
   getSuppliers: () => api.get('/purchases/suppliers'),
   createSupplier: (data) => api.post('/purchases/suppliers', data),

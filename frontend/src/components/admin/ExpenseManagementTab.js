@@ -257,7 +257,7 @@ const ExpenseManagementTab = () => {
 
   return (
     <div className="admin-tab-content">
-      <div className="tab-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
+     <div className="tab-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
         <div>
           <h2>Operating Expenses</h2>
           <p className="compact-muted">

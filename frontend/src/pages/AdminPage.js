@@ -5,6 +5,7 @@ import OrderHistoryTab from '../components/admin/OrderHistoryTab';
 import MenuManagementTab from '../components/admin/MenuManagementTab';
 import CategoryManagementTab from '../components/admin/CategoryManagementTab';
 import ExpenseManagementTab from '../components/admin/ExpenseManagementTab';
+import AttendanceManagementTab from '../components/admin/AttendanceManagementTab';
 import PurchaseManagementTab from '../components/admin/PurchaseManagementTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
 import BackupTab from '../components/admin/BackupTab';
@@ -91,6 +92,7 @@ const AdminPage = () => {
         {activeTab === 'menu' && <MenuManagementTab />}
         {activeTab === 'categories' && <CategoryManagementTab />}
         {activeTab === 'expenses' && <ExpenseManagementTab />}
+        {activeTab === 'attendance' && <AttendanceManagementTab />}
         {activeTab === 'purchases' && <PurchaseManagementTab />}
         {activeTab === 'users' && <UserManagementTab />}
         {activeTab === 'backup' && <BackupTab />}
@@ -107,6 +109,7 @@ function getAvailableTabs(role, userFeatureAccessOverrides = {}) {
     { key: 'menu', label: 'Menu Items', featureKey: 'menuManagement' },
     { key: 'categories', label: 'Categories', featureKey: 'categoryManagement' },
     { key: 'expenses', label: 'Operating Expenses', featureKey: 'expenseManagement' },
+    { key: 'attendance', label: 'Staff Attendance', featureKey: 'attendanceManagement' },
     { key: 'purchases', label: 'Purchases', featureKey: 'purchaseManagement' },
     { key: 'users', label: 'Users', featureKey: 'userManagement' },
     { key: 'backup', label: 'Backup', featureKey: 'backupManagement' },

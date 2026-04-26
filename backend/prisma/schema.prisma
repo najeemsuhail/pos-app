@@ -19,7 +19,27 @@ model User {
   featureAccessOverrides String?  @map("feature_access_overrides")
   createdAt              DateTime @default(now()) @map("created_at")
 
+  attendances            StaffAttendance[]
+
   @@map("users")
+}
+
+model StaffAttendance {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  attendanceDate String   @map("attendance_date")
+  status         String
+  checkIn        String?  @map("check_in")
+  checkOut       String?  @map("check_out")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, attendanceDate])
+  @@index([attendanceDate])
+  @@map("staff_attendance")
 }
 
 model Category {

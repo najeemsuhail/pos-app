@@ -4,6 +4,7 @@ export const CONFIGURABLE_ADMIN_FEATURES = [
   { key: 'menuManagement', label: 'Menu Items', description: 'Create, edit, and delete menu items.' },
   { key: 'categoryManagement', label: 'Categories', description: 'Create, rename, and delete menu categories.' },
   { key: 'expenseManagement', label: 'Operating Expenses', description: 'Manage operating expense entries and expense history.' },
+  { key: 'attendanceManagement', label: 'Staff Attendance', description: 'Mark daily attendance and review attendance history for staff.' },
   { key: 'purchaseManagement', label: 'Purchases', description: 'Manage suppliers, purchases, and supplier dues.' },
   { key: 'userManagement', label: 'Users', description: 'Create users, delete users, and reset passwords.' },
   { key: 'backupManagement', label: 'Backup', description: 'Create, restore, upload, and download backups.' },

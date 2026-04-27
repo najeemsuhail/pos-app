@@ -1,7 +1,26 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import '../styles/ReceiptModal.css';
 
 const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!modalRef.current || !modalRef.current.contains(event.target)) {
+        return;
+      }
+
+      event.stopPropagation();
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [onClose]);
   const lines = receipt.split('\n').filter((line, index, list) => !(line === '' && list[index - 1] === ''));
 
   const getLineClassName = (line) => {
@@ -44,7 +63,7 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="receipt-modal">
+      <div className="receipt-modal" ref={modalRef}>
         <div className="receipt-header">
           <h2>Bill #{billNumber || '-'}</h2>
           <button onClick={onClose} className="close-btn">

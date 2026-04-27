@@ -1,6 +1,6 @@
 .pos-container {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1.7fr) minmax(340px, 0.92fr);
+  grid-template-columns: 188px minmax(0, 1.74fr) minmax(340px, 0.92fr);
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas:
     "tables tables bill"
@@ -13,7 +13,7 @@
 }
 
 .pos-container.categories-collapsed {
-  grid-template-columns: 58px minmax(0, 1.95fr) minmax(340px, 0.92fr);
+  grid-template-columns: 52px minmax(0, 1.98fr) minmax(340px, 0.92fr);
   grid-template-areas:
     "tables tables bill"
     "categories menu bill";
@@ -287,7 +287,7 @@
 
 .pos-categories {
   grid-area: categories;
-  padding: 18px;
+  padding: 14px 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -339,22 +339,26 @@
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 2px;
 }
 
 .category-btn {
-  padding: 14px 16px;
+  min-height: 38px;
+  padding: 8px 10px;
   background: var(--bg-tertiary);
   color: var(--text-secondary);
-  border: 2px solid transparent;
-  border-radius: 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
+  line-height: 1.2;
   text-align: left;
   transition: all 0.2s ease;
   cursor: pointer;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .category-btn:hover,
@@ -368,7 +372,7 @@
 .category-btn.active {
   background: var(--secondary-gradient);
   color: white;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .pos-menu {
@@ -417,16 +421,20 @@
 .panel-toggle-btn {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 12px;
+  min-height: 28px;
+  padding: 0 9px;
+  border-radius: 9px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .active-category-chip {
   background: var(--bg-tertiary);
   color: var(--text-secondary);
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .panel-toggle-btn {
@@ -914,11 +922,11 @@
 
 @media (max-width: 1360px) {
   .pos-container {
-    grid-template-columns: 190px minmax(0, 1.55fr) minmax(320px, 0.9fr);
+    grid-template-columns: 168px minmax(0, 1.6fr) minmax(320px, 0.9fr);
   }
 
   .pos-container.categories-collapsed {
-    grid-template-columns: 52px minmax(0, 1.75fr) minmax(320px, 0.9fr);
+    grid-template-columns: 48px minmax(0, 1.8fr) minmax(320px, 0.9fr);
   }
 
   .shortcut-grid {
@@ -991,7 +999,7 @@
   }
 
   .category-btn {
-    min-width: 132px;
+    min-width: 112px;
   }
 
   .shortcut-grid {

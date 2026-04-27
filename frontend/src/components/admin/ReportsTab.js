@@ -469,9 +469,16 @@ const ReportsTab = () => {
                 <div className="report-card"><h4>Gross Revenue</h4><p className="report-value">Rs. {parseFloat(report.profitLoss.grossRevenue).toFixed(2)}</p></div>
                 <div className="report-card"><h4>Net Revenue</h4><p className="report-value">Rs. {parseFloat(report.profitLoss.netRevenue).toFixed(2)}</p></div>
                 <div className="report-card"><h4>Operating Expenses</h4><p className="report-value">Rs. {parseFloat(report.profitLoss.operatingExpenses).toFixed(2)}</p></div>
-                <div className={`report-card profit-card ${report.profitLoss.profitStatus === 'profit' ? 'profit' : 'loss'}`}>
+                <div
+                  className="report-card profit-card"
+                  style={{
+                    background: report.profitLoss.profitStatus === 'profit'
+                      ? 'linear-gradient(135deg, #15803d 0%, #16a34a 100%)'
+                      : 'linear-gradient(135deg, #b91c1c 0%, #dc2626 100%)',
+                  }}
+                >
                   <h4>{report.profitLoss.profitStatus === 'profit' ? 'Operating Profit' : 'Operating Loss'}</h4>
-                  <p className="report-value" style={{ color: report.profitLoss.profitStatus === 'profit' ? 'var(--success-color)' : 'var(--danger-color)' }}>
+                  <p className="report-value" style={{ color: '#ffffff' }}>
                     Rs. {parseFloat(Math.abs(report.profitLoss.operatingProfit)).toFixed(2)}
                   </p>
                 </div>
@@ -737,7 +744,11 @@ const ReportsTab = () => {
                       <td style={{ fontWeight: 'bold', color: 'var(--success-color)' }}>{formatCurrency(order.final_amount)}</td>
                       <td>
                         <span style={{
-                          background: order.status === 'paid' ? 'var(--success-color)' : order.status === 'pending' ? 'var(--warning-color)' : 'var(--danger-color)',
+                          background: ['paid', 'completed'].includes(order.status)
+                            ? 'var(--success-color)'
+                            : order.status === 'pending'
+                              ? 'var(--warning-color)'
+                              : 'var(--danger-color)',
                           color: 'var(--text-on-brand)',
                           padding: '4px 8px',
                           borderRadius: '4px',

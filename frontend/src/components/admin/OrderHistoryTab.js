@@ -17,6 +17,7 @@ const OrderHistoryTab = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
   const [receiptPreview, setReceiptPreview] = useState('');
   const [receiptBillNumber, setReceiptBillNumber] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
@@ -52,6 +53,18 @@ const OrderHistoryTab = () => {
       startDate: new Date(startDate).toISOString(),
       endDate: new Date(endDate).toISOString(),
     });
+  };
+
+  const showPendingSettlements = () => {
+    setPaymentStatusFilter('pending_settlement');
+  };
+
+  const clearAllFilters = () => {
+    setStartDate('');
+    setEndDate('');
+    setStatusFilter('all');
+    setPaymentStatusFilter('all');
+    fetchOrders();
   };
 
   const handleViewDetails = async (orderId) => {
@@ -149,8 +162,21 @@ const OrderHistoryTab = () => {
       return false;
     }
 
+    if (paymentStatusFilter !== 'all' && (order.payment_status || 'unpaid') !== paymentStatusFilter) {
+      return false;
+    }
+
     return true;
   });
+
+  const pendingSettlementOrders = filteredOrders.filter(
+    (order) => (order.payment_status || 'unpaid') === 'pending_settlement'
+  );
+  const pendingSettlementCount = pendingSettlementOrders.length;
+  const pendingSettlementAmount = pendingSettlementOrders.reduce(
+    (sum, order) => sum + Number(order.final_amount || 0),
+    0
+  );
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -170,9 +196,84 @@ const OrderHistoryTab = () => {
 
   const formatCurrency = (amount) => `Rs. ${parseFloat(amount).toFixed(2)}`;
 
+  const getPaymentStatusColor = (paymentStatus) => {
+    switch (paymentStatus) {
+      case 'paid':
+        return 'var(--success-color)';
+      case 'pending_settlement':
+        return 'var(--warning-color)';
+      case 'partial':
+        return '#f97316';
+      case 'unpaid':
+      default:
+        return 'var(--text-secondary)';
+    }
+  };
+
   return (
     <div className="order-history-tab">
       {error && <div className="error-message">{error}</div>}
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '12px',
+          marginBottom: '16px',
+        }}
+      >
+        <div
+          style={{
+            padding: '14px 16px',
+            borderRadius: '12px',
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            cursor: 'pointer',
+          }}
+          onClick={showPendingSettlements}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              showPendingSettlements();
+            }
+          }}
+        >
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#b45309', marginBottom: '4px' }}>
+            Pending Settlements
+          </div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#92400e' }}>
+            {pendingSettlementCount}
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: '14px 16px',
+            borderRadius: '12px',
+            background: 'rgba(245, 158, 11, 0.08)',
+            border: '1px solid rgba(245, 158, 11, 0.22)',
+            cursor: 'pointer',
+          }}
+          onClick={showPendingSettlements}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              showPendingSettlements();
+            }
+          }}
+        >
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#b45309', marginBottom: '4px' }}>
+            Pending Amount
+          </div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#92400e' }}>
+            {formatCurrency(pendingSettlementAmount)}
+          </div>
+        </div>
+      </div>
 
       <div className="order-filters">
         <div>
@@ -194,7 +295,7 @@ const OrderHistoryTab = () => {
           <button onClick={handleFilterByDate} className="btn-primary">
             Filter by Date
           </button>
-          <button onClick={() => fetchOrders()} className="btn-secondary" style={{ marginLeft: '10px' }}>
+          <button onClick={clearAllFilters} className="btn-secondary" style={{ marginLeft: '10px' }}>
             Clear Filters
           </button>
         </div>
@@ -210,6 +311,21 @@ const OrderHistoryTab = () => {
             <option value="pending">Pending</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Payment:</label>
+          <select
+            value={paymentStatusFilter}
+            onChange={(event) => setPaymentStatusFilter(event.target.value)}
+            className="date-input"
+          >
+            <option value="all">All Payments</option>
+            <option value="pending_settlement">Pending Settlement</option>
+            <option value="partial">Partial</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
           </select>
         </div>
       </div>
@@ -231,12 +347,20 @@ const OrderHistoryTab = () => {
                 <th>Discount</th>
                 <th>Total</th>
                 <th>Status</th>
+                <th>Payment</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {filteredOrders.map((order) => (
-                <tr key={order.id}>
+                <tr
+                  key={order.id}
+                  style={
+                    order.payment_status === 'pending_settlement'
+                      ? { background: 'rgba(245, 158, 11, 0.08)' }
+                      : undefined
+                  }
+                >
                   <td>
                     <strong>#{order.bill_number}</strong>
                   </td>
@@ -264,6 +388,22 @@ const OrderHistoryTab = () => {
                       }}
                     >
                       {order.status}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className="status"
+                      style={{
+                        background: getPaymentStatusColor(order.payment_status || 'unpaid'),
+                        color: 'var(--text-on-brand)',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {(order.payment_status || 'unpaid').replace('_', ' ')}
                     </span>
                   </td>
                   <td>

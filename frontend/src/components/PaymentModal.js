@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import '../styles/PaymentModal.css';
 
 const PAYMENT_OPTIONS = [
@@ -23,10 +23,25 @@ function createPaymentEntry(total = 0) {
   };
 }
 
+function getFocusableElements(container) {
+  if (!container) {
+    return [];
+  }
+
+  return Array.from(
+    container.querySelectorAll(
+      'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  ).filter((element) => !element.hasAttribute('disabled'));
+}
+
 const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
   const [payments, setPayments] = useState([createPaymentEntry(total)]);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const modalRef = useRef(null);
+  const initialFocusRef = useRef(null);
+  const phoneInputRef = useRef(null);
 
   useEffect(() => {
     setPayments([createPaymentEntry(total)]);
@@ -107,9 +122,87 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
     );
   };
 
+  useEffect(() => {
+    if (initialFocusRef.current) {
+      initialFocusRef.current.focus();
+      if (typeof initialFocusRef.current.select === 'function') {
+        initialFocusRef.current.select();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleModalKeyDown = (event) => {
+      if (!modalRef.current || !modalRef.current.contains(event.target)) {
+        return;
+      }
+
+      // Prevent POS keyboard shortcuts behind the modal from firing.
+      event.stopPropagation();
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCancel();
+        return;
+      }
+
+      if (event.key === 'Enter') {
+        const activeElement = document.activeElement;
+
+        if (activeElement === initialFocusRef.current) {
+          event.preventDefault();
+          phoneInputRef.current?.focus();
+          if (typeof phoneInputRef.current?.select === 'function') {
+            phoneInputRef.current.select();
+          }
+          return;
+        }
+
+        if (activeElement === phoneInputRef.current) {
+          event.preventDefault();
+          handlePaymentComplete();
+          return;
+        }
+      }
+
+      if (event.key === 'Tab') {
+        const focusableElements = getFocusableElements(modalRef.current);
+        if (focusableElements.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+          return;
+        }
+
+        if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleModalKeyDown, true);
+
+    return () => {
+      document.removeEventListener('keydown', handleModalKeyDown, true);
+    };
+  }, [onCancel]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    handlePaymentComplete();
+  };
+
   return (
     <div className="modal-overlay">
-      <div className="payment-modal">
+      <form className="payment-modal" ref={modalRef} onSubmit={handleSubmit}>
         <h2>Payment Details</h2>
 
         <div className="payment-summary">
@@ -144,6 +237,7 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
               onChange={(event) => setCustomerName(event.target.value)}
               placeholder="Customer name (optional)"
               className="payment-reference"
+              ref={initialFocusRef}
             />
             <input
               type="text"
@@ -151,6 +245,7 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
               onChange={(event) => setCustomerPhone(event.target.value)}
               placeholder="Phone number (optional)"
               className="payment-reference"
+              ref={phoneInputRef}
             />
           </div>
         </div>
@@ -209,7 +304,11 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
                 )}
 
                 {payments.length > 1 && (
-                  <button onClick={() => handleRemovePayment(index)} className="remove-payment-btn">
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePayment(index)}
+                    className="remove-payment-btn"
+                  >
                     x
                   </button>
                 )}
@@ -223,24 +322,24 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
         </div>
 
         {payments.length < 3 && (
-          <button onClick={handleAddPayment} className="add-payment-btn">
+          <button type="button" onClick={handleAddPayment} className="add-payment-btn">
             Add Another Payment
           </button>
         )}
 
         <div className="payment-actions">
-          <button onClick={onCancel} className="cancel-btn">
+          <button type="button" onClick={onCancel} className="cancel-btn">
             Cancel
           </button>
           <button
-            onClick={handlePaymentComplete}
+            type="submit"
             disabled={totalRecorded < total}
             className="complete-payment-btn"
           >
             Record Payment
           </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import React from 'react';
 import '../styles/ReceiptModal.css';
-import receiptLogo from '../assets/receipt-logo.svg';
 
 const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
   const lines = receipt.split('\n').filter((line, index, list) => !(line === '' && list[index - 1] === ''));
@@ -53,17 +52,8 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
           </button>
         </div>
 
-        <div className="receipt-content">
-          <div className="receipt-brand">
-            <div className="receipt-logo-frame">
-              <img src={receiptLogo} alt="Chewbie Cafe logo" className="receipt-logo" />
-            </div>
-            <div className="receipt-brand-copy">
-              <strong>Chewbie Cafe</strong>
-              <span>Receipt Preview</span>
-            </div>
-          </div>
-          <div className="receipt-paper">
+        <div className="receipt-content compact">
+          <div className="receipt-paper compact">
             {lines.map((line, index) => (
               <div key={`${index}-${line}`} className={getLineClassName(line)}>
                 {getLineDisplayText(line)}

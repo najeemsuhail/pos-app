@@ -364,6 +364,7 @@ const ReportsTab = () => {
       { name: 'Hourly', columns: [90, 80, 80, 110, 110, 110], rows: hourlyRows },
       { name: 'Items', columns: [220, 90, 120, 120, 90], rows: itemRows },
       { name: 'Expenses', columns: [180, 220, 90, 120], rows: expenseRows },
+      { name: 'Purchases', columns: [110, 180, 120, 260, 100, 100, 100, 110], rows: purchaseRows },
       { name: 'Orders', columns: [100, 140, 70, 100, 90, 100, 110, 90, 110], rows: orderRows },
     ]);
   };

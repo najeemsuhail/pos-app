@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../styles/PaymentModal.css';
 
 const PAYMENT_OPTIONS = [
@@ -101,7 +101,7 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
     setPayments(payments.filter((_, paymentIndex) => paymentIndex !== index));
   };
 
-  const handlePaymentComplete = () => {
+  const handlePaymentComplete = useCallback(() => {
     if (totalRecorded < total) {
       return;
     }
@@ -120,7 +120,7 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
         customer_phone: customerPhone.trim(),
       }
     );
-  };
+  }, [customerName, customerPhone, onPaymentComplete, payments, total, totalRecorded]);
 
   useEffect(() => {
     if (initialFocusRef.current) {
@@ -193,7 +193,7 @@ const PaymentModal = ({ total, onPaymentComplete, onCancel }) => {
     return () => {
       document.removeEventListener('keydown', handleModalKeyDown, true);
     };
-  }, [onCancel]);
+  }, [handlePaymentComplete, onCancel]);
 
   const handleSubmit = (event) => {
     event.preventDefault();

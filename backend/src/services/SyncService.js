@@ -298,14 +298,23 @@ class SyncService {
     const orders = await prisma.order.findMany({ orderBy: { id: 'asc' } });
     const expenses = await prisma.expense.findMany({ orderBy: { id: 'asc' } });
 
-    // Queue all items in parallel for better performance
-    await Promise.all([
-      ...categories.map((category) => this.queueCategorySnapshot(mapCategory(category))),
-      ...menuItems.map((menuItem) => this.queueMenuItemSnapshot(mapMenuItem(menuItem))),
-      ...orders.map((order) => this.queueOrderSnapshot(order.id)),
-      ...expenses.map((expense) => this.queueExpenseSnapshot(mapExpense(expense))),
-      this.queueSettingsSnapshot(),
-    ]);
+    await this.queueSettingsSnapshot();
+
+    for (const category of categories) {
+      await this.queueCategorySnapshot(mapCategory(category));
+    }
+
+    for (const menuItem of menuItems) {
+      await this.queueMenuItemSnapshot(mapMenuItem(menuItem));
+    }
+
+    for (const order of orders) {
+      await this.queueOrderSnapshot(order.id);
+    }
+
+    for (const expense of expenses) {
+      await this.queueExpenseSnapshot(mapExpense(expense));
+    }
   }
 
   getAuthHeaders() {
@@ -465,9 +474,17 @@ class SyncService {
     if (change.entityType === 'order') {
       const snapshot = change.payload;
       const order = snapshot.order;
+      const orderId = Number(order.id);
+      const incomingItemIds = (snapshot.items || [])
+        .map((item) => Number(item.id))
+        .filter((id) => Number.isFinite(id));
+      const incomingPaymentIds = (snapshot.payments || [])
+        .map((payment) => Number(payment.id))
+        .filter((id) => Number.isFinite(id));
+
       await prisma.$transaction(async (tx) => {
         await tx.order.upsert({
-          where: { id: Number(order.id) },
+          where: { id: orderId },
           update: {
             billNumber: order.bill_number,
             status: order.status,
@@ -480,7 +497,7 @@ class SyncService {
             updatedAt: new Date(order.updated_at),
           },
           create: {
-            id: Number(order.id),
+            id: orderId,
             billNumber: order.bill_number,
             status: order.status,
             paymentStatus: order.payment_status || 'unpaid',
@@ -494,12 +511,28 @@ class SyncService {
           },
         });
 
+        if (incomingItemIds.length > 0) {
+          await tx.orderItem.deleteMany({
+            where: {
+              id: { in: incomingItemIds },
+            },
+          });
+        }
+
         await tx.orderItem.deleteMany({
-          where: { orderId: Number(order.id) },
+          where: { orderId },
         });
 
+        if (incomingPaymentIds.length > 0) {
+          await tx.payment.deleteMany({
+            where: {
+              id: { in: incomingPaymentIds },
+            },
+          });
+        }
+
         await tx.payment.deleteMany({
-          where: { orderId: Number(order.id) },
+          where: { orderId },
         });
 
         for (const item of snapshot.items || []) {

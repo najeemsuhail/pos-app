@@ -62,6 +62,8 @@ const SettingsTab = () => {
   const [syncStatus, setSyncStatus] = useState(null);
   const [isSavingSync, setIsSavingSync] = useState(false);
   const [isRunningSync, setIsRunningSync] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+  const [syncMessageType, setSyncMessageType] = useState('success');
 
   useEffect(() => {
     if (window.posDesktop && window.posDesktop.getPrinters) {
@@ -96,6 +98,12 @@ const SettingsTab = () => {
       .then((res) => setSyncStatus(res.data))
       .catch((err) => console.error('Failed to load sync status:', err));
   }, [defaultTableNames]);
+
+  const refreshSyncStatus = async () => {
+    const response = await syncService.getStatus();
+    setSyncStatus(response.data);
+    return response.data;
+  };
 
   const formatSyncTime = (value) => {
     if (!value) {
@@ -171,13 +179,16 @@ const SettingsTab = () => {
     try {
       setIsSavingSync(true);
       setError('');
+      setSyncMessage('');
       const response = await syncService.updateConfig(syncConfig);
       setSyncConfig(response.data.config);
       setSyncStatus(response.data.status);
-      setSuccess('Cloud sync settings saved successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      setSyncMessageType('success');
+      setSyncMessage(`Sync settings saved. Pending changes: ${response.data.status?.pendingCount ?? 0}`);
+      await refreshSyncStatus();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to save sync settings');
+      setSyncMessageType('error');
+      setSyncMessage(err.response?.data?.error || 'Failed to save sync settings');
     } finally {
       setIsSavingSync(false);
     }
@@ -187,12 +198,15 @@ const SettingsTab = () => {
     try {
       setIsRunningSync(true);
       setError('');
+      setSyncMessage('');
       const response = await syncService.runNow(fullResync);
       setSyncStatus(response.data);
-      setSuccess(fullResync ? 'Full sync completed successfully!' : 'Sync completed successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      setSyncMessageType('success');
+      setSyncMessage(fullResync ? 'Full sync completed successfully.' : 'Sync completed successfully.');
+      await refreshSyncStatus();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to run sync');
+      setSyncMessageType('error');
+      setSyncMessage(err.response?.data?.error || 'Failed to run sync');
     } finally {
       setIsRunningSync(false);
     }
@@ -409,7 +423,18 @@ const SettingsTab = () => {
                 disabled={isSavingSync}
               />
             </div>
+            {syncMessage && (
+              <div
+                className={syncMessageType === 'error' ? 'error-message' : 'success-message'}
+                style={{ width: '100%', marginBottom: '15px' }}
+              >
+                {syncMessage}
+              </div>
+            )}
             <div style={{ width: '100%', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>
+              <div>Status: {syncConfig.syncEnabled ? 'Enabled' : 'Disabled'}</div>
+              <div>Saved server: {syncStatus?.syncServerUrl || 'Not set'}</div>
+              <div>Saved key: {syncStatus?.hasApiKey ? 'Yes' : 'No'}</div>
               <div>Device ID: {syncStatus?.deviceId || 'Loading...'}</div>
               <div>Pending changes: {syncStatus?.pendingCount ?? 0}</div>
               <div>Last sync: {formatSyncTime(syncStatus?.lastSuccessAt)}</div>

@@ -13,8 +13,7 @@ class ExpenseController {
         payment_method,
         reference
       );
-      // Removed: Auto-sync on create. User must click "Sync Now" to sync.
-      // await SyncService.queueExpenseSnapshot(expense);
+      await SyncService.queueExpenseSnapshot(expense);
       res.status(201).json(expense);
     } catch (error) {
       next(error);
@@ -35,8 +34,7 @@ class ExpenseController {
     try {
       const { id } = req.params;
       const expense = await ExpenseService.deleteExpense(id);
-      // Removed: Auto-sync on delete. User must click "Sync Now" to sync.
-      // await SyncService.queueExpenseSnapshot(expense, 'delete');
+      await SyncService.queueExpenseSnapshot(expense, 'delete');
       res.json({ message: 'Expense deleted', expense });
     } catch (error) {
       next(error);
@@ -47,8 +45,7 @@ class ExpenseController {
     try {
       const { id } = req.params;
       const expense = await ExpenseService.updateExpense(id, req.body);
-      // Removed: Auto-sync on update. User must click "Sync Now" to sync.
-      // await SyncService.queueExpenseSnapshot(expense);
+      await SyncService.queueExpenseSnapshot(expense);
       res.json(expense);
     } catch (error) {
       next(error);

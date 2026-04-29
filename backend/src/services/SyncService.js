@@ -18,6 +18,8 @@ const SYNC_STATE_PATH = path.join(desktopDataDir, 'sync-state.json');
 const SYNC_DEVICE_PATH = path.join(desktopDataDir, 'sync-device.json');
 const DEFAULT_INTERVAL_MS = 60 * 1000;
 const SYNC_REQUEST_TIMEOUT = 30 * 1000; // 30 second timeout for sync requests
+const SYNC_PUSH_BATCH_SIZE = 100;
+const SYNC_PULL_BATCH_SIZE = 500;
 
 class SyncService {
   constructor() {
@@ -91,6 +93,7 @@ class SyncService {
       lastError: '',
       lastSuccessAt: null,
       lastOnlineAt: null,
+      lastPulledEventId: 0,
     });
   }
 
@@ -122,7 +125,7 @@ class SyncService {
     return Number(rows?.[0]?.count || 0);
   }
 
-  async getPendingQueue(limit = 100) {
+  async getPendingQueue(limit = SYNC_PUSH_BATCH_SIZE) {
     const rows = await prisma.$queryRawUnsafe(
       `SELECT * FROM sync_queue
        WHERE status = 'pending'
@@ -216,22 +219,55 @@ class SyncService {
     );
   }
 
-  async getRemoteEvents(since, requestingDeviceId) {
+  normalizeSyncTimestamp(value) {
+    if (!value) {
+      return null;
+    }
+
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+
+    const normalized = String(value).replace(' ', 'T');
+    return /(?:Z|[+-]\d{2}:?\d{2})$/.test(normalized) ? normalized : `${normalized}Z`;
+  }
+
+  async getRemoteEvents(since, requestingDeviceId, sinceEventId = 0, limit = SYNC_PULL_BATCH_SIZE) {
+    const sinceValue = since || '1970-01-01T00:00:00.000Z';
+    const afterId = Number(sinceEventId || 0);
+    const requestedLimit = Number(limit || SYNC_PULL_BATCH_SIZE);
+    const pageLimit = Number.isFinite(requestedLimit)
+      ? Math.min(Math.max(Math.floor(requestedLimit), 1), SYNC_PULL_BATCH_SIZE)
+      : SYNC_PULL_BATCH_SIZE;
     const rows = await prisma.$queryRawUnsafe(
-      'SELECT * FROM sync_events WHERE created_at > ? AND (source_device_id IS NULL OR source_device_id != ?) ORDER BY created_at ASC, id ASC LIMIT 500',
-      since || '1970-01-01T00:00:00.000Z',
-      requestingDeviceId || ''
+      `SELECT * FROM sync_events
+       WHERE (
+         datetime(created_at) > datetime(?)
+         OR (datetime(created_at) = datetime(?) AND id > ?)
+       )
+       AND (source_device_id IS NULL OR source_device_id != ?)
+       ORDER BY datetime(created_at) ASC, id ASC
+       LIMIT ?`,
+      sinceValue,
+      sinceValue,
+      afterId,
+      requestingDeviceId || '',
+      pageLimit + 1
     );
 
-    return rows.map((row) => ({
+    const hasMore = rows.length > pageLimit;
+    const pageRows = hasMore ? rows.slice(0, pageLimit) : rows;
+    const events = pageRows.map((row) => ({
       id: row.id,
       entityType: row.entity_type,
       entityId: row.entity_id,
       action: row.action,
       payload: JSON.parse(row.payload),
       sourceDeviceId: row.source_device_id,
-      createdAt: row.created_at,
+      createdAt: this.normalizeSyncTimestamp(row.created_at),
     }));
+
+    return { events, hasMore };
   }
 
   async buildOrderSnapshot(orderId) {
@@ -329,10 +365,10 @@ class SyncService {
     return `${config.syncServerUrl}${pathname}`;
   }
 
-  async pushPendingChanges(deviceId) {
-    const pendingQueue = await this.getPendingQueue();
+  async pushPendingChanges(deviceId, limit = SYNC_PUSH_BATCH_SIZE) {
+    const pendingQueue = await this.getPendingQueue(limit);
     if (pendingQueue.length === 0) {
-      return;
+      return 0;
     }
 
     const response = await this.fetchWithTimeout(this.getSyncUrl('/api/sync/push'), {
@@ -360,34 +396,70 @@ class SyncService {
 
     await response.json();
     await this.markQueueItemsSynced(pendingQueue.map((item) => item.id));
+    return pendingQueue.length;
+  }
+
+  async pushAllPendingChanges(deviceId) {
+    let pushedCount = 0;
+
+    while (true) {
+      const batchCount = await this.pushPendingChanges(deviceId);
+      if (batchCount === 0) {
+        return pushedCount;
+      }
+
+      pushedCount += batchCount;
+    }
   }
 
   async pullRemoteChanges(deviceId) {
     const state = this.getState();
-    const response = await this.fetchWithTimeout(this.getSyncUrl('/api/sync/pull'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...this.getAuthHeaders(),
-      },
-      body: JSON.stringify({
-        deviceId,
-        since: state.lastPulledAt,
-      }),
-    });
+    let cursorTime = state.lastPulledAt;
+    let cursorEventId = Number(state.lastPulledEventId || 0);
+    let serverTime = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || `Pull failed with status ${response.status}`);
-    }
+    while (true) {
+      const response = await this.fetchWithTimeout(this.getSyncUrl('/api/sync/pull'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          deviceId,
+          since: cursorTime,
+          sinceEventId: cursorEventId,
+          limit: SYNC_PULL_BATCH_SIZE,
+        }),
+      });
 
-    const data = await response.json();
-    for (const event of data.events || []) {
-      await this.applyIncomingChange(event, { recordEvent: false });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Pull failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      const events = data.events || [];
+      serverTime = data.serverTime || serverTime;
+
+      for (const event of events) {
+        await this.applyIncomingChange(event, { recordEvent: false });
+      }
+
+      if (events.length > 0) {
+        const lastEvent = events[events.length - 1];
+        cursorTime = lastEvent.createdAt;
+        cursorEventId = Number(lastEvent.id || 0);
+      }
+
+      if (!data.hasMore) {
+        break;
+      }
     }
 
     this.updateState({
-      lastPulledAt: data.serverTime || new Date().toISOString(),
+      lastPulledAt: serverTime || new Date().toISOString(),
+      lastPulledEventId: 0,
     });
   }
 
@@ -633,12 +705,8 @@ class SyncService {
     }
 
     const deviceId = this.getDeviceId();
-    const pendingQueue = await this.getPendingQueue();
-
     try {
-      if (pendingQueue.length > 0) {
-        await this.pushPendingChanges(deviceId);
-      }
+      await this.pushAllPendingChanges(deviceId);
 
       await this.pullRemoteChanges(deviceId);
 
@@ -653,6 +721,7 @@ class SyncService {
       return this.getStatus();
     } catch (error) {
       const message = error.message || 'Sync failed';
+      const pendingQueue = await this.getPendingQueue();
       await this.markQueueItemsFailed(pendingQueue.map((item) => item.id), message);
       this.updateState({
         lastError: message,

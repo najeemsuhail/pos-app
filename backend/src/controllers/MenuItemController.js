@@ -36,8 +36,7 @@ class MenuItemController {
         parseBoolean(is_available, true),
         imageUrl
       );
-      // Removed: Auto-sync on create. User must click "Sync Now" to sync.
-      // await SyncService.queueMenuItemSnapshot(item);
+      await SyncService.queueMenuItemSnapshot(item);
       res.status(201).json(item);
     } catch (error) {
       next(error);
@@ -90,8 +89,7 @@ class MenuItemController {
         parsedAvailability,
         imageUrl
       );
-      // Removed: Auto-sync on update. User must click "Sync Now" to sync.
-      // await SyncService.queueMenuItemSnapshot(item);
+      await SyncService.queueMenuItemSnapshot(item);
       res.json(item);
     } catch (error) {
       next(error);
@@ -106,8 +104,7 @@ class MenuItemController {
       }
       const imageUrl = getUploadedImageUrl(req.file);
       const item = await MenuItemService.updateMenuItemImage(id, imageUrl);
-      // Removed: Auto-sync on image upload. User must click "Sync Now" to sync.
-      // await SyncService.queueMenuItemSnapshot(item);
+      await SyncService.queueMenuItemSnapshot(item);
       res.json(item);
     } catch (error) {
       next(error);
@@ -119,8 +116,7 @@ class MenuItemController {
       const { id } = req.params;
       const { is_available } = req.body;
       const item = await MenuItemService.toggleAvailability(id, parseBoolean(is_available, true));
-      // Removed: Auto-sync on toggle. User must click "Sync Now" to sync.
-      // await SyncService.queueMenuItemSnapshot(item);
+      await SyncService.queueMenuItemSnapshot(item);
       res.json(item);
     } catch (error) {
       next(error);
@@ -131,8 +127,7 @@ class MenuItemController {
     try {
       const { id } = req.params;
       const item = await MenuItemService.deleteMenuItem(id);
-      // Removed: Auto-sync on delete. User must click "Sync Now" to sync.
-      // await SyncService.queueMenuItemSnapshot(item);
+      await SyncService.queueMenuItemSnapshot(item);
       res.json({ message: 'Menu item deleted', item });
     } catch (error) {
       next(error);

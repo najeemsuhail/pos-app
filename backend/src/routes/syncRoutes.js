@@ -84,9 +84,16 @@ router.post('/pull', async (req, res, next) => {
       return res.status(401).json({ error: 'Invalid sync key' });
     }
 
-    const events = await SyncService.getRemoteEvents(req.body?.since, req.body?.deviceId);
+    const { events, hasMore } = await SyncService.getRemoteEvents(
+      req.body?.since,
+      req.body?.deviceId,
+      req.body?.sinceEventId,
+      req.body?.limit
+    );
+
     return res.json({
       events,
+      hasMore,
       serverTime: new Date().toISOString(),
     });
   } catch (error) {

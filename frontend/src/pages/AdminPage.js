@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../components/ThemeToggle';
+import { isMobileBrowser } from '../utils/device';
 import { hasAdminDashboardAccess, normalizeUserFeatureAccessOverrides } from '../utils/featureAccess';
 import { getVisibleAdminTabs } from '../config/adminTabs';
 import '../styles/Admin.css';
@@ -9,9 +10,12 @@ const AdminPage = () => {
   const [activeTab, setActiveTab] = useState('');
   const [user, setUser] = useState(null);
   const [loadingPermissions, setLoadingPermissions] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setIsMobile(isMobileBrowser());
+
     const storedUser = localStorage.getItem('user');
     if (!storedUser) {
       navigate('/');
@@ -57,7 +61,7 @@ const AdminPage = () => {
         <div className="admin-user-info">
           <span>Welcome, {user.name}</span>
           <ThemeToggle />
-          <button onClick={() => navigate('/pos')} className="nav-btn">Go to POS</button>
+          {!isMobile && <button onClick={() => navigate('/pos')} className="nav-btn">Go to POS</button>}
           <button onClick={handleLogout} className="logout-btn">Logout</button>
         </div>
       </div>

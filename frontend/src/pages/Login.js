@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
+import { isMobileBrowser } from '../utils/device';
 import '../styles/Login.css';
 
 const Login = () => {
@@ -19,7 +20,7 @@ const Login = () => {
       const response = await authService.login(username, password);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/pos');
+      navigate(isMobileBrowser() ? '/admin' : '/pos');
     } catch (error) {
       setError(error.response?.data?.error || 'Login failed. Please try again.');
     } finally {

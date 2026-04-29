@@ -9,6 +9,7 @@ import api from './services/api';
 import { OrderProvider } from './context/OrderContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { APP_VERSION } from './config/appInfo';
+import { isMobileBrowser } from './utils/device';
 import './styles/themes.css';
 import './styles/index.css';
 
@@ -28,6 +29,14 @@ function ProtectedRoute({ element, requiredRole = null }) {
   }
 
   return element;
+}
+
+function DesktopOnlyRoute({ element }) {
+  if (isMobileBrowser()) {
+    return <Navigate to="/admin" />;
+  }
+
+  return <ProtectedRoute element={element} />;
 }
 
 function App() {
@@ -88,9 +97,9 @@ function App() {
           ) : null}
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/pos" element={<ProtectedRoute element={<POSPage />} />} />
+            <Route path="/pos" element={<DesktopOnlyRoute element={<POSPage />} />} />
             <Route path="/admin" element={<ProtectedRoute element={<AdminPage />} />} />
-            <Route path="/" element={<Navigate to="/pos" />} />
+            <Route path="/" element={<Navigate to={isMobileBrowser() ? '/admin' : '/pos'} />} />
           </Routes>
           <footer className="app-footer">
             <span style={{ pointerEvents: 'auto' }}>

@@ -9,8 +9,7 @@ class OrderController {
     try {
       const { table_id } = req.body || {};
       const order = await OrderService.createOrder(table_id);
-      // Removed: Auto-sync on create. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(order.id);
+      await SyncService.queueOrderSnapshot(order.id);
       res.status(201).json(order);
     } catch (error) {
       next(error);
@@ -37,8 +36,7 @@ class OrderController {
       }
 
       const item = await OrderService.addItemToOrder(id, menu_item_id, quantity);
-      // Removed: Auto-sync on add item. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(id);
+      await SyncService.queueOrderSnapshot(id);
       res.status(201).json(item);
     } catch (error) {
       next(error);
@@ -56,14 +54,12 @@ class OrderController {
 
       if (quantity === 0) {
         const result = await OrderService.removeOrderItem(id, itemId);
-        // Removed: Auto-sync on remove. User must click "Sync Now" to sync.
-        // await SyncService.queueOrderSnapshot(id);
+        await SyncService.queueOrderSnapshot(id);
         return res.json({ message: 'Item removed', item: result });
       }
 
       const item = await OrderService.updateOrderItem(id, itemId, quantity);
-      // Removed: Auto-sync on update. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(id);
+      await SyncService.queueOrderSnapshot(id);
       res.json(item);
     } catch (error) {
       next(error);
@@ -74,8 +70,7 @@ class OrderController {
     try {
       const { id, itemId } = req.params;
       const result = await OrderService.removeOrderItem(id, itemId);
-      // Removed: Auto-sync on remove. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(id);
+      await SyncService.queueOrderSnapshot(id);
       res.json({ message: 'Item removed', item: result });
     } catch (error) {
       next(error);
@@ -100,8 +95,7 @@ class OrderController {
         return res.status(400).json({ error: 'Items array is required' });
       }
       await OrderService.syncItemsToOrder(id, items);
-      // Removed: Auto-sync on sync. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(id);
+      await SyncService.queueOrderSnapshot(id);
       res.json({ message: 'Items synced successfully' });
     } catch (error) {
       next(error);
@@ -115,8 +109,7 @@ class OrderController {
       const { discount_percent = 0, tax_rate = settings.taxRate } = req.body;
 
       const order = await OrderService.finalizeOrder(id, discount_percent, tax_rate);
-      // Removed: Auto-sync on finalize. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(id);
+      await SyncService.queueOrderSnapshot(id);
       res.json(order);
     } catch (error) {
       next(error);
@@ -140,8 +133,7 @@ class OrderController {
         customer_name,
         customer_phone,
       });
-      // Removed: Auto-sync on payment. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(id);
+      await SyncService.queueOrderSnapshot(id);
       res.json(result);
     } catch (error) {
       next(error);
@@ -152,6 +144,7 @@ class OrderController {
     try {
       const { id, paymentId } = req.params;
       const result = await OrderService.settlePayment(id, paymentId, req.body || {});
+      await SyncService.queueOrderSnapshot(id);
       res.json(result);
     } catch (error) {
       next(error);
@@ -177,8 +170,7 @@ class OrderController {
     try {
       const { id } = req.params;
       const order = await OrderService.cancelOrder(id);
-      // Removed: Auto-sync on cancel. User must click "Sync Now" to sync.
-      // await SyncService.queueOrderSnapshot(id);
+      await SyncService.queueOrderSnapshot(id);
       res.json({ message: 'Order cancelled', order });
     } catch (error) {
       next(error);

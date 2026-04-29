@@ -29,7 +29,8 @@ router.put('/config', authenticate, authorize('Admin'), async (req, res, next) =
       status: await SyncService.getStatus(),
     });
   } catch (error) {
-    next(error);
+    console.error('[Sync] Failed to save sync settings:', error);
+    res.status(500).json({ error: error.message || 'Failed to save sync settings' });
   }
 });
 
@@ -40,7 +41,8 @@ router.post('/run', authenticate, authorize('Admin'), async (req, res, next) => 
     });
     res.json(status);
   } catch (error) {
-    next(error);
+    console.error('[Sync] Failed to run sync:', error);
+    res.status(500).json({ error: error.message || 'Failed to run sync' });
   }
 });
 
@@ -71,7 +73,8 @@ router.post('/push', async (req, res, next) => {
       serverTime: new Date().toISOString(),
     });
   } catch (error) {
-    return next(error);
+    console.error('[Sync] Push failed:', error);
+    return res.status(500).json({ error: error.message || 'Sync push failed' });
   }
 });
 
@@ -87,7 +90,8 @@ router.post('/pull', async (req, res, next) => {
       serverTime: new Date().toISOString(),
     });
   } catch (error) {
-    return next(error);
+    console.error('[Sync] Pull failed:', error);
+    return res.status(500).json({ error: error.message || 'Sync pull failed' });
   }
 });
 

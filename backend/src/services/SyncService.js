@@ -124,7 +124,20 @@ class SyncService {
 
   async getPendingQueue(limit = 100) {
     const rows = await prisma.$queryRawUnsafe(
-      "SELECT * FROM sync_queue WHERE status = 'pending' ORDER BY updated_at ASC, id ASC LIMIT ?",
+      `SELECT * FROM sync_queue
+       WHERE status = 'pending'
+       ORDER BY
+         CASE entity_type
+           WHEN 'settings' THEN 1
+           WHEN 'category' THEN 2
+           WHEN 'menu_item' THEN 3
+           WHEN 'order' THEN 4
+           WHEN 'expense' THEN 5
+           ELSE 99
+         END,
+         updated_at ASC,
+         id ASC
+       LIMIT ?`,
       limit
     );
 

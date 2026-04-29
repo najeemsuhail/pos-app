@@ -1,0 +1,27 @@
+# Ignore local node modules and desktop build artifacts
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Ignore desktop distribution artifacts
+release/
+
+# Ignore local caches and temp files
+frontend/.cache/
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Ignore local env files
+.env
+.env.local
+
+# Ignore local databases and uploads
+backend/prisma/*.db
+backend/prisma/*.db-journal
+backend/uploads/
+
+# Ignore local build outputs if Vercel will build them
+build/
+public/

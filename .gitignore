@@ -15,3 +15,5 @@ release/
 backend/prisma/*.db
 backend/prisma/*.db-journal
 backend/uploads/
+
+.vercel

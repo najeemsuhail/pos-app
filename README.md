@@ -34,7 +34,7 @@ Frontend runs on `http://localhost:3000` and proxies `/api` to the backend on `h
 
 ## Production deployment
 
-Use [VERCEL_SUPABASE_DEPLOY.md](./VERCEL_SUPABASE_DEPLOY.md).
+For mobile/browser access from anywhere, use [MOBILE_INTERNET_DEPLOY.md](./MOBILE_INTERNET_DEPLOY.md).
 
 ## Build
 

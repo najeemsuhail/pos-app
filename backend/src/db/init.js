@@ -10,7 +10,24 @@ async function ensureSchema() {
       name TEXT NOT NULL UNIQUE,
       role TEXT NOT NULL,
       password TEXT NOT NULL,
+      feature_access_overrides TEXT,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS staff_attendance (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      attendance_date TEXT NOT NULL,
+      status TEXT NOT NULL,
+      check_in TEXT,
+      check_out TEXT,
+      notes TEXT,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      UNIQUE (user_id, attendance_date)
     )
   `);
 
@@ -51,6 +68,15 @@ async function ensureSchema() {
       tax_amount DECIMAL NOT NULL DEFAULT 0,
       final_amount DECIMAL NOT NULL DEFAULT 0,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS bill_sequences (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      business_date TEXT NOT NULL UNIQUE,
+      last_number INTEGER NOT NULL DEFAULT 0,
       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -171,6 +197,7 @@ async function ensureSchema() {
   `);
 
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_menu_items_category_id ON menu_items(category_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_staff_attendance_attendance_date ON staff_attendance(attendance_date)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)');
@@ -183,6 +210,7 @@ async function ensureSchema() {
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status, updated_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)');
 
+  await ensureColumn('users', 'feature_access_overrides', 'TEXT');
   await ensureColumn('orders', 'payment_status', "TEXT NOT NULL DEFAULT 'unpaid'");
   await ensureColumn('orders', 'customer_name', 'TEXT');
   await ensureColumn('orders', 'customer_phone', 'TEXT');

@@ -8,6 +8,7 @@ import SyncStatusIndicator from './components/SyncStatusIndicator';
 import api from './services/api';
 import { OrderProvider } from './context/OrderContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { APP_VERSION } from './config/appInfo';
 import './styles/themes.css';
 import './styles/index.css';
 
@@ -97,6 +98,8 @@ function App() {
             </span>
             <span style={{ margin: '0 8px' }}>|</span>
             <span>&copy; {new Date().getFullYear()} Kani Enterprise. All rights reserved.</span>
+            <span style={{ margin: '0 8px' }}>|</span>
+            <span>v{APP_VERSION}</span>
           </footer>
         </OrderProvider>
       </Router>

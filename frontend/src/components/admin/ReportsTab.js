@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../services/api';
+import { purchaseService } from '../../services/api';
 import { generatePDF } from '../../utils/reportPDF';
 import { downloadExcelWorkbook } from '../../utils/excelExport';
 import OrderDetailsModal from './OrderDetailsModal';
@@ -20,6 +21,8 @@ const ReportsTab = () => {
   const [error, setError] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [purchaseReport, setPurchaseReport] = useState([]);
+  const [purchaseSummary, setPurchaseSummary] = useState({ totalAmount: 0, totalPaid: 0, totalDue: 0 });
   const [itemSortKey, setItemSortKey] = useState('quantity');
   const [itemSortDir, setItemSortDir] = useState('desc');
 
@@ -38,6 +41,7 @@ const ReportsTab = () => {
       setReport(response.data);
       const analyticsResponse = await api.get(`/reports/revenue-analytics?startDate=${selectedDate}&endDate=${selectedDate}`);
       setRevenueAnalytics(analyticsResponse.data);
+      await fetchPurchaseData(selectedDate, selectedDate);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch daily report');
     } finally {
@@ -53,6 +57,7 @@ const ReportsTab = () => {
       setReport(response.data);
       const analyticsResponse = await api.get(`/reports/revenue-analytics?startDate=${response.data.weekStart}&endDate=${response.data.weekEnd}`);
       setRevenueAnalytics(analyticsResponse.data);
+      await fetchPurchaseData(response.data.weekStart, response.data.weekEnd);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch weekly report');
     } finally {
@@ -69,6 +74,7 @@ const ReportsTab = () => {
       setReport(response.data);
       const analyticsResponse = await api.get(`/reports/revenue-analytics?startDate=${response.data.monthStart}&endDate=${response.data.monthEnd}`);
       setRevenueAnalytics(analyticsResponse.data);
+      await fetchPurchaseData(response.data.monthStart, response.data.monthEnd);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch monthly report');
     } finally {
@@ -84,12 +90,30 @@ const ReportsTab = () => {
       setReport(response.data);
       const analyticsResponse = await api.get(`/reports/revenue-analytics?startDate=${startDate}&endDate=${endDate}`);
       setRevenueAnalytics(analyticsResponse.data);
+      await fetchPurchaseData(startDate, endDate);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch range report');
     } finally {
       setLoading(false);
     }
   }, [startDate, endDate]);
+
+  const fetchPurchaseData = async (start, end) => {
+    try {
+      const response = await purchaseService.getAll(start, end, undefined);
+      const purchases = response.data || [];
+      const totalAmount = purchases.reduce((sum, purchase) => sum + Number(purchase.total_amount || 0), 0);
+      const totalPaid = purchases.reduce((sum, purchase) => sum + Number(purchase.paid_amount || 0), 0);
+      const totalDue = purchases.reduce((sum, purchase) => sum + Number(purchase.due_amount || 0), 0);
+
+      setPurchaseReport(purchases);
+      setPurchaseSummary({ totalAmount, totalPaid, totalDue });
+    } catch (err) {
+      console.error('Failed to fetch purchase report:', err);
+      setPurchaseReport([]);
+      setPurchaseSummary({ totalAmount: 0, totalPaid: 0, totalDue: 0 });
+    }
+  };
 
   const handleExportPDF = () => {
     if (report) {
@@ -203,6 +227,8 @@ const ReportsTab = () => {
       ['Generated At', generatedAt],
     ];
 
+    const dateCell = (value) => ({ value, type: 'DateTime', style: 'date' });
+
     const hourlyRows = [
       { cells: ['Hourly Breakdown'], style: 'title' },
       { cells: ['Hour', 'Orders', 'Paid', 'Sales', 'Tax', 'Discount'], style: 'header' },
@@ -259,6 +285,30 @@ const ReportsTab = () => {
           integerCell(sub.count),
           currencyCell(sub.amount),
         ])),
+      ]),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
+    ];
+
+    const purchaseRows = [
+      { cells: ['Purchase Report'], style: 'title' },
+      { cells: ['Metric', 'Value'], style: 'header' },
+      ['Total Purchases', integerCell(purchaseReport.length)],
+      ['Total Amount', currencyCell(purchaseSummary.totalAmount)],
+      ['Total Paid', currencyCell(purchaseSummary.totalPaid)],
+      ['Total Due', currencyCell(purchaseSummary.totalDue)],
+      [],
+      { cells: ['Purchase Date', 'Supplier', 'Invoice', 'Items', 'Total', 'Paid', 'Due', 'Status'], style: 'header' },
+      ...purchaseReport.map((purchase) => [
+        dateCell(purchase.purchase_date),
+        purchase.supplier?.name || '',
+        purchase.invoice_number || '',
+        purchase.items?.map((item) => `${item.item_name} (${item.quantity}${item.unit ? ` ${item.unit}` : ''})`).join(', ') || '',
+        currencyCell(purchase.total_amount),
+        currencyCell(purchase.paid_amount),
+        currencyCell(purchase.due_amount),
+        purchase.payment_status || '',
       ]),
       [],
       ['Period', periodLabel],

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
+import { downloadExcelWorkbook } from '../../utils/excelExport';
 import { purchaseService } from '../../services/api';
 
 const today = new Date().toISOString().split('T')[0];
@@ -236,6 +237,67 @@ const PurchaseManagementTab = () => {
 
   const purchasePreviewTotal = purchasePreviewSubtotal + Number(purchaseForm.tax_amount || 0) - Number(purchaseForm.discount_amount || 0);
 
+  const formatDateCell = (value) => ({ value, type: 'DateTime', style: 'date' });
+  const formatCurrencyCell = (value) => ({ value: Number(value || 0), style: 'currency' });
+  const formatIntegerCell = (value) => ({ value: Number(value || 0), style: 'integer' });
+
+  const handleExportExcel = () => {
+    if (!purchases.length) return;
+
+    const safeLabel = `${filters.startDate || today}_${filters.endDate || today}`.replace(/[^0-9a-zA-Z-_]/g, '-');
+    const generatedAt = new Date().toLocaleString();
+
+    const summaryRows = [
+      { cells: ['Supplier Purchase Report'], style: 'title' },
+      { cells: ['Metric', 'Value'], style: 'header' },
+      ['Total Purchases', formatIntegerCell(summary.purchase_count)],
+      ['Total Amount', formatCurrencyCell(summary.total_amount)],
+      ['Total Paid', formatCurrencyCell(summary.paid_amount)],
+      ['Total Outstanding', formatCurrencyCell(summary.due_amount)],
+      [],
+      ['Period', `${filters.startDate || today} to ${filters.endDate || today}`],
+      ['Generated At', generatedAt],
+    ];
+
+    const supplierRows = [
+      { cells: ['Supplier Ledger'], style: 'title' },
+      { cells: ['Supplier', 'Phone', 'Purchases', 'Total Purchased', 'Paid', 'Outstanding'], style: 'header' },
+      ...suppliers.map((supplier) => [
+        supplier.name,
+        supplier.phone || '',
+        formatIntegerCell(supplier.purchase_count),
+        formatCurrencyCell(supplier.total_purchased),
+        formatCurrencyCell(supplier.total_paid),
+        formatCurrencyCell(supplier.outstanding_amount),
+      ]),
+      [],
+      ['Generated At', generatedAt],
+    ];
+
+    const purchaseRows = [
+      { cells: ['Purchase History'], style: 'title' },
+      { cells: ['Date', 'Supplier', 'Invoice', 'Items', 'Total', 'Paid', 'Due', 'Status'], style: 'header' },
+      ...purchases.map((purchase) => [
+        formatDateCell(purchase.purchase_date),
+        purchase.supplier?.name || '',
+        purchase.invoice_number || '',
+        purchase.items?.map((item) => `${item.item_name} (${item.quantity}${item.unit ? ` ${item.unit}` : ''})`).join(', ') || '',
+        formatCurrencyCell(purchase.total_amount),
+        formatCurrencyCell(purchase.paid_amount),
+        formatCurrencyCell(purchase.due_amount),
+        purchase.payment_status || '',
+      ]),
+      [],
+      ['Generated At', generatedAt],
+    ];
+
+    downloadExcelWorkbook(`supplier-purchases-${safeLabel}.xlsx`, [
+      { name: 'Summary', columns: [180, 160], rows: summaryRows },
+      { name: 'Suppliers', columns: [180, 120, 90, 120, 120, 120], rows: supplierRows },
+      { name: 'History', columns: [100, 140, 140, 260, 110, 110, 110, 100], rows: purchaseRows },
+    ]);
+  };
+
   return (
     <div className="admin-tab-content">
       <div className="tab-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -243,13 +305,18 @@ const PurchaseManagementTab = () => {
           <h2>Supplier Purchases</h2>
           <p className="compact-muted">Track vendor purchases, invoices, and outstanding balances here.</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <button className="btn-secondary" onClick={() => { setShowPurchaseForm(false); setShowSupplierForm((current) => !current); }}>
             {showSupplierForm ? 'Cancel Supplier' : '+ Add Supplier'}
           </button>
           <button className="btn-primary" onClick={() => { setShowSupplierForm(false); setShowPurchaseForm((current) => !current); }}>
             {showPurchaseForm ? 'Cancel Purchase' : '+ Add Purchase'}
           </button>
+          {purchases.length > 0 && (
+            <button className="btn-secondary" type="button" onClick={handleExportExcel} style={{ minWidth: '98px' }}>
+              Export Excel
+            </button>
+          )}
         </div>
       </div>
 
@@ -275,7 +342,7 @@ const PurchaseManagementTab = () => {
         </div>
       </div>
 
-      <div className="report-filters" style={{ marginBottom: '14px', gap: '12px' }}>
+      <div className="report-filters" style={{ marginBottom: '14px', gap: '12px', alignItems: 'flex-end' }}>
         <div>
           <label>Start Date</label>
           <DatePicker
@@ -307,6 +374,11 @@ const PurchaseManagementTab = () => {
             ))}
           </select>
         </div>
+        {purchases.length > 0 && (
+          <button className="btn-secondary" type="button" onClick={handleExportExcel} style={{ height: '38px' }}>
+            Excel
+          </button>
+        )}
       </div>
 
       {showSupplierForm && (

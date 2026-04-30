@@ -9,6 +9,14 @@ import { generatePDF } from '../../utils/reportPDF';
 import { downloadExcelWorkbook } from '../../utils/excelExport';
 import OrderDetailsModal from './OrderDetailsModal';
 
+const ORDER_TYPE_LABELS = {
+  dine_in: 'Dine-in/Table',
+  takeaway: 'Takeaway',
+  delivery: 'Delivery',
+  online: 'Online',
+  pickup: 'Pickup',
+};
+
 const ReportsTab = () => {
   const [reportType, setReportType] = useState('daily');
   const [report, setReport] = useState(null);
@@ -31,6 +39,15 @@ const ReportsTab = () => {
     backgroundColor: 'var(--card-bg)',
     border: '1px solid var(--border-color)',
     color: 'var(--text-primary)',
+  };
+  const getOrderTypeLabel = (order) => {
+    const orderType = order?.order_type || order?.orderType || 'dine_in';
+
+    if (orderType === 'dine_in' && order?.table_id) {
+      return `Dine-in/Table ${order.table_id}`;
+    }
+
+    return ORDER_TYPE_LABELS[orderType] || 'Order';
   };
 
   const fetchDailyReport = useCallback(async () => {
@@ -315,12 +332,35 @@ const ReportsTab = () => {
       ['Generated At', generatedAt],
     ];
 
+    const orderTypeRows = [
+      { cells: ['Order Type Breakdown'], style: 'title' },
+      { cells: ['Order Type', 'Orders', 'Paid Orders', 'Total Amount'], style: 'header' },
+      ...orderTypeBreakdown.map((entry) => [
+        entry.label,
+        integerCell(entry.orders),
+        integerCell(entry.paidOrders),
+        currencyCell(entry.totalAmount),
+      ]),
+      ...((orderTypeBreakdown || []).length > 0
+        ? [[
+            { value: 'Total', style: 'totalLabel' },
+            integerCell(orderTypeBreakdown.reduce((sum, entry) => sum + Number(entry.orders || 0), 0)),
+            integerCell(orderTypeBreakdown.reduce((sum, entry) => sum + Number(entry.paidOrders || 0), 0)),
+            currencyCell(orderTypeBreakdown.reduce((sum, entry) => sum + Number(entry.totalAmount || 0), 0), 'totalCurrency'),
+          ]]
+        : []),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
+    ];
+
     const orderRows = [
       { cells: ['Orders'], style: 'title' },
-      { cells: ['Bill #', 'Date & Time', 'Items', 'Subtotal', 'Tax', 'Discount', 'Total', 'Status', 'Payment Status'], style: 'header' },
+      { cells: ['Bill #', 'Date & Time', 'Order Type', 'Items', 'Subtotal', 'Tax', 'Discount', 'Total', 'Status', 'Payment Status'], style: 'header' },
       ...((report.orders || []).map((order) => [
         order.bill_number,
         { value: order.created_at, type: 'DateTime', style: 'date' },
+        getOrderTypeLabel(order),
         integerCell(order.item_count),
         currencyCell(order.subtotal),
         currencyCell(order.tax_amount),
@@ -332,6 +372,7 @@ const ReportsTab = () => {
       ...((report.orders || []).length > 0
         ? [[
             { value: 'Total', style: 'totalLabel' },
+            '',
             '',
             integerCell((report.orders || []).reduce((sum, order) => sum + Number(order.item_count || 0), 0)),
             currencyCell((report.orders || []).reduce((sum, order) => sum + Number(order.subtotal || 0), 0), 'totalCurrency'),
@@ -360,12 +401,13 @@ const ReportsTab = () => {
       { name: 'Summary', columns: [180, 140], rows: summaryRows },
       { name: 'ProfitLoss', columns: [200, 140], rows: profitLossRows },
       { name: 'Revenue', columns: [180, 140, 100], rows: revenueRows },
+      { name: 'OrderTypes', columns: [160, 90, 100, 120], rows: orderTypeRows },
       { name: 'Payments', columns: [180, 140], rows: paymentRows },
       { name: 'Hourly', columns: [90, 80, 80, 110, 110, 110], rows: hourlyRows },
       { name: 'Items', columns: [220, 90, 120, 120, 90], rows: itemRows },
       { name: 'Expenses', columns: [180, 220, 90, 120], rows: expenseRows },
       { name: 'Purchases', columns: [110, 180, 120, 260, 100, 100, 100, 110], rows: purchaseRows },
-      { name: 'Orders', columns: [100, 140, 70, 100, 90, 100, 110, 90, 110], rows: orderRows },
+      { name: 'Orders', columns: [100, 140, 140, 70, 100, 90, 100, 110, 90, 110], rows: orderRows },
     ]);
   };
 
@@ -416,6 +458,33 @@ const ReportsTab = () => {
     });
   };
 
+  const orderTypeBreakdown = useMemo(() => {
+    const totals = (report?.orders || []).reduce((acc, order) => {
+      const orderType = order.order_type || order.orderType || 'dine_in';
+      const existing = acc[orderType] || {
+        type: orderType,
+        label: ORDER_TYPE_LABELS[orderType] || 'Order',
+        orders: 0,
+        paidOrders: 0,
+        totalAmount: 0,
+      };
+
+      existing.orders += 1;
+      existing.totalAmount += Number(order.final_amount || 0);
+
+      if (order.payment_status === 'paid' || order.status === 'paid' || order.status === 'completed') {
+        existing.paidOrders += 1;
+      }
+
+      acc[orderType] = existing;
+      return acc;
+    }, {});
+
+    return ['dine_in', 'takeaway', 'delivery', 'online', 'pickup']
+      .map((type) => totals[type])
+      .filter(Boolean);
+  }, [report]);
+
   const reportSections = useMemo(() => {
     if (!report) {
       return [];
@@ -423,6 +492,7 @@ const ReportsTab = () => {
 
     return [
       { id: 'report-summary', label: 'Summary', show: true },
+      { id: 'report-order-types', label: 'Order Types', show: Boolean(orderTypeBreakdown.length) },
       { id: 'report-profit-loss', label: 'Profit & Loss', show: Boolean(report.profitLoss) },
       { id: 'report-revenue', label: 'Revenue', show: Boolean(revenueAnalytics) },
       { id: 'report-hourly', label: 'Hourly', show: Boolean(report.hourlyBreakdown?.length) },
@@ -431,7 +501,7 @@ const ReportsTab = () => {
       { id: 'report-items', label: 'Items Sold', show: Boolean(report.allItems?.length) },
       { id: 'report-orders', label: 'Orders', show: Boolean(report.orders?.length) },
     ].filter((section) => section.show);
-  }, [report, revenueAnalytics]);
+  }, [orderTypeBreakdown.length, report, revenueAnalytics]);
 
   const scrollToReportSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({
@@ -549,6 +619,38 @@ const ReportsTab = () => {
             <div className="report-card"><h4>Net After Expenses</h4><p className="report-value">Rs. {parseFloat(report.netSalesAfterExpenses || 0).toFixed(2)}</p></div>
             <div className="report-card"><h4>Average Order Value</h4><p className="report-value">Rs. {parseFloat(report.averageOrderValue).toFixed(2)}</p></div>
           </div>
+
+          {orderTypeBreakdown.length > 0 && (
+            <div className="section-container report-section-anchor" id="report-order-types">
+              <h3>Order Type Breakdown</h3>
+              <div className="report-grid">
+                {orderTypeBreakdown.map((entry) => (
+                  <div className="report-card" key={entry.type}>
+                    <h4>{entry.label}</h4>
+                    <p className="report-value">{entry.orders}</p>
+                    <div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
+                      {entry.paidOrders} paid | Rs. {entry.totalAmount.toFixed(2)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <table className="data-table">
+                <thead>
+                  <tr><th>Order Type</th><th>Orders</th><th>Paid Orders</th><th>Total Amount</th></tr>
+                </thead>
+                <tbody>
+                  {orderTypeBreakdown.map((entry) => (
+                    <tr key={entry.type}>
+                      <td><strong>{entry.label}</strong></td>
+                      <td>{entry.orders}</td>
+                      <td>{entry.paidOrders}</td>
+                      <td className="sales-cell">Rs. {entry.totalAmount.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {report.profitLoss && (
             <div className="section-container report-section-anchor" id="report-profit-loss">
@@ -819,12 +921,13 @@ const ReportsTab = () => {
             <div className="section-container report-section-anchor" id="report-orders">
               <h3>Individual Orders</h3>
               <table className="data-table">
-                <thead><tr><th>Bill #</th><th>Date & Time</th><th>Items</th><th>Subtotal</th><th>Tax</th><th>Discount</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+                <thead><tr><th>Bill #</th><th>Date & Time</th><th>Order Type</th><th>Items</th><th>Subtotal</th><th>Tax</th><th>Discount</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
                 <tbody>
                   {report.orders.map((order) => (
                     <tr key={order.id}>
                       <td><strong>#{order.bill_number}</strong></td>
                       <td>{formatDate(order.created_at)}</td>
+                      <td>{getOrderTypeLabel(order)}</td>
                       <td style={{ textAlign: 'center' }}>{order.item_count || '-'}</td>
                       <td>{formatCurrency(order.subtotal)}</td>
                       <td>{formatCurrency(order.tax_amount)}</td>

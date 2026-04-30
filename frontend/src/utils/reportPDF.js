@@ -15,6 +15,40 @@ export const generatePDF = (report, reportType) => {
 };
 
 const money = (value) => `Rs. ${parseFloat(value || 0).toFixed(2)}`;
+const orderTypeLabels = {
+  dine_in: 'Dine-in/Table',
+  takeaway: 'Takeaway',
+  delivery: 'Delivery',
+  online: 'Online',
+  pickup: 'Pickup',
+};
+
+const getOrderTypeBreakdown = (orders = []) => {
+  const totals = orders.reduce((acc, order) => {
+    const orderType = order.order_type || order.orderType || 'dine_in';
+    const existing = acc[orderType] || {
+      type: orderType,
+      label: orderTypeLabels[orderType] || 'Order',
+      orders: 0,
+      paidOrders: 0,
+      totalAmount: 0,
+    };
+
+    existing.orders += 1;
+    existing.totalAmount += Number(order.final_amount || 0);
+
+    if (order.payment_status === 'paid' || order.status === 'paid' || order.status === 'completed') {
+      existing.paidOrders += 1;
+    }
+
+    acc[orderType] = existing;
+    return acc;
+  }, {});
+
+  return ['dine_in', 'takeaway', 'delivery', 'online', 'pickup']
+    .map((type) => totals[type])
+    .filter(Boolean);
+};
 
 const createReportHTML = (report, reportType) => {
   const div = document.createElement('div');
@@ -64,6 +98,33 @@ const createReportHTML = (report, reportType) => {
       </table>
     </div>
   `;
+
+  const orderTypeBreakdown = getOrderTypeBreakdown(report.orders || []);
+  const orderTypeRows = orderTypeBreakdown.map((entry) => `
+    <tr>
+      <td style="padding: 8px; border: 1px solid #ddd;"><strong>${entry.label}</strong></td>
+      <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${entry.orders}</td>
+      <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${entry.paidOrders}</td>
+      <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${money(entry.totalAmount)}</td>
+    </tr>
+  `).join('');
+
+  const orderTypes = orderTypeBreakdown.length > 0 ? `
+    <div style="margin-bottom: 30px;">
+      <h2 style="color: #2c3e50; border-bottom: 2px solid #667eea; padding-bottom: 10px;">Order Type Breakdown</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+          <tr style="background-color: #667eea; color: white;">
+            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Order Type</th>
+            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Orders</th>
+            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Paid Orders</th>
+            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Total Amount</th>
+          </tr>
+        </thead>
+        <tbody>${orderTypeRows}</tbody>
+      </table>
+    </div>
+  ` : '';
 
   const profitLoss = report.profitLoss ? `
     <div style="margin-bottom: 30px;">
@@ -196,6 +257,6 @@ const createReportHTML = (report, reportType) => {
     </div>
   `;
 
-  div.innerHTML = header + summary + profitLoss + hourlyHTML + allItemsHTML + payment + footer;
+  div.innerHTML = header + summary + orderTypes + profitLoss + hourlyHTML + allItemsHTML + payment + footer;
   return div;
 };

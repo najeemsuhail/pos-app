@@ -31,6 +31,7 @@ const POSPage = () => {
   const [selectedOrderType, setSelectedOrderType] = useState(ORDER_TYPES.DINE_IN);
   const [discount, setDiscount] = useState(0);
   const [paymentTotal, setPaymentTotal] = useState(0);
+  const [alertDialog, setAlertDialog] = useState(null);
   const [tableNames, setTableNames] = useState([]);
   const [tableCount, setTableCount] = useState(DEFAULT_TABLE_COUNT);
   const [taxRate, setTaxRate] = useState(5);
@@ -77,6 +78,10 @@ const POSPage = () => {
     const response = await orderService.getActiveOrders();
     setActiveOrders(response.data);
     return response.data;
+  }, []);
+
+  const showAlert = useCallback((message, title = 'Notice') => {
+    setAlertDialog({ message, title });
   }, []);
 
   const waitForActivePersist = useCallback(async () => {
@@ -221,7 +226,7 @@ const POSPage = () => {
       setCurrentOrder(activeOrder);
       setOrder(activeOrder);
     } catch (error) {
-      alert('Error loading order: ' + (error.response?.data?.error || error.message));
+      showAlert('Error loading order: ' + (error.response?.data?.error || error.message), 'Order Error');
     } finally {
       hydrateInProgressRef.current = false;
       setLoading(false);
@@ -237,6 +242,7 @@ const POSPage = () => {
     selectedOrderType,
     selectedTableId,
     setOrder,
+    showAlert,
   ]);
 
   const handleSelectTable = useCallback((tableId) => {
@@ -251,7 +257,7 @@ const POSPage = () => {
 
   const handleAddItem = async (item, quantity) => {
     if (!hasActiveOrderSlot) {
-      alert('Select a table or order type first');
+      showAlert('Select a table or order type first');
       return;
     }
 
@@ -260,12 +266,12 @@ const POSPage = () => {
 
   const handleFinalizeOrder = async (discountPercent = 0) => {
     if (!hasActiveOrderSlot) {
-      alert('Select a table or order type first');
+      showAlert('Select a table or order type first');
       return;
     }
 
     if (items.length === 0) {
-      alert('Add items to the order first');
+      showAlert('Add items to the order first');
       return;
     }
 
@@ -288,7 +294,7 @@ const POSPage = () => {
       setPaymentTotal(Number(finalizedRes.data.final_amount || 0));
       setShowPaymentModal(true);
     } catch (error) {
-      alert('Error creating order: ' + (error.response?.data?.error || error.message));
+      showAlert('Error creating order: ' + (error.response?.data?.error || error.message), 'Checkout Error');
     } finally {
       setLoading(false);
     }
@@ -296,12 +302,12 @@ const POSPage = () => {
 
   const handleSendKot = async () => {
     if (!hasActiveOrderSlot) {
-      alert('Select a table or order type first');
+      showAlert('Select a table or order type first');
       return;
     }
 
     if (items.length === 0) {
-      alert('Add items before sending KOT');
+      showAlert('Add items before sending KOT');
       return;
     }
 
@@ -323,10 +329,10 @@ const POSPage = () => {
         await printReceiptContent(response.data.kot, 'KOT');
       } catch (printError) {
         console.error('KOT print error:', printError);
-        alert('KOT sent, but printing failed: ' + printError.message);
+        showAlert('KOT sent, but printing failed: ' + printError.message, 'Print Error');
       }
     } catch (error) {
-      alert('Error sending KOT: ' + (error.response?.data?.error || error.message));
+      showAlert('Error sending KOT: ' + (error.response?.data?.error || error.message), 'KOT Error');
     } finally {
       setLoading(false);
     }
@@ -365,16 +371,16 @@ const POSPage = () => {
         await printReceiptContent(receiptRes.data);
       } catch (printError) {
         console.error('Receipt print error:', printError);
-        alert(`Payment completed, but receipt printing failed: ${printError.message}`);
+        showAlert(`Payment completed, but receipt printing failed: ${printError.message}`, 'Print Error');
       }
 
       if (paymentRes.data?.payment_status === 'pending_settlement') {
-        window.alert('Order completed. Payment is pending settlement and will be collected later.');
+        showAlert('Order completed. Payment is pending settlement and will be collected later.', 'Payment Pending');
       }
 
       resetCurrentOrderSlot();
     } catch (error) {
-      alert('Error processing payment: ' + (error.response?.data?.error || error.message));
+      showAlert('Error processing payment: ' + (error.response?.data?.error || error.message), 'Payment Error');
     } finally {
       setLoading(false);
     }
@@ -434,6 +440,33 @@ const POSPage = () => {
           onPaymentComplete={handlePaymentComplete}
           onCancel={() => setShowPaymentModal(false)}
         />
+      )}
+
+      {alertDialog && (
+        <div className="app-alert-overlay" onClick={() => setAlertDialog(null)}>
+          <div
+            className="app-alert-dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="app-alert-title"
+            aria-describedby="app-alert-message"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="app-alert-icon" aria-hidden="true">!</div>
+            <div className="app-alert-content">
+              <h3 id="app-alert-title">{alertDialog.title}</h3>
+              <p id="app-alert-message">{alertDialog.message}</p>
+            </div>
+            <button
+              className="app-alert-close"
+              type="button"
+              onClick={() => setAlertDialog(null)}
+              autoFocus
+            >
+              OK
+            </button>
+          </div>
+        </div>
       )}
 
       {loading && <Loader />}

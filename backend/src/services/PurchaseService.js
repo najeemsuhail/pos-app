@@ -1,5 +1,7 @@
 const PurchaseRepository = require('../repositories/PurchaseRepository');
 const SupplierRepository = require('../repositories/SupplierRepository');
+const StockService = require('./StockService');
+const prisma = require('../db/prisma');
 
 const clampMoney = (value) => Math.round(Number(value || 0) * 100) / 100;
 
@@ -11,6 +13,9 @@ class PurchaseService {
 
     return items.map((item, index) => {
       const itemName = item.item_name?.trim();
+      const ingredientId = item.ingredient_id === undefined || item.ingredient_id === null || item.ingredient_id === ''
+        ? null
+        : Number(item.ingredient_id);
       const quantity = Number(item.quantity);
       const unitPrice = Number(item.unit_price);
 
@@ -26,9 +31,14 @@ class PurchaseService {
         throw { status: 400, message: `Item ${index + 1} unit price must be zero or greater` };
       }
 
+      if (ingredientId !== null && (!Number.isInteger(ingredientId) || ingredientId <= 0)) {
+        throw { status: 400, message: `Item ${index + 1} ingredient is invalid` };
+      }
+
       const totalPrice = clampMoney(quantity * unitPrice);
 
       return {
+        ingredientId,
         itemName,
         quantity,
         unit: item.unit?.trim() || null,
@@ -36,6 +46,25 @@ class PurchaseService {
         totalPrice,
       };
     });
+  }
+
+  async validatePurchaseIngredients(items) {
+    const ingredientIds = [...new Set(items.map((item) => item.ingredientId).filter(Boolean))];
+
+    if (ingredientIds.length === 0) {
+      return;
+    }
+
+    const count = await prisma.ingredient.count({
+      where: {
+        id: { in: ingredientIds },
+        isDeleted: false,
+      },
+    });
+
+    if (count !== ingredientIds.length) {
+      throw { status: 400, message: 'One or more purchase ingredients were not found' };
+    }
   }
 
   resolvePaymentStatus(totalAmount, paidAmount) {
@@ -66,6 +95,7 @@ class PurchaseService {
     }
 
     const items = this.normalizeItems(data.items);
+    await this.validatePurchaseIngredients(items);
     const subtotal = clampMoney(items.reduce((sum, item) => sum + item.totalPrice, 0));
     const taxAmount = clampMoney(data.tax_amount);
     const discountAmount = clampMoney(data.discount_amount);
@@ -80,20 +110,25 @@ class PurchaseService {
       throw { status: 400, message: 'Paid amount must be between zero and the purchase total' };
     }
 
-    return PurchaseRepository.create({
-      purchase: {
-        supplierId,
-        purchaseDate: new Date(data.purchase_date),
-        invoiceNumber: data.invoice_number?.trim() || null,
-        paymentStatus: this.resolvePaymentStatus(totalAmount, paidAmount),
-        subtotal,
-        taxAmount,
-        discountAmount,
-        totalAmount,
-        paidAmount,
-        note: data.note?.trim() || null,
-      },
-      items,
+    return prisma.$transaction(async (tx) => {
+      const purchase = await PurchaseRepository.create({
+        purchase: {
+          supplierId,
+          purchaseDate: new Date(data.purchase_date),
+          invoiceNumber: data.invoice_number?.trim() || null,
+          paymentStatus: this.resolvePaymentStatus(totalAmount, paidAmount),
+          subtotal,
+          taxAmount,
+          discountAmount,
+          totalAmount,
+          paidAmount,
+          note: data.note?.trim() || null,
+        },
+        items,
+      }, tx);
+
+      await StockService.applyPurchaseItems(tx, purchase.id, items, 1);
+      return purchase;
     });
   }
 
@@ -175,6 +210,7 @@ class PurchaseService {
     }
 
     const items = this.normalizeItems(data.items);
+    await this.validatePurchaseIngredients(items);
     const subtotal = clampMoney(items.reduce((sum, item) => sum + item.totalPrice, 0));
     const taxAmount = clampMoney(data.tax_amount);
     const discountAmount = clampMoney(data.discount_amount);
@@ -189,20 +225,27 @@ class PurchaseService {
       throw { status: 400, message: 'Paid amount must be between zero and the purchase total' };
     }
 
-    return PurchaseRepository.update(numericId, {
-      purchase: {
-        supplierId,
-        purchaseDate: new Date(data.purchase_date),
-        invoiceNumber: data.invoice_number?.trim() || null,
-        paymentStatus: this.resolvePaymentStatus(totalAmount, paidAmount),
-        subtotal,
-        taxAmount,
-        discountAmount,
-        totalAmount,
-        paidAmount,
-        note: data.note?.trim() || null,
-      },
-      items,
+    return prisma.$transaction(async (tx) => {
+      await StockService.applyPurchaseItems(tx, numericId, existing.items || [], -1);
+
+      const purchase = await PurchaseRepository.update(numericId, {
+        purchase: {
+          supplierId,
+          purchaseDate: new Date(data.purchase_date),
+          invoiceNumber: data.invoice_number?.trim() || null,
+          paymentStatus: this.resolvePaymentStatus(totalAmount, paidAmount),
+          subtotal,
+          taxAmount,
+          discountAmount,
+          totalAmount,
+          paidAmount,
+          note: data.note?.trim() || null,
+        },
+        items,
+      }, tx);
+
+      await StockService.applyPurchaseItems(tx, numericId, items, 1);
+      return purchase;
     });
   }
 
@@ -217,7 +260,10 @@ class PurchaseService {
       throw { status: 404, message: 'Purchase not found' };
     }
 
-    return PurchaseRepository.delete(numericId);
+    return prisma.$transaction(async (tx) => {
+      await StockService.applyPurchaseItems(tx, numericId, existing.items || [], -1);
+      return PurchaseRepository.delete(numericId, tx);
+    });
   }
 }
 

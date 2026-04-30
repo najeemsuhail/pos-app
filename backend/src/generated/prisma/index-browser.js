@@ -171,8 +171,38 @@ exports.Prisma.OrderScalarFieldEnum = {
   discountAmount: 'discountAmount',
   taxAmount: 'taxAmount',
   finalAmount: 'finalAmount',
+  stockDeducted: 'stockDeducted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.IngredientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  unit: 'unit',
+  currentStock: 'currentStock',
+  minStockLevel: 'minStockLevel',
+  isDeleted: 'isDeleted',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MenuItemIngredientScalarFieldEnum = {
+  id: 'id',
+  menuItemId: 'menuItemId',
+  ingredientId: 'ingredientId',
+  quantity: 'quantity'
+};
+
+exports.Prisma.StockMovementScalarFieldEnum = {
+  id: 'id',
+  ingredientId: 'ingredientId',
+  type: 'type',
+  quantity: 'quantity',
+  referenceType: 'referenceType',
+  referenceId: 'referenceId',
+  note: 'note',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.KotTicketScalarFieldEnum = {
@@ -266,6 +296,7 @@ exports.Prisma.PurchaseScalarFieldEnum = {
 exports.Prisma.PurchaseItemScalarFieldEnum = {
   id: 'id',
   purchaseId: 'purchaseId',
+  ingredientId: 'ingredientId',
   itemName: 'itemName',
   quantity: 'quantity',
   unit: 'unit',
@@ -291,6 +322,9 @@ exports.Prisma.ModelName = {
   Category: 'Category',
   MenuItem: 'MenuItem',
   Order: 'Order',
+  Ingredient: 'Ingredient',
+  MenuItemIngredient: 'MenuItemIngredient',
+  StockMovement: 'StockMovement',
   KotTicket: 'KotTicket',
   KotItem: 'KotItem',
   BillSequence: 'BillSequence',

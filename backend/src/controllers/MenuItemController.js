@@ -1,4 +1,5 @@
 const MenuItemService = require('../services/MenuItemService');
+const IngredientService = require('../services/IngredientService');
 const { getUploadedImageUrl } = require('../utils/cloudinary');
 const SyncService = require('../services/SyncService');
 
@@ -67,6 +68,27 @@ class MenuItemController {
       const { id } = req.params;
       const item = await MenuItemService.getMenuItemById(id);
       res.json(item);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getIngredients(req, res, next) {
+    try {
+      const { id } = req.params;
+      const ingredients = await IngredientService.getMenuItemIngredients(id);
+      res.json(ingredients);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async replaceIngredients(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { ingredients } = req.body || {};
+      const result = await IngredientService.replaceMenuItemIngredients(id, ingredients);
+      res.json(result);
     } catch (error) {
       next(error);
     }

@@ -5,6 +5,7 @@ import CategoryManagementTab from '../components/admin/CategoryManagementTab';
 import ExpenseManagementTab from '../components/admin/ExpenseManagementTab';
 import AttendanceManagementTab from '../components/admin/AttendanceManagementTab';
 import PurchaseManagementTab from '../components/admin/PurchaseManagementTab';
+import IngredientsManagementTab from '../components/admin/IngredientsManagementTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
 import BackupTab from '../components/admin/BackupTab';
 import SettingsTab from '../components/admin/SettingsTab';
@@ -16,6 +17,7 @@ export const adminTabs = [
   { key: 'categories', label: 'Categories', Component: CategoryManagementTab, enabled: true },
   { key: 'expenses', label: 'Operating Expenses', Component: ExpenseManagementTab, enabled: true },
   { key: 'attendance', label: 'Staff Attendance', Component: AttendanceManagementTab, enabled: false },
+  { key: 'ingredients', label: 'Ingredients', Component: IngredientsManagementTab, enabled: false },
   { key: 'purchases', label: 'Purchases', Component: PurchaseManagementTab, enabled: true },
   { key: 'users', label: 'Users', Component: UserManagementTab, enabled: true },
   { key: 'backup', label: 'Backup', Component: BackupTab, enabled: true },

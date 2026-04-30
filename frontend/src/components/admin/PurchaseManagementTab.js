@@ -3,11 +3,12 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { downloadExcelWorkbook } from '../../utils/excelExport';
-import { purchaseService } from '../../services/api';
+import { ingredientService, purchaseService } from '../../services/api';
 
 const today = new Date().toISOString().split('T')[0];
 
 const createEmptyItem = () => ({
+  ingredient_id: '',
   item_name: '',
   quantity: 1,
   unit: '',
@@ -18,6 +19,7 @@ const money = (value) => `Rs. ${Number(value || 0).toFixed(2)}`;
 
 const PurchaseManagementTab = () => {
   const [suppliers, setSuppliers] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [summary, setSummary] = useState({ purchase_count: 0, total_amount: 0, paid_amount: 0, due_amount: 0 });
   const [loading, setLoading] = useState(false);
@@ -64,6 +66,12 @@ const PurchaseManagementTab = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    ingredientService.getAll()
+      .then((response) => setIngredients(response.data))
+      .catch(() => setIngredients([]));
+  }, []);
 
   const resetPurchaseForm = () => {
     setPurchaseForm({
@@ -143,9 +151,23 @@ const PurchaseManagementTab = () => {
   const handlePurchaseItemChange = (index, field, value) => {
     setPurchaseForm((current) => ({
       ...current,
-      items: current.items.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, [field]: value } : item
-      ),
+      items: current.items.map((item, itemIndex) => {
+        if (itemIndex !== index) {
+          return item;
+        }
+
+        if (field === 'ingredient_id') {
+          const ingredient = ingredients.find((entry) => Number(entry.id) === Number(value));
+          return {
+            ...item,
+            ingredient_id: value,
+            item_name: ingredient ? ingredient.name : item.item_name,
+            unit: ingredient ? ingredient.unit : item.unit,
+          };
+        }
+
+        return { ...item, [field]: value };
+      }),
     }));
   };
 
@@ -203,7 +225,13 @@ const PurchaseManagementTab = () => {
       discount_amount: purchase.discount_amount || '',
       paid_amount: purchase.paid_amount || '',
       note: purchase.note || '',
-      items: purchase.items || [createEmptyItem()],
+      items: (purchase.items || [createEmptyItem()]).map((item) => ({
+        ingredient_id: item.ingredient_id || '',
+        item_name: item.item_name || '',
+        quantity: item.quantity || 1,
+        unit: item.unit || '',
+        unit_price: item.unit_price || '',
+      })),
     });
     setEditingPurchase(purchase);
     setShowPurchaseForm(true);
@@ -467,6 +495,7 @@ const PurchaseManagementTab = () => {
               <thead>
                 <tr>
                   <th>Item</th>
+                  <th>Stock Ingredient</th>
                   <th>Qty</th>
                   <th>Unit</th>
                   <th>Unit Price</th>
@@ -478,6 +507,14 @@ const PurchaseManagementTab = () => {
                 {purchaseForm.items.map((item, index) => (
                   <tr key={index}>
                     <td><input value={item.item_name} onChange={(event) => handlePurchaseItemChange(index, 'item_name', event.target.value)} placeholder="Item name" required /></td>
+                    <td>
+                      <select value={item.ingredient_id || ''} onChange={(event) => handlePurchaseItemChange(index, 'ingredient_id', event.target.value)}>
+                        <option value="">No stock link</option>
+                        {ingredients.map((ingredient) => (
+                          <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
+                        ))}
+                      </select>
+                    </td>
                     <td><input type="number" min="0.01" step="0.01" value={item.quantity} onChange={(event) => handlePurchaseItemChange(index, 'quantity', event.target.value)} required /></td>
                     <td><input value={item.unit} onChange={(event) => handlePurchaseItemChange(index, 'unit', event.target.value)} placeholder="kg / pcs" /></td>
                     <td><input type="number" min="0" step="0.01" value={item.unit_price} onChange={(event) => handlePurchaseItemChange(index, 'unit_price', event.target.value)} required /></td>
@@ -565,7 +602,7 @@ const PurchaseManagementTab = () => {
                   <td>{new Date(purchase.purchase_date).toLocaleDateString()}</td>
                   <td>{purchase.supplier?.name || '-'}</td>
                   <td>{purchase.invoice_number || '-'}</td>
-                  <td>{purchase.items?.map((item) => `${item.item_name} (${item.quantity}${item.unit ? ` ${item.unit}` : ''})`).join(', ') || '-'}</td>
+                  <td>{purchase.items?.map((item) => `${item.item_name} (${item.quantity}${item.unit ? ` ${item.unit}` : ''}${item.ingredient ? ` -> ${item.ingredient.name}` : ''})`).join(', ') || '-'}</td>
                   <td>{money(purchase.total_amount)}</td>
                   <td>{money(purchase.paid_amount)}</td>
                   <td>{money(purchase.due_amount)}</td>

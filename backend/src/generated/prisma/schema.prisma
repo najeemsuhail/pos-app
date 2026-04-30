@@ -64,8 +64,9 @@ model MenuItem {
   isDeleted   Boolean  @default(false) @map("is_deleted")
   createdAt   DateTime @default(now()) @map("created_at")
 
-  category   Category    @relation(fields: [categoryId], references: [id])
-  orderItems OrderItem[]
+  category    Category             @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  ingredients MenuItemIngredient[]
 
   @@index([categoryId])
   @@map("menu_items")
@@ -84,6 +85,7 @@ model Order {
   discountAmount Decimal  @default(0) @map("discount_amount")
   taxAmount      Decimal  @default(0) @map("tax_amount")
   finalAmount    Decimal  @default(0) @map("final_amount")
+  stockDeducted  Boolean  @default(false) @map("stock_deducted")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -95,6 +97,54 @@ model Order {
   @@index([orderType])
   @@index([createdAt])
   @@map("orders")
+}
+
+model Ingredient {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  unit          String
+  currentStock  Decimal  @default(0) @map("current_stock")
+  minStockLevel Decimal  @default(0) @map("min_stock_level")
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  menuItems     MenuItemIngredient[]
+  movements     StockMovement[]
+  purchaseItems PurchaseItem[]
+
+  @@map("ingredients")
+}
+
+model MenuItemIngredient {
+  id           Int     @id @default(autoincrement())
+  menuItemId   Int     @map("menu_item_id")
+  ingredientId Int     @map("ingredient_id")
+  quantity     Decimal
+
+  menuItem   MenuItem   @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([menuItemId, ingredientId])
+  @@index([ingredientId])
+  @@map("menu_item_ingredients")
+}
+
+model StockMovement {
+  id            Int      @id @default(autoincrement())
+  ingredientId  Int      @map("ingredient_id")
+  type          String
+  quantity      Decimal
+  referenceType String?  @map("reference_type")
+  referenceId   Int?     @map("reference_id")
+  note          String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@index([ingredientId])
+  @@index([type])
+  @@map("stock_movements")
 }
 
 model KotTicket {
@@ -227,17 +277,20 @@ model Purchase {
 }
 
 model PurchaseItem {
-  id         Int      @id @default(autoincrement())
-  purchaseId Int      @map("purchase_id")
-  itemName   String   @map("item_name")
-  quantity   Decimal
-  unit       String?
-  unitPrice  Decimal  @map("unit_price")
-  totalPrice Decimal  @map("total_price")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id           Int      @id @default(autoincrement())
+  purchaseId   Int      @map("purchase_id")
+  ingredientId Int?     @map("ingredient_id")
+  itemName     String   @map("item_name")
+  quantity     Decimal
+  unit         String?
+  unitPrice    Decimal  @map("unit_price")
+  totalPrice   Decimal  @map("total_price")
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  purchase   Purchase    @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  ingredient Ingredient? @relation(fields: [ingredientId], references: [id])
 
   @@index([purchaseId])
+  @@index([ingredientId])
   @@map("purchase_items")
 }

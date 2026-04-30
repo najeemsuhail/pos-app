@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { menuItemService, categoryService } from '../../services/api';
+import { menuItemService, categoryService, ingredientService } from '../../services/api';
 
 const createDefaultFormData = () => ({
   name: '',
@@ -9,9 +9,16 @@ const createDefaultFormData = () => ({
   image_url: '',
 });
 
+const createRecipeRow = () => ({
+  ingredient_id: '',
+  quantity: '',
+});
+
 const MenuManagementTab = () => {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
+  const [recipeItems, setRecipeItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -24,6 +31,7 @@ const MenuManagementTab = () => {
   useEffect(() => {
     fetchItems();
     fetchCategories();
+    fetchIngredients();
   }, []);
 
   const fetchItems = async () => {
@@ -45,6 +53,15 @@ const MenuManagementTab = () => {
       setCategories(response.data);
     } catch (err) {
       console.error('Failed to fetch categories');
+    }
+  };
+
+  const fetchIngredients = async () => {
+    try {
+      const response = await ingredientService.getAll();
+      setIngredients(response.data);
+    } catch (err) {
+      console.error('Failed to fetch ingredients');
     }
   };
 
@@ -95,13 +112,27 @@ const MenuManagementTab = () => {
         formDataToSend.append('image', selectedImage);
       }
 
+      let savedItem;
       if (editingId) {
-        await menuItemService.update(editingId, formDataToSend);
+        const response = await menuItemService.update(editingId, formDataToSend);
+        savedItem = response.data;
       } else {
-        await menuItemService.create(formDataToSend);
+        const response = await menuItemService.create(formDataToSend);
+        savedItem = response.data;
+      }
+
+      if (savedItem?.id) {
+        const normalizedRecipe = recipeItems
+          .filter((item) => item.ingredient_id && Number(item.quantity) > 0)
+          .map((item) => ({
+            ingredient_id: Number(item.ingredient_id),
+            quantity: Number(item.quantity),
+          }));
+        await menuItemService.updateIngredients(savedItem.id, normalizedRecipe);
       }
 
       setFormData(createDefaultFormData());
+      setRecipeItems([]);
       setEditingId(null);
       setShowForm(false);
       setImagePreview(null);
@@ -113,7 +144,7 @@ const MenuManagementTab = () => {
     }
   };
 
-  const handleEdit = (item) => {
+  const handleEdit = async (item) => {
     setFormData({
       name: item.name,
       price: item.price,
@@ -125,6 +156,20 @@ const MenuManagementTab = () => {
     setSelectedImage(null);
     setEditingId(item.id);
     setShowForm(true);
+    try {
+      const response = await menuItemService.getIngredients(item.id);
+      setRecipeItems(
+        response.data.length > 0
+          ? response.data.map((recipeItem) => ({
+              ingredient_id: recipeItem.ingredient_id,
+              quantity: recipeItem.quantity,
+            }))
+          : []
+      );
+    } catch (err) {
+      setRecipeItems([]);
+      setError(err.response?.data?.error || 'Failed to load item ingredients');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -145,6 +190,21 @@ const MenuManagementTab = () => {
     setShowForm(false);
     setImagePreview(null);
     setSelectedImage(null);
+    setRecipeItems([]);
+  };
+
+  const updateRecipeItem = (index, field, value) => {
+    setRecipeItems((current) => current.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, [field]: value } : item
+    ));
+  };
+
+  const addRecipeItem = () => {
+    setRecipeItems((current) => [...current, createRecipeRow()]);
+  };
+
+  const removeRecipeItem = (index) => {
+    setRecipeItems((current) => current.filter((_, itemIndex) => itemIndex !== index));
   };
 
   const getCategoryName = (categoryId) => {
@@ -175,7 +235,16 @@ const MenuManagementTab = () => {
         <h2>🍽️ Menu Items Management</h2>
         <button 
           className="btn-primary"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) {
+              handleCancel();
+            } else {
+              setFormData(createDefaultFormData());
+              setRecipeItems([]);
+              setEditingId(null);
+              setShowForm(true);
+            }
+          }}
         >
           {showForm ? 'Cancel' : '+ Add New Item'}
         </button>
@@ -239,6 +308,40 @@ const MenuManagementTab = () => {
                   />
                   Available
                 </label>
+              </div>
+
+              <div className="form-group">
+                <label>Recipe Ingredients</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {recipeItems.map((recipeItem, index) => {
+                    const selectedIngredient = ingredients.find((ingredient) => Number(ingredient.id) === Number(recipeItem.ingredient_id));
+                    return (
+                      <div key={index} style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.8fr auto', gap: '8px', alignItems: 'center' }}>
+                        <select
+                          value={recipeItem.ingredient_id}
+                          onChange={(event) => updateRecipeItem(index, 'ingredient_id', event.target.value)}
+                        >
+                          <option value="">Select ingredient</option>
+                          {ingredients.map((ingredient) => (
+                            <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="number"
+                          min="0.001"
+                          step="0.001"
+                          value={recipeItem.quantity}
+                          onChange={(event) => updateRecipeItem(index, 'quantity', event.target.value)}
+                          placeholder={selectedIngredient?.unit ? `Qty ${selectedIngredient.unit}` : 'Qty'}
+                        />
+                        <button type="button" className="btn-secondary" onClick={() => removeRecipeItem(index)}>Remove</button>
+                      </div>
+                    );
+                  })}
+                  <button type="button" className="btn-secondary" onClick={addRecipeItem}>
+                    + Add Ingredient
+                  </button>
+                </div>
               </div>
             </div>
 

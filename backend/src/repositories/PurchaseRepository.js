@@ -2,8 +2,8 @@ const prisma = require('../db/prisma');
 const { mapPurchase } = require('../db/mappers');
 
 class PurchaseRepository {
-  async create({ purchase, items }) {
-    const created = await prisma.purchase.create({
+  async create({ purchase, items }, client = prisma) {
+    const created = await client.purchase.create({
       data: {
         ...purchase,
         items: {
@@ -21,7 +21,9 @@ class PurchaseRepository {
             },
           },
         },
-        items: true,
+        items: {
+          include: { ingredient: true },
+        },
       },
     });
 
@@ -55,7 +57,9 @@ class PurchaseRepository {
             },
           },
         },
-        items: true,
+        items: {
+          include: { ingredient: true },
+        },
       },
       orderBy: [{ purchaseDate: 'desc' }, { createdAt: 'desc' }],
     });
@@ -77,7 +81,9 @@ class PurchaseRepository {
             },
           },
         },
-        items: true,
+        items: {
+          include: { ingredient: true },
+        },
       },
     });
 
@@ -102,21 +108,23 @@ class PurchaseRepository {
             },
           },
         },
-        items: true,
+        items: {
+          include: { ingredient: true },
+        },
       },
     });
 
     return mapPurchase(purchase);
   }
 
-  async update(id, { purchase, items }) {
+  async update(id, { purchase, items }, client = prisma) {
     // Delete old items
-    await prisma.purchaseItem.deleteMany({
+    await client.purchaseItem.deleteMany({
       where: { purchaseId: Number(id) },
     });
 
     // Update purchase and create new items
-    const updated = await prisma.purchase.update({
+    const updated = await client.purchase.update({
       where: { id: Number(id) },
       data: {
         ...purchase,
@@ -135,21 +143,23 @@ class PurchaseRepository {
             },
           },
         },
-        items: true,
+        items: {
+          include: { ingredient: true },
+        },
       },
     });
 
     return mapPurchase(updated);
   }
 
-  async delete(id) {
+  async delete(id, client = prisma) {
     // Delete purchase items first
-    await prisma.purchaseItem.deleteMany({
+    await client.purchaseItem.deleteMany({
       where: { purchaseId: Number(id) },
     });
 
     // Then delete the purchase
-    return prisma.purchase.delete({
+    return client.purchase.delete({
       where: { id: Number(id) },
     });
   }

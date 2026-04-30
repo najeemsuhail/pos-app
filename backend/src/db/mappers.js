@@ -61,6 +61,7 @@ function mapMenuItem(item) {
     image_url: item.imageUrl,
     is_deleted: item.isDeleted,
     created_at: item.createdAt,
+    ingredients: Array.isArray(item.ingredients) ? item.ingredients.map(mapMenuItemIngredient) : undefined,
   };
 }
 
@@ -82,8 +83,64 @@ function mapOrder(order) {
     discount_amount: toNumber(order.discountAmount),
     tax_amount: toNumber(order.taxAmount),
     final_amount: toNumber(order.finalAmount),
+    stock_deducted: order.stockDeducted,
     created_at: order.createdAt,
     updated_at: order.updatedAt,
+  };
+}
+
+function mapIngredient(ingredient) {
+  if (!ingredient) {
+    return null;
+  }
+
+  const currentStock = toNumber(ingredient.currentStock) || 0;
+  const minStockLevel = toNumber(ingredient.minStockLevel) || 0;
+
+  return {
+    id: ingredient.id,
+    name: ingredient.name,
+    unit: ingredient.unit,
+    current_stock: currentStock,
+    min_stock_level: minStockLevel,
+    is_low_stock: currentStock > 0 && currentStock <= minStockLevel,
+    is_out_of_stock: currentStock <= 0,
+    is_negative_stock: currentStock < 0,
+    is_deleted: ingredient.isDeleted,
+    created_at: ingredient.createdAt,
+    updated_at: ingredient.updatedAt,
+  };
+}
+
+function mapMenuItemIngredient(recipeItem) {
+  if (!recipeItem) {
+    return null;
+  }
+
+  return {
+    id: recipeItem.id,
+    menu_item_id: recipeItem.menuItemId,
+    ingredient_id: recipeItem.ingredientId,
+    quantity: toNumber(recipeItem.quantity),
+    ingredient: recipeItem.ingredient ? mapIngredient(recipeItem.ingredient) : undefined,
+  };
+}
+
+function mapStockMovement(movement) {
+  if (!movement) {
+    return null;
+  }
+
+  return {
+    id: movement.id,
+    ingredient_id: movement.ingredientId,
+    type: movement.type,
+    quantity: toNumber(movement.quantity),
+    reference_type: movement.referenceType,
+    reference_id: movement.referenceId,
+    note: movement.note,
+    created_at: movement.createdAt,
+    ingredient: movement.ingredient ? mapIngredient(movement.ingredient) : undefined,
   };
 }
 
@@ -230,12 +287,14 @@ function mapPurchaseItem(item) {
   return {
     id: item.id,
     purchase_id: item.purchaseId,
+    ingredient_id: item.ingredientId,
     item_name: item.itemName,
     quantity: toNumber(item.quantity),
     unit: item.unit,
     unit_price: toNumber(item.unitPrice),
     total_price: toNumber(item.totalPrice),
     created_at: item.createdAt,
+    ingredient: item.ingredient ? mapIngredient(item.ingredient) : undefined,
   };
 }
 
@@ -274,6 +333,9 @@ module.exports = {
   mapOrder,
   mapOrderItem,
   mapPayment,
+  mapIngredient,
+  mapMenuItemIngredient,
+  mapStockMovement,
   mapKotTicket,
   mapKotItem,
   mapExpense,

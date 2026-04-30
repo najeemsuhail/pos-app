@@ -79,10 +79,21 @@ export const menuItemService = {
   getAll: () => api.get('/menu-items'),
   getById: (id) => api.get(`/menu-items/${id}`),
   getByCategory: (categoryId) => api.get(`/menu-items/category/${categoryId}`),
+  getIngredients: (id) => api.get(`/menu-items/${id}/ingredients`),
+  updateIngredients: (id, ingredients) => api.put(`/menu-items/${id}/ingredients`, { ingredients }),
   create: (data) => api.post('/menu-items', data),
   update: (id, data) => api.patch(`/menu-items/${id}`, data),
   toggleAvailability: (id, isAvailable) => api.patch(`/menu-items/${id}/availability`, { is_available: isAvailable }),
   delete: (id) => api.delete(`/menu-items/${id}`),
+};
+
+export const ingredientService = {
+  getAll: () => api.get('/ingredients'),
+  getAlerts: () => api.get('/ingredients/alerts'),
+  getMovements: (params = {}) => api.get('/ingredients/movements', { params }),
+  create: (data) => api.post('/ingredients', data),
+  update: (id, data) => api.patch(`/ingredients/${id}`, data),
+  delete: (id) => api.delete(`/ingredients/${id}`),
 };
 
 export const orderService = {

@@ -68,8 +68,48 @@ async function ensureSchema() {
       discount_amount DECIMAL NOT NULL DEFAULT 0,
       tax_amount DECIMAL NOT NULL DEFAULT 0,
       final_amount DECIMAL NOT NULL DEFAULT 0,
+      stock_deducted BOOLEAN NOT NULL DEFAULT false,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS ingredients (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      unit TEXT NOT NULL,
+      current_stock DECIMAL NOT NULL DEFAULT 0,
+      min_stock_level DECIMAL NOT NULL DEFAULT 0,
+      is_deleted BOOLEAN NOT NULL DEFAULT false,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS menu_item_ingredients (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      menu_item_id INTEGER NOT NULL,
+      ingredient_id INTEGER NOT NULL,
+      quantity DECIMAL NOT NULL,
+      FOREIGN KEY (menu_item_id) REFERENCES menu_items (id) ON DELETE CASCADE,
+      FOREIGN KEY (ingredient_id) REFERENCES ingredients (id),
+      UNIQUE (menu_item_id, ingredient_id)
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS stock_movements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ingredient_id INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      quantity DECIMAL NOT NULL,
+      reference_type TEXT,
+      reference_id INTEGER,
+      note TEXT,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (ingredient_id) REFERENCES ingredients (id)
     )
   `);
 
@@ -187,13 +227,15 @@ async function ensureSchema() {
     CREATE TABLE IF NOT EXISTS purchase_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       purchase_id INTEGER NOT NULL,
+      ingredient_id INTEGER,
       item_name TEXT NOT NULL,
       quantity DECIMAL NOT NULL,
       unit TEXT,
       unit_price DECIMAL NOT NULL,
       total_price DECIMAL NOT NULL,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (purchase_id) REFERENCES purchases (id) ON DELETE CASCADE
+      FOREIGN KEY (purchase_id) REFERENCES purchases (id) ON DELETE CASCADE,
+      FOREIGN KEY (ingredient_id) REFERENCES ingredients (id)
     )
   `);
 
@@ -224,6 +266,10 @@ async function ensureSchema() {
     )
   `);
 
+  await ensureColumn('menu_item_ingredients', 'ingredient_id', 'INTEGER');
+  await ensureColumn('stock_movements', 'ingredient_id', 'INTEGER');
+  await ensureColumn('purchase_items', 'ingredient_id', 'INTEGER');
+
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_menu_items_category_id ON menu_items(category_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_staff_attendance_attendance_date ON staff_attendance(attendance_date)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)');
@@ -233,12 +279,16 @@ async function ensureSchema() {
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_kot_items_order_item_id ON kot_items(order_item_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_menu_item_ingredients_ingredient_id ON menu_item_ingredients(ingredient_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_stock_movements_ingredient_id ON stock_movements(ingredient_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_stock_movements_type ON stock_movements(type)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchases_supplier_id ON purchases(supplier_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchases_purchase_date ON purchases(purchase_date)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchases_payment_status ON purchases(payment_status)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchase_items_purchase_id ON purchase_items(purchase_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_purchase_items_ingredient_id ON purchase_items(ingredient_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status, updated_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_sync_events_created_at ON sync_events(created_at)');
 
@@ -247,6 +297,7 @@ async function ensureSchema() {
   await ensureColumn('orders', 'customer_name', 'TEXT');
   await ensureColumn('orders', 'customer_phone', 'TEXT');
   await ensureColumn('orders', 'order_type', "TEXT NOT NULL DEFAULT 'dine_in'");
+  await ensureColumn('orders', 'stock_deducted', 'BOOLEAN NOT NULL DEFAULT false');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_order_type ON orders(order_type)');
   await ensureColumn('payments', 'source', "TEXT NOT NULL DEFAULT 'Direct'");
   await ensureColumn('payments', 'status', "TEXT NOT NULL DEFAULT 'settled'");

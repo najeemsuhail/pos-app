@@ -7,6 +7,7 @@ const prisma = require('../db/prisma');
 const { mapOrder, mapPayment } = require('../db/mappers');
 const { formatBillDate, formatDailyBillNumber, calculateTax } = require('../utils/billing');
 const SettingService = require('./SettingService');
+const StockService = require('./StockService');
 const { ORDER_TYPES, normalizeOrderType } = require('../utils/orderTypes');
 const {
   ORDER_STATUSES,
@@ -294,6 +295,10 @@ class OrderService {
           updatedAt: new Date(),
         },
       });
+
+      if (status === ORDER_STATUSES.COMPLETED) {
+        await StockService.deductForOrder(tx, orderId);
+      }
 
       const totalSettled = allPayments.reduce((sum, payment) => sum + toNumber(payment.settledAmount), 0);
 

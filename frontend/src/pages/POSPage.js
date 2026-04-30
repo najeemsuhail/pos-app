@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import POSLayout from '../components/POSLayout';
 import PaymentModal from '../components/PaymentModal';
-import ReceiptModal from '../components/ReceiptModal';
 import Header from '../components/Header';
 import Loader from '../components/Loader';
 import { categoryService, menuItemService, orderService, settingService } from '../services/api';
@@ -26,14 +25,12 @@ const POSPage = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [activeOrders, setActiveOrders] = useState([]);
   const [selectedTableId, setSelectedTableId] = useState(null);
   const [selectedOrderType, setSelectedOrderType] = useState(ORDER_TYPES.DINE_IN);
   const [discount, setDiscount] = useState(0);
   const [paymentTotal, setPaymentTotal] = useState(0);
-  const [receipt, setReceipt] = useState('');
   const [tableNames, setTableNames] = useState([]);
   const [tableCount, setTableCount] = useState(DEFAULT_TABLE_COUNT);
   const [taxRate, setTaxRate] = useState(5);
@@ -175,7 +172,6 @@ const POSPage = () => {
       setDiscount(0);
       setPaymentTotal(0);
       setShowPaymentModal(false);
-      setShowReceiptModal(false);
       hydrateInProgressRef.current = false;
     }
   }, [replaceItems, selectedOrderType, selectedTableId, setOrder, tableCount]);
@@ -210,7 +206,6 @@ const POSPage = () => {
       setDiscount(0);
       setPaymentTotal(0);
       setShowPaymentModal(false);
-      setShowReceiptModal(false);
 
       const activeOrder = findActiveOrder(activeOrders, orderType, tableId);
 
@@ -337,6 +332,21 @@ const POSPage = () => {
     }
   };
 
+  const resetCurrentOrderSlot = useCallback(() => {
+    hydrateInProgressRef.current = true;
+    setSelectedTableId(null);
+    setSelectedOrderType(ORDER_TYPES.DINE_IN);
+    clearCart();
+    setCurrentOrder(null);
+    setOrder(null);
+    setDiscount(0);
+    setPaymentTotal(0);
+    setShowPaymentModal(false);
+    window.setTimeout(() => {
+      hydrateInProgressRef.current = false;
+    }, 0);
+  }, [clearCart, setOrder]);
+
   const handlePaymentComplete = async (paymentData) => {
     try {
       setLoading(true);
@@ -347,45 +357,27 @@ const POSPage = () => {
       setOrder(updatedOrderRes.data);
 
       const receiptRes = await orderService.getReceipt(currentOrder.id);
-      setReceipt(receiptRes.data);
       await refreshActiveOrders();
 
       setShowPaymentModal(false);
-      setShowReceiptModal(true);
+
+      try {
+        await printReceiptContent(receiptRes.data);
+      } catch (printError) {
+        console.error('Receipt print error:', printError);
+        alert(`Payment completed, but receipt printing failed: ${printError.message}`);
+      }
 
       if (paymentRes.data?.payment_status === 'pending_settlement') {
         window.alert('Order completed. Payment is pending settlement and will be collected later.');
       }
+
+      resetCurrentOrderSlot();
     } catch (error) {
       alert('Error processing payment: ' + (error.response?.data?.error || error.message));
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePrintReceipt = async () => {
-    try {
-      await printReceiptContent(receipt);
-    } catch (error) {
-      console.error('Receipt print error:', error);
-      alert(`Failed to print receipt: ${error.message}`);
-    }
-  };
-
-  const handleCloseReceipt = () => {
-    hydrateInProgressRef.current = true;
-    setShowReceiptModal(false);
-    setSelectedTableId(null);
-    setSelectedOrderType(ORDER_TYPES.DINE_IN);
-    clearCart();
-    setReceipt('');
-    setCurrentOrder(null);
-    setOrder(null);
-    setDiscount(0);
-    setPaymentTotal(0);
-    window.setTimeout(() => {
-      hydrateInProgressRef.current = false;
-    }, 0);
   };
 
   const baseTotals = calculateTotals();
@@ -441,15 +433,6 @@ const POSPage = () => {
           total={paymentTotal}
           onPaymentComplete={handlePaymentComplete}
           onCancel={() => setShowPaymentModal(false)}
-        />
-      )}
-
-      {showReceiptModal && (
-        <ReceiptModal
-          receipt={receipt}
-          billNumber={currentOrder?.bill_number}
-          onClose={handleCloseReceipt}
-          onPrint={handlePrintReceipt}
         />
       )}
 

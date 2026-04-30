@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
@@ -416,6 +416,30 @@ const ReportsTab = () => {
     });
   };
 
+  const reportSections = useMemo(() => {
+    if (!report) {
+      return [];
+    }
+
+    return [
+      { id: 'report-summary', label: 'Summary', show: true },
+      { id: 'report-profit-loss', label: 'Profit & Loss', show: Boolean(report.profitLoss) },
+      { id: 'report-revenue', label: 'Revenue', show: Boolean(revenueAnalytics) },
+      { id: 'report-hourly', label: 'Hourly', show: Boolean(report.hourlyBreakdown?.length) },
+      { id: 'report-payments', label: 'Payments', show: true },
+      { id: 'report-expenses', label: 'Expenses', show: Boolean(report.expensesByCategory?.length) },
+      { id: 'report-items', label: 'Items Sold', show: Boolean(report.allItems?.length) },
+      { id: 'report-orders', label: 'Orders', show: Boolean(report.orders?.length) },
+    ].filter((section) => section.show);
+  }, [report, revenueAnalytics]);
+
+  const scrollToReportSection = (sectionId) => {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
   const SortArrow = ({ col }) => {
     if (itemSortKey !== col) return <span style={{ opacity: 0.3, marginLeft: 4 }}>⇅</span>;
     return <span style={{ marginLeft: 4 }}>{itemSortDir === 'asc' ? '▲' : '▼'}</span>;
@@ -498,11 +522,24 @@ const ReportsTab = () => {
                   ? `Weekly Report - ${report.weekStart} to ${report.weekEnd}`
                   : reportType === 'monthly'
                     ? `Monthly Report - ${report.month}`
-                    : `Report: ${report.startDate} to ${report.endDate}`}
+                : `Report: ${report.startDate} to ${report.endDate}`}
             </h3>
           </div>
 
-          <div className="report-grid">
+          <nav className="report-section-nav" aria-label="Report sections">
+            <span>Jump to</span>
+            {reportSections.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => scrollToReportSection(section.id)}
+              >
+                {section.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="report-grid report-section-anchor" id="report-summary">
             <div className="report-card"><h4>Total Orders</h4><p className="report-value">{report.totalOrders}</p></div>
             <div className="report-card"><h4>Paid Orders</h4><p className="report-value">{report.paidOrders}</p></div>
             <div className="report-card"><h4>Total Sales</h4><p className="report-value">Rs. {parseFloat(report.totalSales).toFixed(2)}</p></div>
@@ -514,7 +551,7 @@ const ReportsTab = () => {
           </div>
 
           {report.profitLoss && (
-            <div className="section-container">
+            <div className="section-container report-section-anchor" id="report-profit-loss">
               <h3>Profit And Loss Summary</h3>
               <div className="report-grid">
                 <div className="report-card"><h4>Gross Revenue</h4><p className="report-value">Rs. {parseFloat(report.profitLoss.grossRevenue).toFixed(2)}</p></div>
@@ -552,7 +589,7 @@ const ReportsTab = () => {
           )}
 
           {revenueAnalytics && (
-            <div className="section-container">
+            <div className="section-container report-section-anchor" id="report-revenue">
               <h3>Revenue Analytics</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
                 <div style={{ textAlign: 'center' }}>
@@ -626,7 +663,7 @@ const ReportsTab = () => {
           )}
 
           {report.hourlyBreakdown && report.hourlyBreakdown.length > 0 && (
-            <div className="section-container">
+            <div className="section-container report-section-anchor" id="report-hourly">
               <h3>Hourly Breakdown</h3>
               <table className="data-table">
                 <thead>
@@ -648,7 +685,7 @@ const ReportsTab = () => {
             </div>
           )}
 
-          <div className="section-container">
+          <div className="section-container report-section-anchor" id="report-payments">
             <h3>Payment Breakdown</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
               <div>
@@ -687,7 +724,7 @@ const ReportsTab = () => {
           </div>
 
           {Array.isArray(report.expensesByCategory) && report.expensesByCategory.length > 0 && (
-            <div className="section-container">
+            <div className="section-container report-section-anchor" id="report-expenses">
               <h3>Detailed Expense Breakdown (Top Spend)</h3>
               <table className="data-table">
                 <thead>
@@ -720,7 +757,7 @@ const ReportsTab = () => {
           )}
 
           {report.allItems && report.allItems.length > 0 && (
-            <div className="section-container">
+            <div className="section-container report-section-anchor" id="report-items">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <h3 style={{ margin: 0 }}>All Items Sold ({report.allItems.length} items)</h3>
                 <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Click column headers to sort</span>
@@ -779,7 +816,7 @@ const ReportsTab = () => {
 
 
           {report.orders && report.orders.length > 0 && (
-            <div className="section-container">
+            <div className="section-container report-section-anchor" id="report-orders">
               <h3>Individual Orders</h3>
               <table className="data-table">
                 <thead><tr><th>Bill #</th><th>Date & Time</th><th>Items</th><th>Subtotal</th><th>Tax</th><th>Discount</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>

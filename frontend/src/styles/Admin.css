@@ -907,6 +907,52 @@
   margin-bottom: 20px;
 }
 
+.report-section-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.report-section-nav span {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.report-section-nav button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.report-section-nav button:hover,
+.report-section-nav button:focus-visible {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  outline: none;
+}
+
+.report-section-anchor {
+  scroll-margin-top: 72px;
+}
+
 .compact-admin-shell {
   max-width: 980px;
   margin: 0 auto;

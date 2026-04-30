@@ -63,6 +63,7 @@ async function ensureSchema() {
       customer_name TEXT,
       customer_phone TEXT,
       table_id INTEGER,
+      order_type TEXT NOT NULL DEFAULT 'dine_in',
       subtotal DECIMAL NOT NULL DEFAULT 0,
       discount_amount DECIMAL NOT NULL DEFAULT 0,
       tax_amount DECIMAL NOT NULL DEFAULT 0,
@@ -214,6 +215,8 @@ async function ensureSchema() {
   await ensureColumn('orders', 'payment_status', "TEXT NOT NULL DEFAULT 'unpaid'");
   await ensureColumn('orders', 'customer_name', 'TEXT');
   await ensureColumn('orders', 'customer_phone', 'TEXT');
+  await ensureColumn('orders', 'order_type', "TEXT NOT NULL DEFAULT 'dine_in'");
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_order_type ON orders(order_type)');
   await ensureColumn('payments', 'source', "TEXT NOT NULL DEFAULT 'Direct'");
   await ensureColumn('payments', 'status', "TEXT NOT NULL DEFAULT 'settled'");
   await ensureColumn('payments', 'settled_amount', 'DECIMAL NOT NULL DEFAULT 0');
@@ -224,6 +227,9 @@ async function ensureSchema() {
   );
   await prisma.$executeRawUnsafe(
     "UPDATE orders SET status = 'completed' WHERE status = 'paid'"
+  );
+  await prisma.$executeRawUnsafe(
+    "UPDATE orders SET order_type = CASE WHEN table_id IS NULL THEN COALESCE(NULLIF(TRIM(order_type), ''), 'takeaway') ELSE 'dine_in' END WHERE order_type IS NULL OR TRIM(order_type) = ''"
   );
   await prisma.$executeRawUnsafe(
     "UPDATE payments SET source = 'Direct' WHERE source IS NULL OR TRIM(source) = ''"

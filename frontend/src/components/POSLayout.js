@@ -14,10 +14,12 @@ const POSLayout = ({
   onRemoveItem,
   onUpdateQuantity,
   selectedTableId,
+  selectedOrderType,
   tableNumbers,
   tableNames,
-  activeTableOrders,
+  activeOrders = [],
   onSelectTable,
+  onSelectOrderType,
   currentOrder,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -35,6 +37,12 @@ const POSLayout = ({
   const prevCartLengthRef = useRef(0);
   const searchInputRef = useRef(null);
   const tableRailRef = useRef(null);
+
+  const orderModes = useMemo(() => ([
+    { type: 'takeaway', label: 'Takeaway', hint: 'Parcel' },
+    { type: 'delivery', label: 'Delivery', hint: 'Home' },
+    { type: 'online', label: 'Online', hint: 'Swiggy/Zomato' },
+  ]), []);
 
   const categoryOptions = useMemo(() => ([
     { id: null, name: 'All' },
@@ -64,6 +72,14 @@ const POSLayout = ({
   }, [categories, items, searchQuery, selectedCategory]);
 
   const getTableLabel = (tableId) => tableNames?.[tableId - 1] || `Table ${tableId}`;
+
+  const getOrderModeLabel = (orderType, tableId = selectedTableId) => {
+    if (orderType === 'dine_in') {
+      return tableId ? getTableLabel(tableId) : 'No table selected';
+    }
+
+    return orderModes.find((mode) => mode.type === orderType)?.label || 'Order';
+  };
 
   const categoryTotals = totals || { subtotal: 0, tax: 0, discount: 0, total: 0 };
 
@@ -102,7 +118,7 @@ const POSLayout = ({
 
       if (event.key === 'F9') {
         event.preventDefault();
-        if (selectedTableId) {
+        if (selectedOrderType !== 'dine_in' || selectedTableId) {
           onFinalizeOrder(discount);
         }
         return;
@@ -247,6 +263,7 @@ const POSLayout = ({
     onUpdateQuantity,
     selectedCategory,
     selectedTableId,
+    selectedOrderType,
     tableNumbers,
   ]);
 
@@ -308,7 +325,7 @@ const POSLayout = ({
       }
       window.removeEventListener('resize', handleResize);
     };
-  }, [tableNumbers, tableNames, showTableNav]);
+  }, [orderModes, tableNumbers, tableNames, showTableNav]);
 
   return (
     <>
@@ -317,10 +334,9 @@ const POSLayout = ({
         <div className="table-dock-heading">
           <div>
             <h3>Tables</h3>
-            <p>Compact table rail. Names come from Settings.</p>
           </div>
           <div className="table-dock-status">
-            <span>{selectedTableId ? getTableLabel(selectedTableId) : 'No table selected'}</span>
+            <span>{getOrderModeLabel(selectedOrderType)}</span>
             <strong>{currentOrder?.bill_number ? `Bill ${currentOrder.bill_number}` : 'Ready for new order'}</strong>
           </div>
           <button className="help-btn" onClick={() => setShowHelp(true)} type="button">
@@ -340,14 +356,33 @@ const POSLayout = ({
             </button>
           )}
           <div className="table-rail" ref={tableRailRef}>
+            {orderModes.map((mode) => {
+              const activeOrder = activeOrders.find((order) => order.order_type === mode.type);
+              const isSelected = selectedOrderType === mode.type;
+
+              return (
+                <button
+                  key={mode.type}
+                  className={`table-btn order-type-btn order-type-${mode.type} ${isSelected ? 'selected' : ''} ${activeOrder ? 'occupied' : 'empty'}`}
+                  type="button"
+                  onClick={() => onSelectOrderType(mode.type)}
+                  title={`Select ${mode.label}`}
+                >
+                  <span className="table-btn-label">{mode.label}</span>
+                  <strong>{activeOrder ? 'Open' : mode.hint}</strong>
+                  <small>{activeOrder?.bill_number || ''}</small>
+                </button>
+              );
+            })}
             {tableNumbers.map((tableId) => {
-              const activeOrder = activeTableOrders.find((order) => order.table_id === tableId);
-              const isSelected = selectedTableId === tableId;
+              const activeOrder = activeOrders.find((order) => order.order_type === 'dine_in' && order.table_id === tableId);
+              const isSelected = selectedOrderType === 'dine_in' && selectedTableId === tableId;
 
               return (
                 <button
                   key={tableId}
                   className={`table-btn ${isSelected ? 'selected' : ''} ${activeOrder ? 'occupied' : 'empty'}`}
+                  type="button"
                   onClick={() => onSelectTable(tableId)}
                   title={`Select ${getTableLabel(tableId)}`}
                 >
@@ -486,7 +521,7 @@ const POSLayout = ({
       <aside className="pos-bill">
         <h3 className="bill-heading">
           <span>Bill Summary</span>
-          <span className="bill-heading-chip">{selectedTableId ? getTableLabel(selectedTableId) : 'Select a table'}</span>
+          <span className="bill-heading-chip">{selectedOrderType === 'dine_in' && !selectedTableId ? 'Select a table' : getOrderModeLabel(selectedOrderType)}</span>
         </h3>
 
         <div className="bill-meta">
@@ -519,7 +554,9 @@ const POSLayout = ({
 
           {cartItems.length === 0 && (
             <div className="empty-bill-state">
-              {selectedTableId ? 'Add items to start this table order.' : 'Select a table to begin taking an order.'}
+              {selectedOrderType === 'dine_in' && !selectedTableId
+                ? 'Select a table or order type to begin taking an order.'
+                : `Add items to start this ${getOrderModeLabel(selectedOrderType).toLowerCase()} order.`}
             </div>
           )}
         </div>
@@ -568,7 +605,11 @@ const POSLayout = ({
           )}
         </div>
 
-        <button className="pay-btn" onClick={() => onFinalizeOrder(discount)} disabled={!selectedTableId || cartItems.length === 0}>
+        <button
+          className="pay-btn"
+          onClick={() => onFinalizeOrder(discount)}
+          disabled={(selectedOrderType === 'dine_in' && !selectedTableId) || cartItems.length === 0}
+        >
           PAY (F9)
         </button>
       </aside>

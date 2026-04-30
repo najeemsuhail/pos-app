@@ -196,6 +196,18 @@ const OrderHistoryTab = () => {
 
   const formatCurrency = (amount) => `Rs. ${parseFloat(amount).toFixed(2)}`;
 
+  const formatOrderType = (value) => {
+    const labels = {
+      dine_in: 'Dine In',
+      takeaway: 'Takeaway',
+      delivery: 'Delivery',
+      pickup: 'Pickup',
+      online: 'Online',
+    };
+
+    return labels[value || 'dine_in'] || 'Dine In';
+  };
+
   const getPaymentStatusColor = (paymentStatus) => {
     switch (paymentStatus) {
       case 'paid':
@@ -340,6 +352,7 @@ const OrderHistoryTab = () => {
             <thead>
               <tr>
                 <th>Bill #</th>
+                <th>Type</th>
                 <th>Date & Time</th>
                 <th>Items</th>
                 <th>Subtotal</th>
@@ -364,6 +377,7 @@ const OrderHistoryTab = () => {
                   <td>
                     <strong>#{order.bill_number}</strong>
                   </td>
+                  <td>{formatOrderType(order.order_type)}</td>
                   <td>{formatDate(order.created_at)}</td>
                   <td style={{ textAlign: 'center' }}>
                     <span className="badge">{order.item_count || '-'}</span>

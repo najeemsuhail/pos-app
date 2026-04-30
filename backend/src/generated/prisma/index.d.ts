@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model StaffAttendance
+ * 
+ */
+export type StaffAttendance = $Result.DefaultSelection<Prisma.$StaffAttendancePayload>
+/**
  * Model Category
  * 
  */
@@ -201,6 +206,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs>;
+
+  /**
+   * `prisma.staffAttendance`: Exposes CRUD operations for the **StaffAttendance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StaffAttendances
+    * const staffAttendances = await prisma.staffAttendance.findMany()
+    * ```
+    */
+  get staffAttendance(): Prisma.StaffAttendanceDelegate<ExtArgs>;
 
   /**
    * `prisma.category`: Exposes CRUD operations for the **Category** model.
@@ -743,6 +758,7 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+    StaffAttendance: 'StaffAttendance',
     Category: 'Category',
     MenuItem: 'MenuItem',
     Order: 'Order',
@@ -768,7 +784,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "category" | "menuItem" | "order" | "billSequence" | "orderItem" | "payment" | "expense" | "supplier" | "purchase" | "purchaseItem"
+      modelProps: "user" | "staffAttendance" | "category" | "menuItem" | "order" | "billSequence" | "orderItem" | "payment" | "expense" | "supplier" | "purchase" | "purchaseItem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -839,6 +855,76 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      StaffAttendance: {
+        payload: Prisma.$StaffAttendancePayload<ExtArgs>
+        fields: Prisma.StaffAttendanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StaffAttendanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StaffAttendanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>
+          }
+          findFirst: {
+            args: Prisma.StaffAttendanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StaffAttendanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>
+          }
+          findMany: {
+            args: Prisma.StaffAttendanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>[]
+          }
+          create: {
+            args: Prisma.StaffAttendanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>
+          }
+          createMany: {
+            args: Prisma.StaffAttendanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StaffAttendanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>[]
+          }
+          delete: {
+            args: Prisma.StaffAttendanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>
+          }
+          update: {
+            args: Prisma.StaffAttendanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>
+          }
+          deleteMany: {
+            args: Prisma.StaffAttendanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StaffAttendanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.StaffAttendanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffAttendancePayload>
+          }
+          aggregate: {
+            args: Prisma.StaffAttendanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStaffAttendance>
+          }
+          groupBy: {
+            args: Prisma.StaffAttendanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StaffAttendanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StaffAttendanceCountArgs<ExtArgs>
+            result: $Utils.Optional<StaffAttendanceCountAggregateOutputType> | number
           }
         }
       }
@@ -1699,6 +1785,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type UserCountOutputType
+   */
+
+  export type UserCountOutputType = {
+    attendances: number
+  }
+
+  export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attendances?: boolean | UserCountOutputTypeCountAttendancesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserCountOutputType
+     */
+    select?: UserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffAttendanceWhereInput
+  }
+
+
+  /**
    * Count Type CategoryCountOutputType
    */
 
@@ -2072,6 +2189,8 @@ export namespace Prisma {
     password?: boolean
     featureAccessOverrides?: boolean
     createdAt?: boolean
+    attendances?: boolean | User$attendancesArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2092,10 +2211,17 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
+  export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    attendances?: boolean | User$attendancesArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
-    objects: {}
+    objects: {
+      attendances: Prisma.$StaffAttendancePayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
@@ -2467,6 +2593,7 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    attendances<T extends User$attendancesArgs<ExtArgs> = {}>(args?: Subset<T, User$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2515,6 +2642,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where: UserWhereUniqueInput
@@ -2529,6 +2660,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where: UserWhereUniqueInput
@@ -2542,6 +2677,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * Filter, which User to fetch.
      */
@@ -2587,6 +2726,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where?: UserWhereInput
@@ -2631,6 +2774,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which Users to fetch.
      */
     where?: UserWhereInput
@@ -2670,6 +2817,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The data needed to create a User.
      */
     data: XOR<UserCreateInput, UserUncheckedCreateInput>
@@ -2708,6 +2859,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The data needed to update a User.
      */
     data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
@@ -2740,6 +2895,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The filter to search for the User to update in case it exists.
      */
     where: UserWhereUniqueInput
@@ -2762,6 +2921,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter which User to delete.
      */
     where: UserWhereUniqueInput
@@ -2778,6 +2941,26 @@ export namespace Prisma {
   }
 
   /**
+   * User.attendances
+   */
+  export type User$attendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    where?: StaffAttendanceWhereInput
+    orderBy?: StaffAttendanceOrderByWithRelationInput | StaffAttendanceOrderByWithRelationInput[]
+    cursor?: StaffAttendanceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StaffAttendanceScalarFieldEnum | StaffAttendanceScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2785,6 +2968,1027 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model StaffAttendance
+   */
+
+  export type AggregateStaffAttendance = {
+    _count: StaffAttendanceCountAggregateOutputType | null
+    _avg: StaffAttendanceAvgAggregateOutputType | null
+    _sum: StaffAttendanceSumAggregateOutputType | null
+    _min: StaffAttendanceMinAggregateOutputType | null
+    _max: StaffAttendanceMaxAggregateOutputType | null
+  }
+
+  export type StaffAttendanceAvgAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type StaffAttendanceSumAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type StaffAttendanceMinAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    attendanceDate: string | null
+    status: string | null
+    checkIn: string | null
+    checkOut: string | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StaffAttendanceMaxAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    attendanceDate: string | null
+    status: string | null
+    checkIn: string | null
+    checkOut: string | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StaffAttendanceCountAggregateOutputType = {
+    id: number
+    userId: number
+    attendanceDate: number
+    status: number
+    checkIn: number
+    checkOut: number
+    notes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type StaffAttendanceAvgAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type StaffAttendanceSumAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type StaffAttendanceMinAggregateInputType = {
+    id?: true
+    userId?: true
+    attendanceDate?: true
+    status?: true
+    checkIn?: true
+    checkOut?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StaffAttendanceMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    attendanceDate?: true
+    status?: true
+    checkIn?: true
+    checkOut?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StaffAttendanceCountAggregateInputType = {
+    id?: true
+    userId?: true
+    attendanceDate?: true
+    status?: true
+    checkIn?: true
+    checkOut?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type StaffAttendanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StaffAttendance to aggregate.
+     */
+    where?: StaffAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffAttendances to fetch.
+     */
+    orderBy?: StaffAttendanceOrderByWithRelationInput | StaffAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StaffAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StaffAttendances
+    **/
+    _count?: true | StaffAttendanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: StaffAttendanceAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StaffAttendanceSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StaffAttendanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StaffAttendanceMaxAggregateInputType
+  }
+
+  export type GetStaffAttendanceAggregateType<T extends StaffAttendanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateStaffAttendance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStaffAttendance[P]>
+      : GetScalarType<T[P], AggregateStaffAttendance[P]>
+  }
+
+
+
+
+  export type StaffAttendanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffAttendanceWhereInput
+    orderBy?: StaffAttendanceOrderByWithAggregationInput | StaffAttendanceOrderByWithAggregationInput[]
+    by: StaffAttendanceScalarFieldEnum[] | StaffAttendanceScalarFieldEnum
+    having?: StaffAttendanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StaffAttendanceCountAggregateInputType | true
+    _avg?: StaffAttendanceAvgAggregateInputType
+    _sum?: StaffAttendanceSumAggregateInputType
+    _min?: StaffAttendanceMinAggregateInputType
+    _max?: StaffAttendanceMaxAggregateInputType
+  }
+
+  export type StaffAttendanceGroupByOutputType = {
+    id: number
+    userId: number
+    attendanceDate: string
+    status: string
+    checkIn: string | null
+    checkOut: string | null
+    notes: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: StaffAttendanceCountAggregateOutputType | null
+    _avg: StaffAttendanceAvgAggregateOutputType | null
+    _sum: StaffAttendanceSumAggregateOutputType | null
+    _min: StaffAttendanceMinAggregateOutputType | null
+    _max: StaffAttendanceMaxAggregateOutputType | null
+  }
+
+  type GetStaffAttendanceGroupByPayload<T extends StaffAttendanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StaffAttendanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StaffAttendanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StaffAttendanceGroupByOutputType[P]>
+            : GetScalarType<T[P], StaffAttendanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StaffAttendanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    attendanceDate?: boolean
+    status?: boolean
+    checkIn?: boolean
+    checkOut?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["staffAttendance"]>
+
+  export type StaffAttendanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    attendanceDate?: boolean
+    status?: boolean
+    checkIn?: boolean
+    checkOut?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["staffAttendance"]>
+
+  export type StaffAttendanceSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    attendanceDate?: boolean
+    status?: boolean
+    checkIn?: boolean
+    checkOut?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type StaffAttendanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type StaffAttendanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $StaffAttendancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StaffAttendance"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: number
+      attendanceDate: string
+      status: string
+      checkIn: string | null
+      checkOut: string | null
+      notes: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["staffAttendance"]>
+    composites: {}
+  }
+
+  type StaffAttendanceGetPayload<S extends boolean | null | undefined | StaffAttendanceDefaultArgs> = $Result.GetResult<Prisma.$StaffAttendancePayload, S>
+
+  type StaffAttendanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<StaffAttendanceFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: StaffAttendanceCountAggregateInputType | true
+    }
+
+  export interface StaffAttendanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StaffAttendance'], meta: { name: 'StaffAttendance' } }
+    /**
+     * Find zero or one StaffAttendance that matches the filter.
+     * @param {StaffAttendanceFindUniqueArgs} args - Arguments to find a StaffAttendance
+     * @example
+     * // Get one StaffAttendance
+     * const staffAttendance = await prisma.staffAttendance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StaffAttendanceFindUniqueArgs>(args: SelectSubset<T, StaffAttendanceFindUniqueArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one StaffAttendance that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {StaffAttendanceFindUniqueOrThrowArgs} args - Arguments to find a StaffAttendance
+     * @example
+     * // Get one StaffAttendance
+     * const staffAttendance = await prisma.staffAttendance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StaffAttendanceFindUniqueOrThrowArgs>(args: SelectSubset<T, StaffAttendanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first StaffAttendance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffAttendanceFindFirstArgs} args - Arguments to find a StaffAttendance
+     * @example
+     * // Get one StaffAttendance
+     * const staffAttendance = await prisma.staffAttendance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StaffAttendanceFindFirstArgs>(args?: SelectSubset<T, StaffAttendanceFindFirstArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first StaffAttendance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffAttendanceFindFirstOrThrowArgs} args - Arguments to find a StaffAttendance
+     * @example
+     * // Get one StaffAttendance
+     * const staffAttendance = await prisma.staffAttendance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StaffAttendanceFindFirstOrThrowArgs>(args?: SelectSubset<T, StaffAttendanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more StaffAttendances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffAttendanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StaffAttendances
+     * const staffAttendances = await prisma.staffAttendance.findMany()
+     * 
+     * // Get first 10 StaffAttendances
+     * const staffAttendances = await prisma.staffAttendance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const staffAttendanceWithIdOnly = await prisma.staffAttendance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StaffAttendanceFindManyArgs>(args?: SelectSubset<T, StaffAttendanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a StaffAttendance.
+     * @param {StaffAttendanceCreateArgs} args - Arguments to create a StaffAttendance.
+     * @example
+     * // Create one StaffAttendance
+     * const StaffAttendance = await prisma.staffAttendance.create({
+     *   data: {
+     *     // ... data to create a StaffAttendance
+     *   }
+     * })
+     * 
+     */
+    create<T extends StaffAttendanceCreateArgs>(args: SelectSubset<T, StaffAttendanceCreateArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many StaffAttendances.
+     * @param {StaffAttendanceCreateManyArgs} args - Arguments to create many StaffAttendances.
+     * @example
+     * // Create many StaffAttendances
+     * const staffAttendance = await prisma.staffAttendance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StaffAttendanceCreateManyArgs>(args?: SelectSubset<T, StaffAttendanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StaffAttendances and returns the data saved in the database.
+     * @param {StaffAttendanceCreateManyAndReturnArgs} args - Arguments to create many StaffAttendances.
+     * @example
+     * // Create many StaffAttendances
+     * const staffAttendance = await prisma.staffAttendance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StaffAttendances and only return the `id`
+     * const staffAttendanceWithIdOnly = await prisma.staffAttendance.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StaffAttendanceCreateManyAndReturnArgs>(args?: SelectSubset<T, StaffAttendanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a StaffAttendance.
+     * @param {StaffAttendanceDeleteArgs} args - Arguments to delete one StaffAttendance.
+     * @example
+     * // Delete one StaffAttendance
+     * const StaffAttendance = await prisma.staffAttendance.delete({
+     *   where: {
+     *     // ... filter to delete one StaffAttendance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StaffAttendanceDeleteArgs>(args: SelectSubset<T, StaffAttendanceDeleteArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one StaffAttendance.
+     * @param {StaffAttendanceUpdateArgs} args - Arguments to update one StaffAttendance.
+     * @example
+     * // Update one StaffAttendance
+     * const staffAttendance = await prisma.staffAttendance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StaffAttendanceUpdateArgs>(args: SelectSubset<T, StaffAttendanceUpdateArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more StaffAttendances.
+     * @param {StaffAttendanceDeleteManyArgs} args - Arguments to filter StaffAttendances to delete.
+     * @example
+     * // Delete a few StaffAttendances
+     * const { count } = await prisma.staffAttendance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StaffAttendanceDeleteManyArgs>(args?: SelectSubset<T, StaffAttendanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StaffAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffAttendanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StaffAttendances
+     * const staffAttendance = await prisma.staffAttendance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StaffAttendanceUpdateManyArgs>(args: SelectSubset<T, StaffAttendanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one StaffAttendance.
+     * @param {StaffAttendanceUpsertArgs} args - Arguments to update or create a StaffAttendance.
+     * @example
+     * // Update or create a StaffAttendance
+     * const staffAttendance = await prisma.staffAttendance.upsert({
+     *   create: {
+     *     // ... data to create a StaffAttendance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StaffAttendance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StaffAttendanceUpsertArgs>(args: SelectSubset<T, StaffAttendanceUpsertArgs<ExtArgs>>): Prisma__StaffAttendanceClient<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of StaffAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffAttendanceCountArgs} args - Arguments to filter StaffAttendances to count.
+     * @example
+     * // Count the number of StaffAttendances
+     * const count = await prisma.staffAttendance.count({
+     *   where: {
+     *     // ... the filter for the StaffAttendances we want to count
+     *   }
+     * })
+    **/
+    count<T extends StaffAttendanceCountArgs>(
+      args?: Subset<T, StaffAttendanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StaffAttendanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StaffAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffAttendanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StaffAttendanceAggregateArgs>(args: Subset<T, StaffAttendanceAggregateArgs>): Prisma.PrismaPromise<GetStaffAttendanceAggregateType<T>>
+
+    /**
+     * Group by StaffAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffAttendanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StaffAttendanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StaffAttendanceGroupByArgs['orderBy'] }
+        : { orderBy?: StaffAttendanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StaffAttendanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStaffAttendanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StaffAttendance model
+   */
+  readonly fields: StaffAttendanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StaffAttendance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StaffAttendanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StaffAttendance model
+   */ 
+  interface StaffAttendanceFieldRefs {
+    readonly id: FieldRef<"StaffAttendance", 'Int'>
+    readonly userId: FieldRef<"StaffAttendance", 'Int'>
+    readonly attendanceDate: FieldRef<"StaffAttendance", 'String'>
+    readonly status: FieldRef<"StaffAttendance", 'String'>
+    readonly checkIn: FieldRef<"StaffAttendance", 'String'>
+    readonly checkOut: FieldRef<"StaffAttendance", 'String'>
+    readonly notes: FieldRef<"StaffAttendance", 'String'>
+    readonly createdAt: FieldRef<"StaffAttendance", 'DateTime'>
+    readonly updatedAt: FieldRef<"StaffAttendance", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StaffAttendance findUnique
+   */
+  export type StaffAttendanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffAttendance to fetch.
+     */
+    where: StaffAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StaffAttendance findUniqueOrThrow
+   */
+  export type StaffAttendanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffAttendance to fetch.
+     */
+    where: StaffAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StaffAttendance findFirst
+   */
+  export type StaffAttendanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffAttendance to fetch.
+     */
+    where?: StaffAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffAttendances to fetch.
+     */
+    orderBy?: StaffAttendanceOrderByWithRelationInput | StaffAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StaffAttendances.
+     */
+    cursor?: StaffAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StaffAttendances.
+     */
+    distinct?: StaffAttendanceScalarFieldEnum | StaffAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * StaffAttendance findFirstOrThrow
+   */
+  export type StaffAttendanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffAttendance to fetch.
+     */
+    where?: StaffAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffAttendances to fetch.
+     */
+    orderBy?: StaffAttendanceOrderByWithRelationInput | StaffAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StaffAttendances.
+     */
+    cursor?: StaffAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StaffAttendances.
+     */
+    distinct?: StaffAttendanceScalarFieldEnum | StaffAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * StaffAttendance findMany
+   */
+  export type StaffAttendanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffAttendances to fetch.
+     */
+    where?: StaffAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffAttendances to fetch.
+     */
+    orderBy?: StaffAttendanceOrderByWithRelationInput | StaffAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StaffAttendances.
+     */
+    cursor?: StaffAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffAttendances.
+     */
+    skip?: number
+    distinct?: StaffAttendanceScalarFieldEnum | StaffAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * StaffAttendance create
+   */
+  export type StaffAttendanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StaffAttendance.
+     */
+    data: XOR<StaffAttendanceCreateInput, StaffAttendanceUncheckedCreateInput>
+  }
+
+  /**
+   * StaffAttendance createMany
+   */
+  export type StaffAttendanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StaffAttendances.
+     */
+    data: StaffAttendanceCreateManyInput | StaffAttendanceCreateManyInput[]
+  }
+
+  /**
+   * StaffAttendance createManyAndReturn
+   */
+  export type StaffAttendanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many StaffAttendances.
+     */
+    data: StaffAttendanceCreateManyInput | StaffAttendanceCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StaffAttendance update
+   */
+  export type StaffAttendanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StaffAttendance.
+     */
+    data: XOR<StaffAttendanceUpdateInput, StaffAttendanceUncheckedUpdateInput>
+    /**
+     * Choose, which StaffAttendance to update.
+     */
+    where: StaffAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StaffAttendance updateMany
+   */
+  export type StaffAttendanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StaffAttendances.
+     */
+    data: XOR<StaffAttendanceUpdateManyMutationInput, StaffAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which StaffAttendances to update
+     */
+    where?: StaffAttendanceWhereInput
+  }
+
+  /**
+   * StaffAttendance upsert
+   */
+  export type StaffAttendanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StaffAttendance to update in case it exists.
+     */
+    where: StaffAttendanceWhereUniqueInput
+    /**
+     * In case the StaffAttendance found by the `where` argument doesn't exist, create a new StaffAttendance with this data.
+     */
+    create: XOR<StaffAttendanceCreateInput, StaffAttendanceUncheckedCreateInput>
+    /**
+     * In case the StaffAttendance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StaffAttendanceUpdateInput, StaffAttendanceUncheckedUpdateInput>
+  }
+
+  /**
+   * StaffAttendance delete
+   */
+  export type StaffAttendanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
+    /**
+     * Filter which StaffAttendance to delete.
+     */
+    where: StaffAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StaffAttendance deleteMany
+   */
+  export type StaffAttendanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StaffAttendances to delete
+     */
+    where?: StaffAttendanceWhereInput
+  }
+
+  /**
+   * StaffAttendance without action
+   */
+  export type StaffAttendanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffAttendance
+     */
+    select?: StaffAttendanceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffAttendanceInclude<ExtArgs> | null
   }
 
 
@@ -4829,6 +6033,7 @@ export namespace Prisma {
     customerName: string | null
     customerPhone: string | null
     tableId: number | null
+    orderType: string | null
     subtotal: Decimal | null
     discountAmount: Decimal | null
     taxAmount: Decimal | null
@@ -4845,6 +6050,7 @@ export namespace Prisma {
     customerName: string | null
     customerPhone: string | null
     tableId: number | null
+    orderType: string | null
     subtotal: Decimal | null
     discountAmount: Decimal | null
     taxAmount: Decimal | null
@@ -4861,6 +6067,7 @@ export namespace Prisma {
     customerName: number
     customerPhone: number
     tableId: number
+    orderType: number
     subtotal: number
     discountAmount: number
     taxAmount: number
@@ -4897,6 +6104,7 @@ export namespace Prisma {
     customerName?: true
     customerPhone?: true
     tableId?: true
+    orderType?: true
     subtotal?: true
     discountAmount?: true
     taxAmount?: true
@@ -4913,6 +6121,7 @@ export namespace Prisma {
     customerName?: true
     customerPhone?: true
     tableId?: true
+    orderType?: true
     subtotal?: true
     discountAmount?: true
     taxAmount?: true
@@ -4929,6 +6138,7 @@ export namespace Prisma {
     customerName?: true
     customerPhone?: true
     tableId?: true
+    orderType?: true
     subtotal?: true
     discountAmount?: true
     taxAmount?: true
@@ -5032,6 +6242,7 @@ export namespace Prisma {
     customerName: string | null
     customerPhone: string | null
     tableId: number | null
+    orderType: string
     subtotal: Decimal
     discountAmount: Decimal
     taxAmount: Decimal
@@ -5067,6 +6278,7 @@ export namespace Prisma {
     customerName?: boolean
     customerPhone?: boolean
     tableId?: boolean
+    orderType?: boolean
     subtotal?: boolean
     discountAmount?: boolean
     taxAmount?: boolean
@@ -5086,6 +6298,7 @@ export namespace Prisma {
     customerName?: boolean
     customerPhone?: boolean
     tableId?: boolean
+    orderType?: boolean
     subtotal?: boolean
     discountAmount?: boolean
     taxAmount?: boolean
@@ -5102,6 +6315,7 @@ export namespace Prisma {
     customerName?: boolean
     customerPhone?: boolean
     tableId?: boolean
+    orderType?: boolean
     subtotal?: boolean
     discountAmount?: boolean
     taxAmount?: boolean
@@ -5131,6 +6345,7 @@ export namespace Prisma {
       customerName: string | null
       customerPhone: string | null
       tableId: number | null
+      orderType: string
       subtotal: Prisma.Decimal
       discountAmount: Prisma.Decimal
       taxAmount: Prisma.Decimal
@@ -5539,6 +6754,7 @@ export namespace Prisma {
     readonly customerName: FieldRef<"Order", 'String'>
     readonly customerPhone: FieldRef<"Order", 'String'>
     readonly tableId: FieldRef<"Order", 'Int'>
+    readonly orderType: FieldRef<"Order", 'String'>
     readonly subtotal: FieldRef<"Order", 'Decimal'>
     readonly discountAmount: FieldRef<"Order", 'Decimal'>
     readonly taxAmount: FieldRef<"Order", 'Decimal'>
@@ -12966,6 +14182,21 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+  export const StaffAttendanceScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    attendanceDate: 'attendanceDate',
+    status: 'status',
+    checkIn: 'checkIn',
+    checkOut: 'checkOut',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type StaffAttendanceScalarFieldEnum = (typeof StaffAttendanceScalarFieldEnum)[keyof typeof StaffAttendanceScalarFieldEnum]
+
+
   export const CategoryScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -12998,6 +14229,7 @@ export namespace Prisma {
     customerName: 'customerName',
     customerPhone: 'customerPhone',
     tableId: 'tableId',
+    orderType: 'orderType',
     subtotal: 'subtotal',
     discountAmount: 'discountAmount',
     taxAmount: 'taxAmount',
@@ -13184,6 +14416,7 @@ export namespace Prisma {
     password?: StringFilter<"User"> | string
     featureAccessOverrides?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
+    attendances?: StaffAttendanceListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -13193,6 +14426,7 @@ export namespace Prisma {
     password?: SortOrder
     featureAccessOverrides?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    attendances?: StaffAttendanceOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -13205,6 +14439,7 @@ export namespace Prisma {
     password?: StringFilter<"User"> | string
     featureAccessOverrides?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
+    attendances?: StaffAttendanceListRelationFilter
   }, "id" | "name">
 
   export type UserOrderByWithAggregationInput = {
@@ -13231,6 +14466,84 @@ export namespace Prisma {
     password?: StringWithAggregatesFilter<"User"> | string
     featureAccessOverrides?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type StaffAttendanceWhereInput = {
+    AND?: StaffAttendanceWhereInput | StaffAttendanceWhereInput[]
+    OR?: StaffAttendanceWhereInput[]
+    NOT?: StaffAttendanceWhereInput | StaffAttendanceWhereInput[]
+    id?: IntFilter<"StaffAttendance"> | number
+    userId?: IntFilter<"StaffAttendance"> | number
+    attendanceDate?: StringFilter<"StaffAttendance"> | string
+    status?: StringFilter<"StaffAttendance"> | string
+    checkIn?: StringNullableFilter<"StaffAttendance"> | string | null
+    checkOut?: StringNullableFilter<"StaffAttendance"> | string | null
+    notes?: StringNullableFilter<"StaffAttendance"> | string | null
+    createdAt?: DateTimeFilter<"StaffAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"StaffAttendance"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }
+
+  export type StaffAttendanceOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    attendanceDate?: SortOrder
+    status?: SortOrder
+    checkIn?: SortOrderInput | SortOrder
+    checkOut?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type StaffAttendanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    userId_attendanceDate?: StaffAttendanceUserIdAttendanceDateCompoundUniqueInput
+    AND?: StaffAttendanceWhereInput | StaffAttendanceWhereInput[]
+    OR?: StaffAttendanceWhereInput[]
+    NOT?: StaffAttendanceWhereInput | StaffAttendanceWhereInput[]
+    userId?: IntFilter<"StaffAttendance"> | number
+    attendanceDate?: StringFilter<"StaffAttendance"> | string
+    status?: StringFilter<"StaffAttendance"> | string
+    checkIn?: StringNullableFilter<"StaffAttendance"> | string | null
+    checkOut?: StringNullableFilter<"StaffAttendance"> | string | null
+    notes?: StringNullableFilter<"StaffAttendance"> | string | null
+    createdAt?: DateTimeFilter<"StaffAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"StaffAttendance"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }, "id" | "userId_attendanceDate">
+
+  export type StaffAttendanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    attendanceDate?: SortOrder
+    status?: SortOrder
+    checkIn?: SortOrderInput | SortOrder
+    checkOut?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: StaffAttendanceCountOrderByAggregateInput
+    _avg?: StaffAttendanceAvgOrderByAggregateInput
+    _max?: StaffAttendanceMaxOrderByAggregateInput
+    _min?: StaffAttendanceMinOrderByAggregateInput
+    _sum?: StaffAttendanceSumOrderByAggregateInput
+  }
+
+  export type StaffAttendanceScalarWhereWithAggregatesInput = {
+    AND?: StaffAttendanceScalarWhereWithAggregatesInput | StaffAttendanceScalarWhereWithAggregatesInput[]
+    OR?: StaffAttendanceScalarWhereWithAggregatesInput[]
+    NOT?: StaffAttendanceScalarWhereWithAggregatesInput | StaffAttendanceScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"StaffAttendance"> | number
+    userId?: IntWithAggregatesFilter<"StaffAttendance"> | number
+    attendanceDate?: StringWithAggregatesFilter<"StaffAttendance"> | string
+    status?: StringWithAggregatesFilter<"StaffAttendance"> | string
+    checkIn?: StringNullableWithAggregatesFilter<"StaffAttendance"> | string | null
+    checkOut?: StringNullableWithAggregatesFilter<"StaffAttendance"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"StaffAttendance"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"StaffAttendance"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"StaffAttendance"> | Date | string
   }
 
   export type CategoryWhereInput = {
@@ -13371,6 +14684,7 @@ export namespace Prisma {
     customerName?: StringNullableFilter<"Order"> | string | null
     customerPhone?: StringNullableFilter<"Order"> | string | null
     tableId?: IntNullableFilter<"Order"> | number | null
+    orderType?: StringFilter<"Order"> | string
     subtotal?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -13389,6 +14703,7 @@ export namespace Prisma {
     customerName?: SortOrderInput | SortOrder
     customerPhone?: SortOrderInput | SortOrder
     tableId?: SortOrderInput | SortOrder
+    orderType?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
     taxAmount?: SortOrder
@@ -13410,6 +14725,7 @@ export namespace Prisma {
     customerName?: StringNullableFilter<"Order"> | string | null
     customerPhone?: StringNullableFilter<"Order"> | string | null
     tableId?: IntNullableFilter<"Order"> | number | null
+    orderType?: StringFilter<"Order"> | string
     subtotal?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -13428,6 +14744,7 @@ export namespace Prisma {
     customerName?: SortOrderInput | SortOrder
     customerPhone?: SortOrderInput | SortOrder
     tableId?: SortOrderInput | SortOrder
+    orderType?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
     taxAmount?: SortOrder
@@ -13452,6 +14769,7 @@ export namespace Prisma {
     customerName?: StringNullableWithAggregatesFilter<"Order"> | string | null
     customerPhone?: StringNullableWithAggregatesFilter<"Order"> | string | null
     tableId?: IntNullableWithAggregatesFilter<"Order"> | number | null
+    orderType?: StringWithAggregatesFilter<"Order"> | string
     subtotal?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
@@ -13975,6 +15293,7 @@ export namespace Prisma {
     password: string
     featureAccessOverrides?: string | null
     createdAt?: Date | string
+    attendances?: StaffAttendanceCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -13984,6 +15303,7 @@ export namespace Prisma {
     password: string
     featureAccessOverrides?: string | null
     createdAt?: Date | string
+    attendances?: StaffAttendanceUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -13992,6 +15312,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendances?: StaffAttendanceUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -14001,6 +15322,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendances?: StaffAttendanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -14027,6 +15349,86 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffAttendanceCreateInput = {
+    attendanceDate: string
+    status: string
+    checkIn?: string | null
+    checkOut?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAttendancesInput
+  }
+
+  export type StaffAttendanceUncheckedCreateInput = {
+    id?: number
+    userId: number
+    attendanceDate: string
+    status: string
+    checkIn?: string | null
+    checkOut?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffAttendanceUpdateInput = {
+    attendanceDate?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    checkIn?: NullableStringFieldUpdateOperationsInput | string | null
+    checkOut?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAttendancesNestedInput
+  }
+
+  export type StaffAttendanceUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    attendanceDate?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    checkIn?: NullableStringFieldUpdateOperationsInput | string | null
+    checkOut?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffAttendanceCreateManyInput = {
+    id?: number
+    userId: number
+    attendanceDate: string
+    status: string
+    checkIn?: string | null
+    checkOut?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffAttendanceUpdateManyMutationInput = {
+    attendanceDate?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    checkIn?: NullableStringFieldUpdateOperationsInput | string | null
+    checkOut?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffAttendanceUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    attendanceDate?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    checkIn?: NullableStringFieldUpdateOperationsInput | string | null
+    checkOut?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CategoryCreateInput = {
@@ -14163,6 +15565,7 @@ export namespace Prisma {
     customerName?: string | null
     customerPhone?: string | null
     tableId?: number | null
+    orderType?: string
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
     taxAmount?: Decimal | DecimalJsLike | number | string
@@ -14181,6 +15584,7 @@ export namespace Prisma {
     customerName?: string | null
     customerPhone?: string | null
     tableId?: number | null
+    orderType?: string
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
     taxAmount?: Decimal | DecimalJsLike | number | string
@@ -14198,6 +15602,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14216,6 +15621,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14234,6 +15640,7 @@ export namespace Prisma {
     customerName?: string | null
     customerPhone?: string | null
     tableId?: number | null
+    orderType?: string
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
     taxAmount?: Decimal | DecimalJsLike | number | string
@@ -14249,6 +15656,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14265,6 +15673,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14851,9 +16260,19 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type StaffAttendanceListRelationFilter = {
+    every?: StaffAttendanceWhereInput
+    some?: StaffAttendanceWhereInput
+    none?: StaffAttendanceWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type StaffAttendanceOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type UserCountOrderByAggregateInput = {
@@ -14953,6 +16372,62 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type UserRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type StaffAttendanceUserIdAttendanceDateCompoundUniqueInput = {
+    userId: number
+    attendanceDate: string
+  }
+
+  export type StaffAttendanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    attendanceDate?: SortOrder
+    status?: SortOrder
+    checkIn?: SortOrder
+    checkOut?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StaffAttendanceAvgOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type StaffAttendanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    attendanceDate?: SortOrder
+    status?: SortOrder
+    checkIn?: SortOrder
+    checkOut?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StaffAttendanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    attendanceDate?: SortOrder
+    status?: SortOrder
+    checkIn?: SortOrder
+    checkOut?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StaffAttendanceSumOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -15123,6 +16598,7 @@ export namespace Prisma {
     customerName?: SortOrder
     customerPhone?: SortOrder
     tableId?: SortOrder
+    orderType?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
     taxAmount?: SortOrder
@@ -15148,6 +16624,7 @@ export namespace Prisma {
     customerName?: SortOrder
     customerPhone?: SortOrder
     tableId?: SortOrder
+    orderType?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
     taxAmount?: SortOrder
@@ -15164,6 +16641,7 @@ export namespace Prisma {
     customerName?: SortOrder
     customerPhone?: SortOrder
     tableId?: SortOrder
+    orderType?: SortOrder
     subtotal?: SortOrder
     discountAmount?: SortOrder
     taxAmount?: SortOrder
@@ -15590,6 +17068,20 @@ export namespace Prisma {
     totalPrice?: SortOrder
   }
 
+  export type StaffAttendanceCreateNestedManyWithoutUserInput = {
+    create?: XOR<StaffAttendanceCreateWithoutUserInput, StaffAttendanceUncheckedCreateWithoutUserInput> | StaffAttendanceCreateWithoutUserInput[] | StaffAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StaffAttendanceCreateOrConnectWithoutUserInput | StaffAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: StaffAttendanceCreateManyUserInputEnvelope
+    connect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+  }
+
+  export type StaffAttendanceUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<StaffAttendanceCreateWithoutUserInput, StaffAttendanceUncheckedCreateWithoutUserInput> | StaffAttendanceCreateWithoutUserInput[] | StaffAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StaffAttendanceCreateOrConnectWithoutUserInput | StaffAttendanceCreateOrConnectWithoutUserInput[]
+    createMany?: StaffAttendanceCreateManyUserInputEnvelope
+    connect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -15602,12 +17094,54 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type StaffAttendanceUpdateManyWithoutUserNestedInput = {
+    create?: XOR<StaffAttendanceCreateWithoutUserInput, StaffAttendanceUncheckedCreateWithoutUserInput> | StaffAttendanceCreateWithoutUserInput[] | StaffAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StaffAttendanceCreateOrConnectWithoutUserInput | StaffAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: StaffAttendanceUpsertWithWhereUniqueWithoutUserInput | StaffAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: StaffAttendanceCreateManyUserInputEnvelope
+    set?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    disconnect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    delete?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    connect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    update?: StaffAttendanceUpdateWithWhereUniqueWithoutUserInput | StaffAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: StaffAttendanceUpdateManyWithWhereWithoutUserInput | StaffAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: StaffAttendanceScalarWhereInput | StaffAttendanceScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type StaffAttendanceUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<StaffAttendanceCreateWithoutUserInput, StaffAttendanceUncheckedCreateWithoutUserInput> | StaffAttendanceCreateWithoutUserInput[] | StaffAttendanceUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: StaffAttendanceCreateOrConnectWithoutUserInput | StaffAttendanceCreateOrConnectWithoutUserInput[]
+    upsert?: StaffAttendanceUpsertWithWhereUniqueWithoutUserInput | StaffAttendanceUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: StaffAttendanceCreateManyUserInputEnvelope
+    set?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    disconnect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    delete?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    connect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+    update?: StaffAttendanceUpdateWithWhereUniqueWithoutUserInput | StaffAttendanceUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: StaffAttendanceUpdateManyWithWhereWithoutUserInput | StaffAttendanceUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: StaffAttendanceScalarWhereInput | StaffAttendanceScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutAttendancesInput = {
+    create?: XOR<UserCreateWithoutAttendancesInput, UserUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAttendancesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutAttendancesNestedInput = {
+    create?: XOR<UserCreateWithoutAttendancesInput, UserUncheckedCreateWithoutAttendancesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAttendancesInput
+    upsert?: UserUpsertWithoutAttendancesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAttendancesInput, UserUpdateWithoutAttendancesInput>, UserUncheckedUpdateWithoutAttendancesInput>
   }
 
   export type MenuItemCreateNestedManyWithoutCategoryInput = {
@@ -16198,6 +17732,117 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type StaffAttendanceCreateWithoutUserInput = {
+    attendanceDate: string
+    status: string
+    checkIn?: string | null
+    checkOut?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffAttendanceUncheckedCreateWithoutUserInput = {
+    id?: number
+    attendanceDate: string
+    status: string
+    checkIn?: string | null
+    checkOut?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffAttendanceCreateOrConnectWithoutUserInput = {
+    where: StaffAttendanceWhereUniqueInput
+    create: XOR<StaffAttendanceCreateWithoutUserInput, StaffAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type StaffAttendanceCreateManyUserInputEnvelope = {
+    data: StaffAttendanceCreateManyUserInput | StaffAttendanceCreateManyUserInput[]
+  }
+
+  export type StaffAttendanceUpsertWithWhereUniqueWithoutUserInput = {
+    where: StaffAttendanceWhereUniqueInput
+    update: XOR<StaffAttendanceUpdateWithoutUserInput, StaffAttendanceUncheckedUpdateWithoutUserInput>
+    create: XOR<StaffAttendanceCreateWithoutUserInput, StaffAttendanceUncheckedCreateWithoutUserInput>
+  }
+
+  export type StaffAttendanceUpdateWithWhereUniqueWithoutUserInput = {
+    where: StaffAttendanceWhereUniqueInput
+    data: XOR<StaffAttendanceUpdateWithoutUserInput, StaffAttendanceUncheckedUpdateWithoutUserInput>
+  }
+
+  export type StaffAttendanceUpdateManyWithWhereWithoutUserInput = {
+    where: StaffAttendanceScalarWhereInput
+    data: XOR<StaffAttendanceUpdateManyMutationInput, StaffAttendanceUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type StaffAttendanceScalarWhereInput = {
+    AND?: StaffAttendanceScalarWhereInput | StaffAttendanceScalarWhereInput[]
+    OR?: StaffAttendanceScalarWhereInput[]
+    NOT?: StaffAttendanceScalarWhereInput | StaffAttendanceScalarWhereInput[]
+    id?: IntFilter<"StaffAttendance"> | number
+    userId?: IntFilter<"StaffAttendance"> | number
+    attendanceDate?: StringFilter<"StaffAttendance"> | string
+    status?: StringFilter<"StaffAttendance"> | string
+    checkIn?: StringNullableFilter<"StaffAttendance"> | string | null
+    checkOut?: StringNullableFilter<"StaffAttendance"> | string | null
+    notes?: StringNullableFilter<"StaffAttendance"> | string | null
+    createdAt?: DateTimeFilter<"StaffAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"StaffAttendance"> | Date | string
+  }
+
+  export type UserCreateWithoutAttendancesInput = {
+    name: string
+    role: string
+    password: string
+    featureAccessOverrides?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserUncheckedCreateWithoutAttendancesInput = {
+    id?: number
+    name: string
+    role: string
+    password: string
+    featureAccessOverrides?: string | null
+    createdAt?: Date | string
+  }
+
+  export type UserCreateOrConnectWithoutAttendancesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAttendancesInput, UserUncheckedCreateWithoutAttendancesInput>
+  }
+
+  export type UserUpsertWithoutAttendancesInput = {
+    update: XOR<UserUpdateWithoutAttendancesInput, UserUncheckedUpdateWithoutAttendancesInput>
+    create: XOR<UserCreateWithoutAttendancesInput, UserUncheckedCreateWithoutAttendancesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAttendancesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAttendancesInput, UserUncheckedUpdateWithoutAttendancesInput>
+  }
+
+  export type UserUpdateWithoutAttendancesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUncheckedUpdateWithoutAttendancesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MenuItemCreateWithoutCategoryInput = {
     name: string
     price: Decimal | DecimalJsLike | number | string
@@ -16468,6 +18113,7 @@ export namespace Prisma {
     customerName?: string | null
     customerPhone?: string | null
     tableId?: number | null
+    orderType?: string
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
     taxAmount?: Decimal | DecimalJsLike | number | string
@@ -16485,6 +18131,7 @@ export namespace Prisma {
     customerName?: string | null
     customerPhone?: string | null
     tableId?: number | null
+    orderType?: string
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
     taxAmount?: Decimal | DecimalJsLike | number | string
@@ -16543,6 +18190,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -16560,6 +18208,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -16608,6 +18257,7 @@ export namespace Prisma {
     customerName?: string | null
     customerPhone?: string | null
     tableId?: number | null
+    orderType?: string
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
     taxAmount?: Decimal | DecimalJsLike | number | string
@@ -16625,6 +18275,7 @@ export namespace Prisma {
     customerName?: string | null
     customerPhone?: string | null
     tableId?: number | null
+    orderType?: string
     subtotal?: Decimal | DecimalJsLike | number | string
     discountAmount?: Decimal | DecimalJsLike | number | string
     taxAmount?: Decimal | DecimalJsLike | number | string
@@ -16657,6 +18308,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -16674,6 +18326,7 @@ export namespace Prisma {
     customerName?: NullableStringFieldUpdateOperationsInput | string | null
     customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
     tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
     subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -16948,6 +18601,49 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type StaffAttendanceCreateManyUserInput = {
+    id?: number
+    attendanceDate: string
+    status: string
+    checkIn?: string | null
+    checkOut?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffAttendanceUpdateWithoutUserInput = {
+    attendanceDate?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    checkIn?: NullableStringFieldUpdateOperationsInput | string | null
+    checkOut?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffAttendanceUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    attendanceDate?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    checkIn?: NullableStringFieldUpdateOperationsInput | string | null
+    checkOut?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffAttendanceUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    attendanceDate?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    checkIn?: NullableStringFieldUpdateOperationsInput | string | null
+    checkOut?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MenuItemCreateManyCategoryInput = {
     id?: number
     name: string
@@ -17212,6 +18908,10 @@ export namespace Prisma {
    * Aliases for legacy arg types
    */
     /**
+     * @deprecated Use UserCountOutputTypeDefaultArgs instead
+     */
+    export type UserCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use CategoryCountOutputTypeDefaultArgs instead
      */
     export type CategoryCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -17235,6 +18935,10 @@ export namespace Prisma {
      * @deprecated Use UserDefaultArgs instead
      */
     export type UserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use StaffAttendanceDefaultArgs instead
+     */
+    export type StaffAttendanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StaffAttendanceDefaultArgs<ExtArgs>
     /**
      * @deprecated Use CategoryDefaultArgs instead
      */

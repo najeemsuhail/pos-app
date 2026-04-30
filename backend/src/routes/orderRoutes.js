@@ -5,6 +5,7 @@ const { authenticate, authorize, authorizeFeature } = require('../middleware/aut
 const router = express.Router();
 
 router.post('/', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.create(req, res, next));
+router.get('/active', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.getActiveTables(req, res, next));
 router.get('/tables/active', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.getActiveTables(req, res, next));
 router.get('/', authenticate, authorizeFeature('orderHistory'), (req, res, next) => OrderController.getAll(req, res, next));
 router.get('/:id', authenticate, (req, res, next) => OrderController.getById(req, res, next));

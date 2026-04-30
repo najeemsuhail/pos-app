@@ -2,12 +2,13 @@ const prisma = require('../db/prisma');
 const { mapOrder } = require('../db/mappers');
 
 class OrderRepository {
-  async create(billNumber, subtotal, discountAmount, taxAmount, finalAmount, tableId = null, status = 'pending', paymentStatus = 'unpaid') {
+  async create(billNumber, subtotal, discountAmount, taxAmount, finalAmount, tableId = null, status = 'pending', paymentStatus = 'unpaid', orderType = 'dine_in') {
     const order = await prisma.order.create({
       data: {
         billNumber,
         status,
         paymentStatus,
+        orderType,
         subtotal,
         discountAmount,
         taxAmount,
@@ -104,10 +105,13 @@ class OrderRepository {
   }
 
   async findActiveTables() {
+    return this.findActiveOrders();
+  }
+
+  async findActiveOrders() {
     const orders = await prisma.order.findMany({
       where: {
         status: 'pending',
-        tableId: { not: null },
         items: {
           some: {},
         },

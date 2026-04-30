@@ -128,6 +128,18 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.StaffAttendanceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  attendanceDate: 'attendanceDate',
+  status: 'status',
+  checkIn: 'checkIn',
+  checkOut: 'checkOut',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -154,6 +166,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   customerName: 'customerName',
   customerPhone: 'customerPhone',
   tableId: 'tableId',
+  orderType: 'orderType',
   subtotal: 'subtotal',
   discountAmount: 'discountAmount',
   taxAmount: 'taxAmount',
@@ -253,6 +266,7 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  StaffAttendance: 'StaffAttendance',
   Category: 'Category',
   MenuItem: 'MenuItem',
   Order: 'Order',

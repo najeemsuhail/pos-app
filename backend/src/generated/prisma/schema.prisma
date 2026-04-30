@@ -2,8 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -19,7 +20,27 @@ model User {
   featureAccessOverrides String?  @map("feature_access_overrides")
   createdAt              DateTime @default(now()) @map("created_at")
 
+  attendances StaffAttendance[]
+
   @@map("users")
+}
+
+model StaffAttendance {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  attendanceDate String   @map("attendance_date")
+  status         String
+  checkIn        String?  @map("check_in")
+  checkOut       String?  @map("check_out")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, attendanceDate])
+  @@index([attendanceDate])
+  @@map("staff_attendance")
 }
 
 model Category {
@@ -58,6 +79,7 @@ model Order {
   customerName   String?  @map("customer_name")
   customerPhone  String?  @map("customer_phone")
   tableId        Int?     @map("table_id")
+  orderType      String   @default("dine_in") @map("order_type")
   subtotal       Decimal  @default(0)
   discountAmount Decimal  @default(0) @map("discount_amount")
   taxAmount      Decimal  @default(0) @map("tax_amount")
@@ -69,6 +91,7 @@ model Order {
   payments Payment[]
 
   @@index([status])
+  @@index([orderType])
   @@index([createdAt])
   @@map("orders")
 }

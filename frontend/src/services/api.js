@@ -88,6 +88,7 @@ export const menuItemService = {
 export const orderService = {
   create: (data = {}) => api.post('/orders', data),
   getById: (id) => api.get(`/orders/${id}`),
+  getActiveOrders: () => api.get('/orders/active'),
   getActiveTables: () => api.get('/orders/tables/active'),
   addItem: (orderId, data) => api.post(`/orders/${orderId}/items`, data),
   updateItem: (orderId, itemId, quantity) => api.patch(`/orders/${orderId}/items/${itemId}`, { quantity }),

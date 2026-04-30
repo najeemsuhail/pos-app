@@ -13,6 +13,18 @@ const OrderDetailsModal = ({
 
   const formatDate = (dateString) => new Date(dateString).toLocaleString();
 
+  const formatOrderType = (value) => {
+    const labels = {
+      dine_in: 'Dine In',
+      takeaway: 'Takeaway',
+      delivery: 'Delivery',
+      pickup: 'Pickup',
+      online: 'Online',
+    };
+
+    return labels[value || 'dine_in'] || 'Dine In';
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'paid':
@@ -64,6 +76,10 @@ const OrderDetailsModal = ({
             <div className="summary-row">
               <label>Date & Time:</label>
               <span>{formatDate(order.created_at)}</span>
+            </div>
+            <div className="summary-row">
+              <label>Order Type:</label>
+              <span>{formatOrderType(order.order_type)}</span>
             </div>
             <div className="summary-row">
               <label>Status:</label>

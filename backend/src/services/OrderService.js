@@ -6,6 +6,7 @@ const prisma = require('../db/prisma');
 const { mapOrder, mapPayment } = require('../db/mappers');
 const { formatBillDate, formatDailyBillNumber, calculateTax } = require('../utils/billing');
 const SettingService = require('./SettingService');
+const { ORDER_TYPES, normalizeOrderType } = require('../utils/orderTypes');
 const {
   ORDER_STATUSES,
   ORDER_PAYMENT_STATUSES,
@@ -38,9 +39,11 @@ async function ensureBillSequenceTable() {
 }
 
 class OrderService {
-  async createOrder(tableId = null) {
+  async createOrder(tableId = null, orderType = ORDER_TYPES.DINE_IN) {
     const billDate = formatBillDate(new Date());
     const settings = SettingService.getSettings();
+    const normalizedOrderType = normalizeOrderType(orderType);
+    const normalizedTableId = normalizedOrderType === ORDER_TYPES.DINE_IN ? tableId : null;
     await ensureBillSequenceTable();
 
     return await prisma.$transaction(async (tx) => {
@@ -74,7 +77,8 @@ class OrderService {
           discountAmount: 0,
           taxAmount: 0,
           finalAmount: 0,
-          tableId,
+          tableId: normalizedTableId,
+          orderType: normalizedOrderType,
         },
       });
 
@@ -386,6 +390,10 @@ class OrderService {
 
   async getActiveTableOrders() {
     return await OrderRepository.findActiveTables();
+  }
+
+  async getActiveOrders() {
+    return await OrderRepository.findActiveOrders();
   }
 }
 

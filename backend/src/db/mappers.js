@@ -77,6 +77,7 @@ function mapOrder(order) {
     customer_name: order.customerName,
     customer_phone: order.customerPhone,
     table_id: order.tableId,
+    order_type: order.orderType || 'dine_in',
     subtotal: toNumber(order.subtotal),
     discount_amount: toNumber(order.discountAmount),
     tax_amount: toNumber(order.taxAmount),

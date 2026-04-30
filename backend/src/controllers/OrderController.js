@@ -7,8 +7,8 @@ const SyncService = require('../services/SyncService');
 class OrderController {
   async create(req, res, next) {
     try {
-      const { table_id } = req.body || {};
-      const order = await OrderService.createOrder(table_id);
+      const { table_id, order_type } = req.body || {};
+      const order = await OrderService.createOrder(table_id, order_type);
       await SyncService.queueOrderSnapshot(order.id);
       res.status(201).json(order);
     } catch (error) {
@@ -213,7 +213,7 @@ class OrderController {
 
   async getActiveTables(req, res, next) {
     try {
-      const tables = await OrderService.getActiveTableOrders();
+      const tables = await OrderService.getActiveOrders();
       res.json(tables);
     } catch (error) {
       next(error);

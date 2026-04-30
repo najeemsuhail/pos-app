@@ -1,4 +1,5 @@
 const SettingService = require('../services/SettingService');
+const { getOrderTypeLabel } = require('./orderTypes');
 
 const wrapText = (value, maxWidth) => {
   const text = String(value || '').trim();
@@ -86,6 +87,7 @@ const generateThermalReceipt = (order, items, payments) => {
   const tableLabel = order.table_id
     ? settings.tableNames?.[Number(order.table_id) - 1] || `Table ${order.table_id}`
     : null;
+  const orderTypeLabel = getOrderTypeLabel(order.order_type);
 
   // Convert decimal strings from PostgreSQL to numbers
   const subtotal = parseFloat(order.subtotal) || 0;
@@ -112,6 +114,7 @@ const generateThermalReceipt = (order, items, payments) => {
   receipt += `Date    : ${new Date(order.created_at).toLocaleDateString()}\n`;
   receipt += `Time    : ${new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}\n`;
   receipt += `Order   : ${order.status}\n`;
+  receipt += `Type    : ${orderTypeLabel}\n`;
   receipt += `Payment : ${order.payment_status || 'unpaid'}\n`;
   if (order.customer_name) {
     receipt += `Customer: ${order.customer_name}\n`;

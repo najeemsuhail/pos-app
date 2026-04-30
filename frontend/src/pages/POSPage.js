@@ -11,6 +11,13 @@ import { printReceiptContent } from '../utils/receiptPrint';
 import '../styles/POS.css';
 
 const DEFAULT_TABLE_COUNT = 12;
+const ORDER_TYPES = {
+  DINE_IN: 'dine_in',
+  TAKEAWAY: 'takeaway',
+  DELIVERY: 'delivery',
+  PICKUP: 'pickup',
+  ONLINE: 'online',
+};
 
 const POSPage = () => {
   const navigate = useNavigate();
@@ -21,8 +28,9 @@ const POSPage = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
-  const [activeTableOrders, setActiveTableOrders] = useState([]);
+  const [activeOrders, setActiveOrders] = useState([]);
   const [selectedTableId, setSelectedTableId] = useState(null);
+  const [selectedOrderType, setSelectedOrderType] = useState(ORDER_TYPES.DINE_IN);
   const [discount, setDiscount] = useState(0);
   const [paymentTotal, setPaymentTotal] = useState(0);
   const [receipt, setReceipt] = useState('');
@@ -51,13 +59,13 @@ const POSPage = () => {
       const [categoriesRes, itemsRes, activeTablesRes, settingsRes] = await Promise.all([
         categoryService.getAll(),
         menuItemService.getAll(),
-        orderService.getActiveTables(),
+        orderService.getActiveOrders(),
         settingService.getAll(),
       ]);
 
       setCategories(categoriesRes.data);
       setMenuItems(itemsRes.data);
-      setActiveTableOrders(activeTablesRes.data);
+      setActiveOrders(activeTablesRes.data);
       setTableCount(Number(settingsRes.data.tableCount) || DEFAULT_TABLE_COUNT);
       setTableNames(settingsRes.data.tableNames || []);
       setTaxRate(Number(settingsRes.data.taxRate) || 0);
@@ -68,9 +76,9 @@ const POSPage = () => {
     }
   };
 
-  const refreshActiveTables = useCallback(async () => {
-    const response = await orderService.getActiveTables();
-    setActiveTableOrders(response.data);
+  const refreshActiveOrders = useCallback(async () => {
+    const response = await orderService.getActiveOrders();
+    setActiveOrders(response.data);
     return response.data;
   }, []);
 
@@ -84,13 +92,22 @@ const POSPage = () => {
     }));
   }, []);
 
-  const persistTableOrder = useCallback(async (tableId, cartItems, orderOverride) => {
-    if (!tableId || hydrateInProgressRef.current) {
+  const findActiveOrder = useCallback((orders, orderType, tableId) => {
+    if (orderType === ORDER_TYPES.DINE_IN) {
+      return orders.find((order) => order.order_type === ORDER_TYPES.DINE_IN && order.table_id === tableId) || null;
+    }
+
+    return orders.find((order) => order.order_type === orderType) || null;
+  }, []);
+
+  const persistActiveOrder = useCallback(async (orderType, tableId, cartItems, orderOverride) => {
+    const isDineIn = orderType === ORDER_TYPES.DINE_IN;
+    if ((isDineIn && !tableId) || hydrateInProgressRef.current) {
       return orderOverride || currentOrder;
     }
 
     if (persistInFlightRef.current) {
-      pendingPersistRef.current = { tableId, cartItems, orderOverride };
+      pendingPersistRef.current = { orderType, tableId, cartItems, orderOverride };
       return orderOverride || currentOrder;
     }
 
@@ -108,20 +125,23 @@ const POSPage = () => {
           await orderService.cancel(order.id);
           setCurrentOrder(null);
           setOrder(null);
-          await refreshActiveTables();
+          await refreshActiveOrders();
         }
         return null;
       }
 
       if (!order?.id) {
-        const orderRes = await orderService.create({ table_id: tableId });
+        const orderRes = await orderService.create({
+          order_type: orderType,
+          table_id: isDineIn ? tableId : null,
+        });
         order = orderRes.data;
         setCurrentOrder(order);
         setOrder(order);
       }
 
       await orderService.syncItems(order.id, payload);
-      await refreshActiveTables();
+      await refreshActiveOrders();
       return order;
     } finally {
       persistInFlightRef.current = false;
@@ -129,13 +149,18 @@ const POSPage = () => {
       if (pendingPersistRef.current) {
         const pendingPersist = pendingPersistRef.current;
         pendingPersistRef.current = null;
-        await persistTableOrder(pendingPersist.tableId, pendingPersist.cartItems, pendingPersist.orderOverride);
+        await persistActiveOrder(
+          pendingPersist.orderType,
+          pendingPersist.tableId,
+          pendingPersist.cartItems,
+          pendingPersist.orderOverride
+        );
       }
     }
-  }, [currentOrder, refreshActiveTables, setOrder]);
+  }, [currentOrder, refreshActiveOrders, setOrder]);
 
   useEffect(() => {
-    if (selectedTableId && selectedTableId > tableCount) {
+    if (selectedOrderType === ORDER_TYPES.DINE_IN && selectedTableId && selectedTableId > tableCount) {
       hydrateInProgressRef.current = true;
       setSelectedTableId(null);
       replaceItems([]);
@@ -147,63 +172,85 @@ const POSPage = () => {
       setShowReceiptModal(false);
       hydrateInProgressRef.current = false;
     }
-  }, [replaceItems, selectedTableId, setOrder, tableCount]);
+  }, [replaceItems, selectedOrderType, selectedTableId, setOrder, tableCount]);
 
   useEffect(() => {
-    if (!selectedTableId || hydrateInProgressRef.current) {
+    if ((selectedOrderType === ORDER_TYPES.DINE_IN && !selectedTableId) || hydrateInProgressRef.current) {
       return;
     }
 
-    const syncCurrentTable = async () => {
+    const syncCurrentOrder = async () => {
       try {
-        await persistTableOrder(selectedTableId, items, currentOrder);
+        await persistActiveOrder(selectedOrderType, selectedTableId, items, currentOrder);
       } catch (error) {
-        console.error('Failed to persist table order:', error);
+        console.error('Failed to persist order:', error);
       }
     };
 
-    syncCurrentTable();
-  }, [currentOrder, items, persistTableOrder, selectedTableId]);
+    syncCurrentOrder();
+  }, [currentOrder, items, persistActiveOrder, selectedOrderType, selectedTableId]);
 
-  const handleSelectTable = useCallback(async (tableId) => {
+  const handleSelectOrderSlot = useCallback(async (orderType, tableId = null) => {
     try {
       setLoading(true);
 
-      if (selectedTableId) {
-        await persistTableOrder(selectedTableId, items, currentOrder);
+      if (selectedOrderType !== ORDER_TYPES.DINE_IN || selectedTableId) {
+        await persistActiveOrder(selectedOrderType, selectedTableId, items, currentOrder);
       }
 
       hydrateInProgressRef.current = true;
-      setSelectedTableId(tableId);
+      setSelectedOrderType(orderType);
+      setSelectedTableId(orderType === ORDER_TYPES.DINE_IN ? tableId : null);
       setDiscount(0);
       setPaymentTotal(0);
       setShowPaymentModal(false);
       setShowReceiptModal(false);
 
-      const tableOrder = activeTableOrders.find((order) => order.table_id === tableId) || null;
+      const activeOrder = findActiveOrder(activeOrders, orderType, tableId);
 
-      if (!tableOrder) {
+      if (!activeOrder) {
         replaceItems([]);
         setCurrentOrder(null);
         setOrder(null);
         return;
       }
 
-      const itemsRes = await orderService.getItems(tableOrder.id);
+      const itemsRes = await orderService.getItems(activeOrder.id);
       replaceItems(mapOrderItemsToCart(itemsRes.data));
-      setCurrentOrder(tableOrder);
-      setOrder(tableOrder);
+      setCurrentOrder(activeOrder);
+      setOrder(activeOrder);
     } catch (error) {
-      alert('Error loading table: ' + (error.response?.data?.error || error.message));
+      alert('Error loading order: ' + (error.response?.data?.error || error.message));
     } finally {
       hydrateInProgressRef.current = false;
       setLoading(false);
     }
-  }, [activeTableOrders, currentOrder, items, mapOrderItemsToCart, persistTableOrder, replaceItems, selectedTableId, setOrder]);
+  }, [
+    activeOrders,
+    currentOrder,
+    findActiveOrder,
+    items,
+    mapOrderItemsToCart,
+    persistActiveOrder,
+    replaceItems,
+    selectedOrderType,
+    selectedTableId,
+    setOrder,
+  ]);
+
+  const handleSelectTable = useCallback((tableId) => {
+    handleSelectOrderSlot(ORDER_TYPES.DINE_IN, tableId);
+  }, [handleSelectOrderSlot]);
+
+  const handleSelectOrderType = useCallback((orderType) => {
+    handleSelectOrderSlot(orderType, null);
+  }, [handleSelectOrderSlot]);
+
+  const hasActiveOrderSlot = selectedOrderType !== ORDER_TYPES.DINE_IN || Boolean(selectedTableId);
 
   const handleAddItem = async (item, quantity) => {
-    if (!selectedTableId) {
-      alert('Select a table first');
+    if (!hasActiveOrderSlot) {
+      alert('Select a table or order type first');
       return;
     }
 
@@ -211,8 +258,8 @@ const POSPage = () => {
   };
 
   const handleFinalizeOrder = async (discountPercent = 0) => {
-    if (!selectedTableId) {
-      alert('Select a table first');
+    if (!hasActiveOrderSlot) {
+      alert('Select a table or order type first');
       return;
     }
 
@@ -224,7 +271,7 @@ const POSPage = () => {
     try {
       setLoading(true);
 
-      const order = await persistTableOrder(selectedTableId, items, currentOrder);
+      const order = await persistActiveOrder(selectedOrderType, selectedTableId, items, currentOrder);
       if (!order?.id) {
         throw new Error('Unable to prepare the order for checkout');
       }
@@ -256,7 +303,7 @@ const POSPage = () => {
 
       const receiptRes = await orderService.getReceipt(currentOrder.id);
       setReceipt(receiptRes.data);
-      await refreshActiveTables();
+      await refreshActiveOrders();
 
       setShowPaymentModal(false);
       setShowReceiptModal(true);
@@ -284,6 +331,7 @@ const POSPage = () => {
     hydrateInProgressRef.current = true;
     setShowReceiptModal(false);
     setSelectedTableId(null);
+    setSelectedOrderType(ORDER_TYPES.DINE_IN);
     clearCart();
     setReceipt('');
     setCurrentOrder(null);
@@ -333,10 +381,12 @@ const POSPage = () => {
         onRemoveItem={removeItem}
         onUpdateQuantity={updateQuantity}
         selectedTableId={selectedTableId}
+        selectedOrderType={selectedOrderType}
         tableNumbers={tableNumbers}
         tableNames={tableNames}
-        activeTableOrders={activeTableOrders}
+        activeOrders={activeOrders}
         onSelectTable={handleSelectTable}
+        onSelectOrderType={handleSelectOrderType}
         currentOrder={currentOrder}
       />
 

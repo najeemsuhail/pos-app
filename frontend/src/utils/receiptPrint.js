@@ -96,27 +96,6 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
             background: #ffffff;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
           }
-          .print-brand {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 12px;
-            text-align: center;
-          }
-          .print-brand strong {
-            display: block;
-            font-size: 16px;
-            font-weight: 800;
-          }
-          .print-brand span {
-            font-size: 10px;
-            color: #6b7280;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-          }
           .receipt-paper {
             padding: 14px 12px;
             border: 1px solid #e5e7eb;
@@ -147,12 +126,6 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
       </head>
       <body>
         <div class="print-shell">
-          <div class="print-brand">
-            <div>
-              <strong>Chewbie Cafe</strong>
-              <span>${documentLabel}</span>
-            </div>
-          </div>
           <div class="receipt-paper">${receiptMarkup}</div>
         </div>
       </body>

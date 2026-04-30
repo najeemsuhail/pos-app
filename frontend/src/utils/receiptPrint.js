@@ -1,17 +1,3 @@
-const RECEIPT_LOGO_DATA_URI = `data:image/svg+xml;utf8,${encodeURIComponent(`
-<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="128" height="128" rx="28" fill="#1F2937"/>
-  <path d="M34 43C34 35.8203 39.8203 30 47 30H83C90.1797 30 96 35.8203 96 43V51C96 58.1797 90.1797 64 83 64H47C39.8203 64 34 58.1797 34 51V43Z" fill="#F59E0B"/>
-  <path d="M40 71C40 59.9543 48.9543 51 60 51H78C86.8366 51 94 58.1634 94 67V68C94 76.8366 86.8366 84 78 84H60C48.9543 84 40 75.0457 40 64V71Z" fill="#F9FAFB"/>
-  <path d="M86 46C91.5228 46 96 50.4772 96 56C96 61.5228 91.5228 66 86 66V46Z" fill="#FDE68A"/>
-  <circle cx="53" cy="41" r="4" fill="#1F2937"/>
-  <circle cx="65" cy="41" r="4" fill="#1F2937"/>
-  <circle cx="77" cy="41" r="4" fill="#1F2937"/>
-  <path d="M56 92H80" stroke="#F59E0B" stroke-width="8" stroke-linecap="round"/>
-  <path d="M50 102H86" stroke="#F9FAFB" stroke-width="8" stroke-linecap="round"/>
-</svg>
-`)}`;
-
 function escapeReceiptLine(line) {
   return line
     .replace(/&/g, '&amp;')
@@ -35,6 +21,10 @@ function getReceiptLineClassName(line) {
     return 'receipt-line section-title';
   }
 
+  if (trimmed === 'KITCHEN ORDER TICKET') {
+    return 'receipt-line section-title';
+  }
+
   if (trimmed.startsWith('TOTAL:')) {
     return 'receipt-line total';
   }
@@ -43,7 +33,7 @@ function getReceiptLineClassName(line) {
     return 'receipt-line summary';
   }
 
-  if (/^(Bill No|Date|Time|Table|Customer|Phone|Order|Payment)\s*:/.test(trimmed)) {
+  if (/^(KOT No|Bill No|Date|Time|Table|Customer|Phone|Order|Payment|Type)\s*:/.test(trimmed)) {
     return 'receipt-line meta';
   }
 
@@ -68,7 +58,7 @@ function getReceiptLineDisplayText(line) {
   return line;
 }
 
-export function buildReceiptPrintHtml(receipt) {
+export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
   const receiptLines = receipt
     .split('\n')
     .filter((line, index, list) => !(line === '' && list[index - 1] === ''));
@@ -115,25 +105,6 @@ export function buildReceiptPrintHtml(receipt) {
             margin-bottom: 12px;
             text-align: center;
           }
-          .print-logo-frame {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-            border: 1px solid rgba(17, 24, 39, 0.08);
-            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
-            overflow: hidden;
-            flex: 0 0 auto;
-          }
-          .print-brand img {
-            width: 66px;
-            height: 66px;
-            object-fit: contain;
-            transform: scale(1.16);
-          }
           .print-brand strong {
             display: block;
             font-size: 16px;
@@ -177,12 +148,9 @@ export function buildReceiptPrintHtml(receipt) {
       <body>
         <div class="print-shell">
           <div class="print-brand">
-            <div class="print-logo-frame">
-              <img src="${RECEIPT_LOGO_DATA_URI}" alt="Chewbie Cafe logo" />
-            </div>
             <div>
               <strong>Chewbie Cafe</strong>
-              <span>Receipt</span>
+              <span>${documentLabel}</span>
             </div>
           </div>
           <div class="receipt-paper">${receiptMarkup}</div>
@@ -192,34 +160,67 @@ export function buildReceiptPrintHtml(receipt) {
   `;
 }
 
-export async function printReceiptContent(receipt) {
-  const htmlContent = buildReceiptPrintHtml(receipt);
+export async function printReceiptContent(receipt, documentLabel = 'Receipt') {
+  const htmlContent = buildReceiptPrintHtml(receipt, documentLabel);
 
   if (window.posDesktop && window.posDesktop.printReceipt) {
     const printerName = localStorage.getItem('receiptPrinter') || 'browser-default';
     const result = await window.posDesktop.printReceipt(htmlContent, printerName);
 
     if (!result.success) {
+      if (result.errorType === 'cancelled' || result.errorType === 'canceled') {
+        return;
+      }
+
       throw new Error(result.errorType || 'Printing failed');
     }
 
     return;
   }
 
-  let iframe = document.getElementById('print-iframe');
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.id = 'print-iframe';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+  const existingIframe = document.getElementById('print-iframe');
+  if (existingIframe) {
+    existingIframe.remove();
   }
 
-  const doc = iframe.contentWindow.document;
-  doc.open();
-  doc.write(htmlContent);
-  doc.close();
+  const iframe = document.createElement('iframe');
+  iframe.id = 'print-iframe';
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+
+  const cleanup = () => {
+    window.setTimeout(() => {
+      if (iframe.parentNode) {
+        iframe.remove();
+      }
+    }, 100);
+  };
+
+  await new Promise((resolve, reject) => {
+    iframe.onload = resolve;
+    iframe.onerror = () => reject(new Error('Print preview failed to load'));
+    iframe.srcdoc = htmlContent;
+    document.body.appendChild(iframe);
+  });
 
   await new Promise((resolve) => setTimeout(resolve, 250));
-  iframe.contentWindow.focus();
-  iframe.contentWindow.print();
+
+  try {
+    const printWindow = iframe.contentWindow;
+    if (!printWindow) {
+      throw new Error('Print preview is not available');
+    }
+
+    printWindow.onafterprint = cleanup;
+    printWindow.focus();
+    printWindow.print();
+    window.setTimeout(cleanup, 1000);
+  } catch (error) {
+    cleanup();
+    throw error;
+  }
 }

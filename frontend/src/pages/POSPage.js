@@ -82,6 +82,12 @@ const POSPage = () => {
     return response.data;
   }, []);
 
+  const waitForActivePersist = useCallback(async () => {
+    while (persistInFlightRef.current) {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+  }, []);
+
   const mapOrderItemsToCart = useCallback((orderItems) => {
     return orderItems.map((item) => ({
       id: item.menu_item_id,
@@ -270,6 +276,7 @@ const POSPage = () => {
 
     try {
       setLoading(true);
+      await waitForActivePersist();
 
       const order = await persistActiveOrder(selectedOrderType, selectedTableId, items, currentOrder);
       if (!order?.id) {
@@ -287,6 +294,44 @@ const POSPage = () => {
       setShowPaymentModal(true);
     } catch (error) {
       alert('Error creating order: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendKot = async () => {
+    if (!hasActiveOrderSlot) {
+      alert('Select a table or order type first');
+      return;
+    }
+
+    if (items.length === 0) {
+      alert('Add items before sending KOT');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await waitForActivePersist();
+
+      const order = await persistActiveOrder(selectedOrderType, selectedTableId, items, currentOrder);
+      if (!order?.id) {
+        throw new Error('Unable to prepare the order for KOT');
+      }
+
+      const response = await orderService.createKot(order.id);
+      await refreshActiveOrders();
+      setCurrentOrder(order);
+      setOrder(order);
+
+      try {
+        await printReceiptContent(response.data.kot, 'KOT');
+      } catch (printError) {
+        console.error('KOT print error:', printError);
+        alert('KOT sent, but printing failed: ' + printError.message);
+      }
+    } catch (error) {
+      alert('Error sending KOT: ' + (error.response?.data?.error || error.message));
     } finally {
       setLoading(false);
     }
@@ -373,6 +418,7 @@ const POSPage = () => {
         items={menuItems}
         onAddItem={handleAddItem}
         onFinalizeOrder={handleFinalizeOrder}
+        onSendKot={handleSendKot}
         totals={totals}
         discount={discount}
         taxRate={taxRate}

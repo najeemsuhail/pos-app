@@ -39,6 +39,16 @@ export type MenuItem = $Result.DefaultSelection<Prisma.$MenuItemPayload>
  */
 export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
 /**
+ * Model KotTicket
+ * 
+ */
+export type KotTicket = $Result.DefaultSelection<Prisma.$KotTicketPayload>
+/**
+ * Model KotItem
+ * 
+ */
+export type KotItem = $Result.DefaultSelection<Prisma.$KotItemPayload>
+/**
  * Model BillSequence
  * 
  */
@@ -246,6 +256,26 @@ export class PrismaClient<
     * ```
     */
   get order(): Prisma.OrderDelegate<ExtArgs>;
+
+  /**
+   * `prisma.kotTicket`: Exposes CRUD operations for the **KotTicket** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KotTickets
+    * const kotTickets = await prisma.kotTicket.findMany()
+    * ```
+    */
+  get kotTicket(): Prisma.KotTicketDelegate<ExtArgs>;
+
+  /**
+   * `prisma.kotItem`: Exposes CRUD operations for the **KotItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more KotItems
+    * const kotItems = await prisma.kotItem.findMany()
+    * ```
+    */
+  get kotItem(): Prisma.KotItemDelegate<ExtArgs>;
 
   /**
    * `prisma.billSequence`: Exposes CRUD operations for the **BillSequence** model.
@@ -762,6 +792,8 @@ export namespace Prisma {
     Category: 'Category',
     MenuItem: 'MenuItem',
     Order: 'Order',
+    KotTicket: 'KotTicket',
+    KotItem: 'KotItem',
     BillSequence: 'BillSequence',
     OrderItem: 'OrderItem',
     Payment: 'Payment',
@@ -784,7 +816,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "staffAttendance" | "category" | "menuItem" | "order" | "billSequence" | "orderItem" | "payment" | "expense" | "supplier" | "purchase" | "purchaseItem"
+      modelProps: "user" | "staffAttendance" | "category" | "menuItem" | "order" | "kotTicket" | "kotItem" | "billSequence" | "orderItem" | "payment" | "expense" | "supplier" | "purchase" | "purchaseItem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1135,6 +1167,146 @@ export namespace Prisma {
           count: {
             args: Prisma.OrderCountArgs<ExtArgs>
             result: $Utils.Optional<OrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      KotTicket: {
+        payload: Prisma.$KotTicketPayload<ExtArgs>
+        fields: Prisma.KotTicketFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KotTicketFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KotTicketFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>
+          }
+          findFirst: {
+            args: Prisma.KotTicketFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KotTicketFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>
+          }
+          findMany: {
+            args: Prisma.KotTicketFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>[]
+          }
+          create: {
+            args: Prisma.KotTicketCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>
+          }
+          createMany: {
+            args: Prisma.KotTicketCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KotTicketCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>[]
+          }
+          delete: {
+            args: Prisma.KotTicketDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>
+          }
+          update: {
+            args: Prisma.KotTicketUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>
+          }
+          deleteMany: {
+            args: Prisma.KotTicketDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KotTicketUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.KotTicketUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotTicketPayload>
+          }
+          aggregate: {
+            args: Prisma.KotTicketAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKotTicket>
+          }
+          groupBy: {
+            args: Prisma.KotTicketGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KotTicketGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KotTicketCountArgs<ExtArgs>
+            result: $Utils.Optional<KotTicketCountAggregateOutputType> | number
+          }
+        }
+      }
+      KotItem: {
+        payload: Prisma.$KotItemPayload<ExtArgs>
+        fields: Prisma.KotItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.KotItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.KotItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>
+          }
+          findFirst: {
+            args: Prisma.KotItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.KotItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>
+          }
+          findMany: {
+            args: Prisma.KotItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>[]
+          }
+          create: {
+            args: Prisma.KotItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>
+          }
+          createMany: {
+            args: Prisma.KotItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.KotItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>[]
+          }
+          delete: {
+            args: Prisma.KotItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>
+          }
+          update: {
+            args: Prisma.KotItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.KotItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.KotItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.KotItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$KotItemPayload>
+          }
+          aggregate: {
+            args: Prisma.KotItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateKotItem>
+          }
+          groupBy: {
+            args: Prisma.KotItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<KotItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.KotItemCountArgs<ExtArgs>
+            result: $Utils.Optional<KotItemCountAggregateOutputType> | number
           }
         }
       }
@@ -1884,11 +2056,13 @@ export namespace Prisma {
   export type OrderCountOutputType = {
     items: number
     payments: number
+    kotTickets: number
   }
 
   export type OrderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | OrderCountOutputTypeCountItemsArgs
     payments?: boolean | OrderCountOutputTypeCountPaymentsArgs
+    kotTickets?: boolean | OrderCountOutputTypeCountKotTicketsArgs
   }
 
   // Custom InputTypes
@@ -1914,6 +2088,44 @@ export namespace Prisma {
    */
   export type OrderCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PaymentWhereInput
+  }
+
+  /**
+   * OrderCountOutputType without action
+   */
+  export type OrderCountOutputTypeCountKotTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KotTicketWhereInput
+  }
+
+
+  /**
+   * Count Type KotTicketCountOutputType
+   */
+
+  export type KotTicketCountOutputType = {
+    items: number
+  }
+
+  export type KotTicketCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    items?: boolean | KotTicketCountOutputTypeCountItemsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * KotTicketCountOutputType without action
+   */
+  export type KotTicketCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicketCountOutputType
+     */
+    select?: KotTicketCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * KotTicketCountOutputType without action
+   */
+  export type KotTicketCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KotItemWhereInput
   }
 
 
@@ -6287,6 +6499,7 @@ export namespace Prisma {
     updatedAt?: boolean
     items?: boolean | Order$itemsArgs<ExtArgs>
     payments?: boolean | Order$paymentsArgs<ExtArgs>
+    kotTickets?: boolean | Order$kotTicketsArgs<ExtArgs>
     _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
 
@@ -6327,6 +6540,7 @@ export namespace Prisma {
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     items?: boolean | Order$itemsArgs<ExtArgs>
     payments?: boolean | Order$paymentsArgs<ExtArgs>
+    kotTickets?: boolean | Order$kotTicketsArgs<ExtArgs>
     _count?: boolean | OrderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6336,6 +6550,7 @@ export namespace Prisma {
     objects: {
       items: Prisma.$OrderItemPayload<ExtArgs>[]
       payments: Prisma.$PaymentPayload<ExtArgs>[]
+      kotTickets: Prisma.$KotTicketPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -6718,6 +6933,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     items<T extends Order$itemsArgs<ExtArgs> = {}>(args?: Subset<T, Order$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany"> | Null>
     payments<T extends Order$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Order$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany"> | Null>
+    kotTickets<T extends Order$kotTicketsArgs<ExtArgs> = {}>(args?: Subset<T, Order$kotTicketsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7113,6 +7329,26 @@ export namespace Prisma {
   }
 
   /**
+   * Order.kotTickets
+   */
+  export type Order$kotTicketsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    where?: KotTicketWhereInput
+    orderBy?: KotTicketOrderByWithRelationInput | KotTicketOrderByWithRelationInput[]
+    cursor?: KotTicketWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KotTicketScalarFieldEnum | KotTicketScalarFieldEnum[]
+  }
+
+  /**
    * Order without action
    */
   export type OrderDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7124,6 +7360,2042 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: OrderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KotTicket
+   */
+
+  export type AggregateKotTicket = {
+    _count: KotTicketCountAggregateOutputType | null
+    _avg: KotTicketAvgAggregateOutputType | null
+    _sum: KotTicketSumAggregateOutputType | null
+    _min: KotTicketMinAggregateOutputType | null
+    _max: KotTicketMaxAggregateOutputType | null
+  }
+
+  export type KotTicketAvgAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+  }
+
+  export type KotTicketSumAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+  }
+
+  export type KotTicketMinAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+    kotNumber: string | null
+    status: string | null
+    printedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type KotTicketMaxAggregateOutputType = {
+    id: number | null
+    orderId: number | null
+    kotNumber: string | null
+    status: string | null
+    printedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type KotTicketCountAggregateOutputType = {
+    id: number
+    orderId: number
+    kotNumber: number
+    status: number
+    printedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type KotTicketAvgAggregateInputType = {
+    id?: true
+    orderId?: true
+  }
+
+  export type KotTicketSumAggregateInputType = {
+    id?: true
+    orderId?: true
+  }
+
+  export type KotTicketMinAggregateInputType = {
+    id?: true
+    orderId?: true
+    kotNumber?: true
+    status?: true
+    printedAt?: true
+    createdAt?: true
+  }
+
+  export type KotTicketMaxAggregateInputType = {
+    id?: true
+    orderId?: true
+    kotNumber?: true
+    status?: true
+    printedAt?: true
+    createdAt?: true
+  }
+
+  export type KotTicketCountAggregateInputType = {
+    id?: true
+    orderId?: true
+    kotNumber?: true
+    status?: true
+    printedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type KotTicketAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KotTicket to aggregate.
+     */
+    where?: KotTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotTickets to fetch.
+     */
+    orderBy?: KotTicketOrderByWithRelationInput | KotTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KotTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotTickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KotTickets
+    **/
+    _count?: true | KotTicketCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: KotTicketAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: KotTicketSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KotTicketMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KotTicketMaxAggregateInputType
+  }
+
+  export type GetKotTicketAggregateType<T extends KotTicketAggregateArgs> = {
+        [P in keyof T & keyof AggregateKotTicket]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKotTicket[P]>
+      : GetScalarType<T[P], AggregateKotTicket[P]>
+  }
+
+
+
+
+  export type KotTicketGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KotTicketWhereInput
+    orderBy?: KotTicketOrderByWithAggregationInput | KotTicketOrderByWithAggregationInput[]
+    by: KotTicketScalarFieldEnum[] | KotTicketScalarFieldEnum
+    having?: KotTicketScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KotTicketCountAggregateInputType | true
+    _avg?: KotTicketAvgAggregateInputType
+    _sum?: KotTicketSumAggregateInputType
+    _min?: KotTicketMinAggregateInputType
+    _max?: KotTicketMaxAggregateInputType
+  }
+
+  export type KotTicketGroupByOutputType = {
+    id: number
+    orderId: number
+    kotNumber: string
+    status: string
+    printedAt: Date | null
+    createdAt: Date
+    _count: KotTicketCountAggregateOutputType | null
+    _avg: KotTicketAvgAggregateOutputType | null
+    _sum: KotTicketSumAggregateOutputType | null
+    _min: KotTicketMinAggregateOutputType | null
+    _max: KotTicketMaxAggregateOutputType | null
+  }
+
+  type GetKotTicketGroupByPayload<T extends KotTicketGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KotTicketGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KotTicketGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KotTicketGroupByOutputType[P]>
+            : GetScalarType<T[P], KotTicketGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KotTicketSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    kotNumber?: boolean
+    status?: boolean
+    printedAt?: boolean
+    createdAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    items?: boolean | KotTicket$itemsArgs<ExtArgs>
+    _count?: boolean | KotTicketCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kotTicket"]>
+
+  export type KotTicketSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderId?: boolean
+    kotNumber?: boolean
+    status?: boolean
+    printedAt?: boolean
+    createdAt?: boolean
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kotTicket"]>
+
+  export type KotTicketSelectScalar = {
+    id?: boolean
+    orderId?: boolean
+    kotNumber?: boolean
+    status?: boolean
+    printedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type KotTicketInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+    items?: boolean | KotTicket$itemsArgs<ExtArgs>
+    _count?: boolean | KotTicketCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type KotTicketIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    order?: boolean | OrderDefaultArgs<ExtArgs>
+  }
+
+  export type $KotTicketPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KotTicket"
+    objects: {
+      order: Prisma.$OrderPayload<ExtArgs>
+      items: Prisma.$KotItemPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      orderId: number
+      kotNumber: string
+      status: string
+      printedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["kotTicket"]>
+    composites: {}
+  }
+
+  type KotTicketGetPayload<S extends boolean | null | undefined | KotTicketDefaultArgs> = $Result.GetResult<Prisma.$KotTicketPayload, S>
+
+  type KotTicketCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<KotTicketFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: KotTicketCountAggregateInputType | true
+    }
+
+  export interface KotTicketDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KotTicket'], meta: { name: 'KotTicket' } }
+    /**
+     * Find zero or one KotTicket that matches the filter.
+     * @param {KotTicketFindUniqueArgs} args - Arguments to find a KotTicket
+     * @example
+     * // Get one KotTicket
+     * const kotTicket = await prisma.kotTicket.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KotTicketFindUniqueArgs>(args: SelectSubset<T, KotTicketFindUniqueArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one KotTicket that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {KotTicketFindUniqueOrThrowArgs} args - Arguments to find a KotTicket
+     * @example
+     * // Get one KotTicket
+     * const kotTicket = await prisma.kotTicket.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KotTicketFindUniqueOrThrowArgs>(args: SelectSubset<T, KotTicketFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first KotTicket that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotTicketFindFirstArgs} args - Arguments to find a KotTicket
+     * @example
+     * // Get one KotTicket
+     * const kotTicket = await prisma.kotTicket.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KotTicketFindFirstArgs>(args?: SelectSubset<T, KotTicketFindFirstArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first KotTicket that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotTicketFindFirstOrThrowArgs} args - Arguments to find a KotTicket
+     * @example
+     * // Get one KotTicket
+     * const kotTicket = await prisma.kotTicket.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KotTicketFindFirstOrThrowArgs>(args?: SelectSubset<T, KotTicketFindFirstOrThrowArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more KotTickets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotTicketFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KotTickets
+     * const kotTickets = await prisma.kotTicket.findMany()
+     * 
+     * // Get first 10 KotTickets
+     * const kotTickets = await prisma.kotTicket.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kotTicketWithIdOnly = await prisma.kotTicket.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KotTicketFindManyArgs>(args?: SelectSubset<T, KotTicketFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a KotTicket.
+     * @param {KotTicketCreateArgs} args - Arguments to create a KotTicket.
+     * @example
+     * // Create one KotTicket
+     * const KotTicket = await prisma.kotTicket.create({
+     *   data: {
+     *     // ... data to create a KotTicket
+     *   }
+     * })
+     * 
+     */
+    create<T extends KotTicketCreateArgs>(args: SelectSubset<T, KotTicketCreateArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many KotTickets.
+     * @param {KotTicketCreateManyArgs} args - Arguments to create many KotTickets.
+     * @example
+     * // Create many KotTickets
+     * const kotTicket = await prisma.kotTicket.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KotTicketCreateManyArgs>(args?: SelectSubset<T, KotTicketCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KotTickets and returns the data saved in the database.
+     * @param {KotTicketCreateManyAndReturnArgs} args - Arguments to create many KotTickets.
+     * @example
+     * // Create many KotTickets
+     * const kotTicket = await prisma.kotTicket.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KotTickets and only return the `id`
+     * const kotTicketWithIdOnly = await prisma.kotTicket.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KotTicketCreateManyAndReturnArgs>(args?: SelectSubset<T, KotTicketCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a KotTicket.
+     * @param {KotTicketDeleteArgs} args - Arguments to delete one KotTicket.
+     * @example
+     * // Delete one KotTicket
+     * const KotTicket = await prisma.kotTicket.delete({
+     *   where: {
+     *     // ... filter to delete one KotTicket
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KotTicketDeleteArgs>(args: SelectSubset<T, KotTicketDeleteArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one KotTicket.
+     * @param {KotTicketUpdateArgs} args - Arguments to update one KotTicket.
+     * @example
+     * // Update one KotTicket
+     * const kotTicket = await prisma.kotTicket.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KotTicketUpdateArgs>(args: SelectSubset<T, KotTicketUpdateArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more KotTickets.
+     * @param {KotTicketDeleteManyArgs} args - Arguments to filter KotTickets to delete.
+     * @example
+     * // Delete a few KotTickets
+     * const { count } = await prisma.kotTicket.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KotTicketDeleteManyArgs>(args?: SelectSubset<T, KotTicketDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KotTickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotTicketUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KotTickets
+     * const kotTicket = await prisma.kotTicket.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KotTicketUpdateManyArgs>(args: SelectSubset<T, KotTicketUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one KotTicket.
+     * @param {KotTicketUpsertArgs} args - Arguments to update or create a KotTicket.
+     * @example
+     * // Update or create a KotTicket
+     * const kotTicket = await prisma.kotTicket.upsert({
+     *   create: {
+     *     // ... data to create a KotTicket
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KotTicket we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KotTicketUpsertArgs>(args: SelectSubset<T, KotTicketUpsertArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of KotTickets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotTicketCountArgs} args - Arguments to filter KotTickets to count.
+     * @example
+     * // Count the number of KotTickets
+     * const count = await prisma.kotTicket.count({
+     *   where: {
+     *     // ... the filter for the KotTickets we want to count
+     *   }
+     * })
+    **/
+    count<T extends KotTicketCountArgs>(
+      args?: Subset<T, KotTicketCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KotTicketCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KotTicket.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotTicketAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KotTicketAggregateArgs>(args: Subset<T, KotTicketAggregateArgs>): Prisma.PrismaPromise<GetKotTicketAggregateType<T>>
+
+    /**
+     * Group by KotTicket.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotTicketGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KotTicketGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KotTicketGroupByArgs['orderBy'] }
+        : { orderBy?: KotTicketGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KotTicketGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKotTicketGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KotTicket model
+   */
+  readonly fields: KotTicketFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KotTicket.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KotTicketClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    items<T extends KotTicket$itemsArgs<ExtArgs> = {}>(args?: Subset<T, KotTicket$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KotTicket model
+   */ 
+  interface KotTicketFieldRefs {
+    readonly id: FieldRef<"KotTicket", 'Int'>
+    readonly orderId: FieldRef<"KotTicket", 'Int'>
+    readonly kotNumber: FieldRef<"KotTicket", 'String'>
+    readonly status: FieldRef<"KotTicket", 'String'>
+    readonly printedAt: FieldRef<"KotTicket", 'DateTime'>
+    readonly createdAt: FieldRef<"KotTicket", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KotTicket findUnique
+   */
+  export type KotTicketFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which KotTicket to fetch.
+     */
+    where: KotTicketWhereUniqueInput
+  }
+
+  /**
+   * KotTicket findUniqueOrThrow
+   */
+  export type KotTicketFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which KotTicket to fetch.
+     */
+    where: KotTicketWhereUniqueInput
+  }
+
+  /**
+   * KotTicket findFirst
+   */
+  export type KotTicketFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which KotTicket to fetch.
+     */
+    where?: KotTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotTickets to fetch.
+     */
+    orderBy?: KotTicketOrderByWithRelationInput | KotTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KotTickets.
+     */
+    cursor?: KotTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotTickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KotTickets.
+     */
+    distinct?: KotTicketScalarFieldEnum | KotTicketScalarFieldEnum[]
+  }
+
+  /**
+   * KotTicket findFirstOrThrow
+   */
+  export type KotTicketFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which KotTicket to fetch.
+     */
+    where?: KotTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotTickets to fetch.
+     */
+    orderBy?: KotTicketOrderByWithRelationInput | KotTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KotTickets.
+     */
+    cursor?: KotTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotTickets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KotTickets.
+     */
+    distinct?: KotTicketScalarFieldEnum | KotTicketScalarFieldEnum[]
+  }
+
+  /**
+   * KotTicket findMany
+   */
+  export type KotTicketFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * Filter, which KotTickets to fetch.
+     */
+    where?: KotTicketWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotTickets to fetch.
+     */
+    orderBy?: KotTicketOrderByWithRelationInput | KotTicketOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KotTickets.
+     */
+    cursor?: KotTicketWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotTickets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotTickets.
+     */
+    skip?: number
+    distinct?: KotTicketScalarFieldEnum | KotTicketScalarFieldEnum[]
+  }
+
+  /**
+   * KotTicket create
+   */
+  export type KotTicketCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KotTicket.
+     */
+    data: XOR<KotTicketCreateInput, KotTicketUncheckedCreateInput>
+  }
+
+  /**
+   * KotTicket createMany
+   */
+  export type KotTicketCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KotTickets.
+     */
+    data: KotTicketCreateManyInput | KotTicketCreateManyInput[]
+  }
+
+  /**
+   * KotTicket createManyAndReturn
+   */
+  export type KotTicketCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many KotTickets.
+     */
+    data: KotTicketCreateManyInput | KotTicketCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KotTicket update
+   */
+  export type KotTicketUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KotTicket.
+     */
+    data: XOR<KotTicketUpdateInput, KotTicketUncheckedUpdateInput>
+    /**
+     * Choose, which KotTicket to update.
+     */
+    where: KotTicketWhereUniqueInput
+  }
+
+  /**
+   * KotTicket updateMany
+   */
+  export type KotTicketUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KotTickets.
+     */
+    data: XOR<KotTicketUpdateManyMutationInput, KotTicketUncheckedUpdateManyInput>
+    /**
+     * Filter which KotTickets to update
+     */
+    where?: KotTicketWhereInput
+  }
+
+  /**
+   * KotTicket upsert
+   */
+  export type KotTicketUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KotTicket to update in case it exists.
+     */
+    where: KotTicketWhereUniqueInput
+    /**
+     * In case the KotTicket found by the `where` argument doesn't exist, create a new KotTicket with this data.
+     */
+    create: XOR<KotTicketCreateInput, KotTicketUncheckedCreateInput>
+    /**
+     * In case the KotTicket was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KotTicketUpdateInput, KotTicketUncheckedUpdateInput>
+  }
+
+  /**
+   * KotTicket delete
+   */
+  export type KotTicketDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+    /**
+     * Filter which KotTicket to delete.
+     */
+    where: KotTicketWhereUniqueInput
+  }
+
+  /**
+   * KotTicket deleteMany
+   */
+  export type KotTicketDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KotTickets to delete
+     */
+    where?: KotTicketWhereInput
+  }
+
+  /**
+   * KotTicket.items
+   */
+  export type KotTicket$itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    where?: KotItemWhereInput
+    orderBy?: KotItemOrderByWithRelationInput | KotItemOrderByWithRelationInput[]
+    cursor?: KotItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: KotItemScalarFieldEnum | KotItemScalarFieldEnum[]
+  }
+
+  /**
+   * KotTicket without action
+   */
+  export type KotTicketDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotTicket
+     */
+    select?: KotTicketSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotTicketInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model KotItem
+   */
+
+  export type AggregateKotItem = {
+    _count: KotItemCountAggregateOutputType | null
+    _avg: KotItemAvgAggregateOutputType | null
+    _sum: KotItemSumAggregateOutputType | null
+    _min: KotItemMinAggregateOutputType | null
+    _max: KotItemMaxAggregateOutputType | null
+  }
+
+  export type KotItemAvgAggregateOutputType = {
+    id: number | null
+    kotTicketId: number | null
+    orderItemId: number | null
+    menuItemId: number | null
+    quantity: number | null
+  }
+
+  export type KotItemSumAggregateOutputType = {
+    id: number | null
+    kotTicketId: number | null
+    orderItemId: number | null
+    menuItemId: number | null
+    quantity: number | null
+  }
+
+  export type KotItemMinAggregateOutputType = {
+    id: number | null
+    kotTicketId: number | null
+    orderItemId: number | null
+    menuItemId: number | null
+    name: string | null
+    quantity: number | null
+    note: string | null
+    status: string | null
+    createdAt: Date | null
+  }
+
+  export type KotItemMaxAggregateOutputType = {
+    id: number | null
+    kotTicketId: number | null
+    orderItemId: number | null
+    menuItemId: number | null
+    name: string | null
+    quantity: number | null
+    note: string | null
+    status: string | null
+    createdAt: Date | null
+  }
+
+  export type KotItemCountAggregateOutputType = {
+    id: number
+    kotTicketId: number
+    orderItemId: number
+    menuItemId: number
+    name: number
+    quantity: number
+    note: number
+    status: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type KotItemAvgAggregateInputType = {
+    id?: true
+    kotTicketId?: true
+    orderItemId?: true
+    menuItemId?: true
+    quantity?: true
+  }
+
+  export type KotItemSumAggregateInputType = {
+    id?: true
+    kotTicketId?: true
+    orderItemId?: true
+    menuItemId?: true
+    quantity?: true
+  }
+
+  export type KotItemMinAggregateInputType = {
+    id?: true
+    kotTicketId?: true
+    orderItemId?: true
+    menuItemId?: true
+    name?: true
+    quantity?: true
+    note?: true
+    status?: true
+    createdAt?: true
+  }
+
+  export type KotItemMaxAggregateInputType = {
+    id?: true
+    kotTicketId?: true
+    orderItemId?: true
+    menuItemId?: true
+    name?: true
+    quantity?: true
+    note?: true
+    status?: true
+    createdAt?: true
+  }
+
+  export type KotItemCountAggregateInputType = {
+    id?: true
+    kotTicketId?: true
+    orderItemId?: true
+    menuItemId?: true
+    name?: true
+    quantity?: true
+    note?: true
+    status?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type KotItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KotItem to aggregate.
+     */
+    where?: KotItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotItems to fetch.
+     */
+    orderBy?: KotItemOrderByWithRelationInput | KotItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: KotItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned KotItems
+    **/
+    _count?: true | KotItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: KotItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: KotItemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: KotItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: KotItemMaxAggregateInputType
+  }
+
+  export type GetKotItemAggregateType<T extends KotItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateKotItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateKotItem[P]>
+      : GetScalarType<T[P], AggregateKotItem[P]>
+  }
+
+
+
+
+  export type KotItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: KotItemWhereInput
+    orderBy?: KotItemOrderByWithAggregationInput | KotItemOrderByWithAggregationInput[]
+    by: KotItemScalarFieldEnum[] | KotItemScalarFieldEnum
+    having?: KotItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: KotItemCountAggregateInputType | true
+    _avg?: KotItemAvgAggregateInputType
+    _sum?: KotItemSumAggregateInputType
+    _min?: KotItemMinAggregateInputType
+    _max?: KotItemMaxAggregateInputType
+  }
+
+  export type KotItemGroupByOutputType = {
+    id: number
+    kotTicketId: number
+    orderItemId: number | null
+    menuItemId: number
+    name: string
+    quantity: number
+    note: string | null
+    status: string
+    createdAt: Date
+    _count: KotItemCountAggregateOutputType | null
+    _avg: KotItemAvgAggregateOutputType | null
+    _sum: KotItemSumAggregateOutputType | null
+    _min: KotItemMinAggregateOutputType | null
+    _max: KotItemMaxAggregateOutputType | null
+  }
+
+  type GetKotItemGroupByPayload<T extends KotItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<KotItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof KotItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], KotItemGroupByOutputType[P]>
+            : GetScalarType<T[P], KotItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type KotItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    kotTicketId?: boolean
+    orderItemId?: boolean
+    menuItemId?: boolean
+    name?: boolean
+    quantity?: boolean
+    note?: boolean
+    status?: boolean
+    createdAt?: boolean
+    ticket?: boolean | KotTicketDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kotItem"]>
+
+  export type KotItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    kotTicketId?: boolean
+    orderItemId?: boolean
+    menuItemId?: boolean
+    name?: boolean
+    quantity?: boolean
+    note?: boolean
+    status?: boolean
+    createdAt?: boolean
+    ticket?: boolean | KotTicketDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["kotItem"]>
+
+  export type KotItemSelectScalar = {
+    id?: boolean
+    kotTicketId?: boolean
+    orderItemId?: boolean
+    menuItemId?: boolean
+    name?: boolean
+    quantity?: boolean
+    note?: boolean
+    status?: boolean
+    createdAt?: boolean
+  }
+
+  export type KotItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | KotTicketDefaultArgs<ExtArgs>
+  }
+  export type KotItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    ticket?: boolean | KotTicketDefaultArgs<ExtArgs>
+  }
+
+  export type $KotItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "KotItem"
+    objects: {
+      ticket: Prisma.$KotTicketPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      kotTicketId: number
+      orderItemId: number | null
+      menuItemId: number
+      name: string
+      quantity: number
+      note: string | null
+      status: string
+      createdAt: Date
+    }, ExtArgs["result"]["kotItem"]>
+    composites: {}
+  }
+
+  type KotItemGetPayload<S extends boolean | null | undefined | KotItemDefaultArgs> = $Result.GetResult<Prisma.$KotItemPayload, S>
+
+  type KotItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<KotItemFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: KotItemCountAggregateInputType | true
+    }
+
+  export interface KotItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KotItem'], meta: { name: 'KotItem' } }
+    /**
+     * Find zero or one KotItem that matches the filter.
+     * @param {KotItemFindUniqueArgs} args - Arguments to find a KotItem
+     * @example
+     * // Get one KotItem
+     * const kotItem = await prisma.kotItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends KotItemFindUniqueArgs>(args: SelectSubset<T, KotItemFindUniqueArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one KotItem that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {KotItemFindUniqueOrThrowArgs} args - Arguments to find a KotItem
+     * @example
+     * // Get one KotItem
+     * const kotItem = await prisma.kotItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends KotItemFindUniqueOrThrowArgs>(args: SelectSubset<T, KotItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first KotItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotItemFindFirstArgs} args - Arguments to find a KotItem
+     * @example
+     * // Get one KotItem
+     * const kotItem = await prisma.kotItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends KotItemFindFirstArgs>(args?: SelectSubset<T, KotItemFindFirstArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first KotItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotItemFindFirstOrThrowArgs} args - Arguments to find a KotItem
+     * @example
+     * // Get one KotItem
+     * const kotItem = await prisma.kotItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends KotItemFindFirstOrThrowArgs>(args?: SelectSubset<T, KotItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more KotItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all KotItems
+     * const kotItems = await prisma.kotItem.findMany()
+     * 
+     * // Get first 10 KotItems
+     * const kotItems = await prisma.kotItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const kotItemWithIdOnly = await prisma.kotItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends KotItemFindManyArgs>(args?: SelectSubset<T, KotItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a KotItem.
+     * @param {KotItemCreateArgs} args - Arguments to create a KotItem.
+     * @example
+     * // Create one KotItem
+     * const KotItem = await prisma.kotItem.create({
+     *   data: {
+     *     // ... data to create a KotItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends KotItemCreateArgs>(args: SelectSubset<T, KotItemCreateArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many KotItems.
+     * @param {KotItemCreateManyArgs} args - Arguments to create many KotItems.
+     * @example
+     * // Create many KotItems
+     * const kotItem = await prisma.kotItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends KotItemCreateManyArgs>(args?: SelectSubset<T, KotItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many KotItems and returns the data saved in the database.
+     * @param {KotItemCreateManyAndReturnArgs} args - Arguments to create many KotItems.
+     * @example
+     * // Create many KotItems
+     * const kotItem = await prisma.kotItem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many KotItems and only return the `id`
+     * const kotItemWithIdOnly = await prisma.kotItem.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends KotItemCreateManyAndReturnArgs>(args?: SelectSubset<T, KotItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a KotItem.
+     * @param {KotItemDeleteArgs} args - Arguments to delete one KotItem.
+     * @example
+     * // Delete one KotItem
+     * const KotItem = await prisma.kotItem.delete({
+     *   where: {
+     *     // ... filter to delete one KotItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends KotItemDeleteArgs>(args: SelectSubset<T, KotItemDeleteArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one KotItem.
+     * @param {KotItemUpdateArgs} args - Arguments to update one KotItem.
+     * @example
+     * // Update one KotItem
+     * const kotItem = await prisma.kotItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends KotItemUpdateArgs>(args: SelectSubset<T, KotItemUpdateArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more KotItems.
+     * @param {KotItemDeleteManyArgs} args - Arguments to filter KotItems to delete.
+     * @example
+     * // Delete a few KotItems
+     * const { count } = await prisma.kotItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends KotItemDeleteManyArgs>(args?: SelectSubset<T, KotItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more KotItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many KotItems
+     * const kotItem = await prisma.kotItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends KotItemUpdateManyArgs>(args: SelectSubset<T, KotItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one KotItem.
+     * @param {KotItemUpsertArgs} args - Arguments to update or create a KotItem.
+     * @example
+     * // Update or create a KotItem
+     * const kotItem = await prisma.kotItem.upsert({
+     *   create: {
+     *     // ... data to create a KotItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the KotItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends KotItemUpsertArgs>(args: SelectSubset<T, KotItemUpsertArgs<ExtArgs>>): Prisma__KotItemClient<$Result.GetResult<Prisma.$KotItemPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of KotItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotItemCountArgs} args - Arguments to filter KotItems to count.
+     * @example
+     * // Count the number of KotItems
+     * const count = await prisma.kotItem.count({
+     *   where: {
+     *     // ... the filter for the KotItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends KotItemCountArgs>(
+      args?: Subset<T, KotItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], KotItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a KotItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends KotItemAggregateArgs>(args: Subset<T, KotItemAggregateArgs>): Prisma.PrismaPromise<GetKotItemAggregateType<T>>
+
+    /**
+     * Group by KotItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {KotItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends KotItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: KotItemGroupByArgs['orderBy'] }
+        : { orderBy?: KotItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, KotItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKotItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the KotItem model
+   */
+  readonly fields: KotItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for KotItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__KotItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    ticket<T extends KotTicketDefaultArgs<ExtArgs> = {}>(args?: Subset<T, KotTicketDefaultArgs<ExtArgs>>): Prisma__KotTicketClient<$Result.GetResult<Prisma.$KotTicketPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the KotItem model
+   */ 
+  interface KotItemFieldRefs {
+    readonly id: FieldRef<"KotItem", 'Int'>
+    readonly kotTicketId: FieldRef<"KotItem", 'Int'>
+    readonly orderItemId: FieldRef<"KotItem", 'Int'>
+    readonly menuItemId: FieldRef<"KotItem", 'Int'>
+    readonly name: FieldRef<"KotItem", 'String'>
+    readonly quantity: FieldRef<"KotItem", 'Int'>
+    readonly note: FieldRef<"KotItem", 'String'>
+    readonly status: FieldRef<"KotItem", 'String'>
+    readonly createdAt: FieldRef<"KotItem", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * KotItem findUnique
+   */
+  export type KotItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * Filter, which KotItem to fetch.
+     */
+    where: KotItemWhereUniqueInput
+  }
+
+  /**
+   * KotItem findUniqueOrThrow
+   */
+  export type KotItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * Filter, which KotItem to fetch.
+     */
+    where: KotItemWhereUniqueInput
+  }
+
+  /**
+   * KotItem findFirst
+   */
+  export type KotItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * Filter, which KotItem to fetch.
+     */
+    where?: KotItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotItems to fetch.
+     */
+    orderBy?: KotItemOrderByWithRelationInput | KotItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KotItems.
+     */
+    cursor?: KotItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KotItems.
+     */
+    distinct?: KotItemScalarFieldEnum | KotItemScalarFieldEnum[]
+  }
+
+  /**
+   * KotItem findFirstOrThrow
+   */
+  export type KotItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * Filter, which KotItem to fetch.
+     */
+    where?: KotItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotItems to fetch.
+     */
+    orderBy?: KotItemOrderByWithRelationInput | KotItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for KotItems.
+     */
+    cursor?: KotItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of KotItems.
+     */
+    distinct?: KotItemScalarFieldEnum | KotItemScalarFieldEnum[]
+  }
+
+  /**
+   * KotItem findMany
+   */
+  export type KotItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * Filter, which KotItems to fetch.
+     */
+    where?: KotItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of KotItems to fetch.
+     */
+    orderBy?: KotItemOrderByWithRelationInput | KotItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing KotItems.
+     */
+    cursor?: KotItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` KotItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` KotItems.
+     */
+    skip?: number
+    distinct?: KotItemScalarFieldEnum | KotItemScalarFieldEnum[]
+  }
+
+  /**
+   * KotItem create
+   */
+  export type KotItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a KotItem.
+     */
+    data: XOR<KotItemCreateInput, KotItemUncheckedCreateInput>
+  }
+
+  /**
+   * KotItem createMany
+   */
+  export type KotItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many KotItems.
+     */
+    data: KotItemCreateManyInput | KotItemCreateManyInput[]
+  }
+
+  /**
+   * KotItem createManyAndReturn
+   */
+  export type KotItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many KotItems.
+     */
+    data: KotItemCreateManyInput | KotItemCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * KotItem update
+   */
+  export type KotItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a KotItem.
+     */
+    data: XOR<KotItemUpdateInput, KotItemUncheckedUpdateInput>
+    /**
+     * Choose, which KotItem to update.
+     */
+    where: KotItemWhereUniqueInput
+  }
+
+  /**
+   * KotItem updateMany
+   */
+  export type KotItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update KotItems.
+     */
+    data: XOR<KotItemUpdateManyMutationInput, KotItemUncheckedUpdateManyInput>
+    /**
+     * Filter which KotItems to update
+     */
+    where?: KotItemWhereInput
+  }
+
+  /**
+   * KotItem upsert
+   */
+  export type KotItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the KotItem to update in case it exists.
+     */
+    where: KotItemWhereUniqueInput
+    /**
+     * In case the KotItem found by the `where` argument doesn't exist, create a new KotItem with this data.
+     */
+    create: XOR<KotItemCreateInput, KotItemUncheckedCreateInput>
+    /**
+     * In case the KotItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<KotItemUpdateInput, KotItemUncheckedUpdateInput>
+  }
+
+  /**
+   * KotItem delete
+   */
+  export type KotItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
+    /**
+     * Filter which KotItem to delete.
+     */
+    where: KotItemWhereUniqueInput
+  }
+
+  /**
+   * KotItem deleteMany
+   */
+  export type KotItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which KotItems to delete
+     */
+    where?: KotItemWhereInput
+  }
+
+  /**
+   * KotItem without action
+   */
+  export type KotItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the KotItem
+     */
+    select?: KotItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: KotItemInclude<ExtArgs> | null
   }
 
 
@@ -14241,6 +16513,33 @@ export namespace Prisma {
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
 
 
+  export const KotTicketScalarFieldEnum: {
+    id: 'id',
+    orderId: 'orderId',
+    kotNumber: 'kotNumber',
+    status: 'status',
+    printedAt: 'printedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type KotTicketScalarFieldEnum = (typeof KotTicketScalarFieldEnum)[keyof typeof KotTicketScalarFieldEnum]
+
+
+  export const KotItemScalarFieldEnum: {
+    id: 'id',
+    kotTicketId: 'kotTicketId',
+    orderItemId: 'orderItemId',
+    menuItemId: 'menuItemId',
+    name: 'name',
+    quantity: 'quantity',
+    note: 'note',
+    status: 'status',
+    createdAt: 'createdAt'
+  };
+
+  export type KotItemScalarFieldEnum = (typeof KotItemScalarFieldEnum)[keyof typeof KotItemScalarFieldEnum]
+
+
   export const BillSequenceScalarFieldEnum: {
     id: 'id',
     businessDate: 'businessDate',
@@ -14693,6 +16992,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Order"> | Date | string
     items?: OrderItemListRelationFilter
     payments?: PaymentListRelationFilter
+    kotTickets?: KotTicketListRelationFilter
   }
 
   export type OrderOrderByWithRelationInput = {
@@ -14712,6 +17012,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     items?: OrderItemOrderByRelationAggregateInput
     payments?: PaymentOrderByRelationAggregateInput
+    kotTickets?: KotTicketOrderByRelationAggregateInput
   }
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
@@ -14734,6 +17035,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Order"> | Date | string
     items?: OrderItemListRelationFilter
     payments?: PaymentListRelationFilter
+    kotTickets?: KotTicketListRelationFilter
   }, "id" | "billNumber">
 
   export type OrderOrderByWithAggregationInput = {
@@ -14776,6 +17078,148 @@ export namespace Prisma {
     finalAmount?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
+  }
+
+  export type KotTicketWhereInput = {
+    AND?: KotTicketWhereInput | KotTicketWhereInput[]
+    OR?: KotTicketWhereInput[]
+    NOT?: KotTicketWhereInput | KotTicketWhereInput[]
+    id?: IntFilter<"KotTicket"> | number
+    orderId?: IntFilter<"KotTicket"> | number
+    kotNumber?: StringFilter<"KotTicket"> | string
+    status?: StringFilter<"KotTicket"> | string
+    printedAt?: DateTimeNullableFilter<"KotTicket"> | Date | string | null
+    createdAt?: DateTimeFilter<"KotTicket"> | Date | string
+    order?: XOR<OrderRelationFilter, OrderWhereInput>
+    items?: KotItemListRelationFilter
+  }
+
+  export type KotTicketOrderByWithRelationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    kotNumber?: SortOrder
+    status?: SortOrder
+    printedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    order?: OrderOrderByWithRelationInput
+    items?: KotItemOrderByRelationAggregateInput
+  }
+
+  export type KotTicketWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    kotNumber?: string
+    AND?: KotTicketWhereInput | KotTicketWhereInput[]
+    OR?: KotTicketWhereInput[]
+    NOT?: KotTicketWhereInput | KotTicketWhereInput[]
+    orderId?: IntFilter<"KotTicket"> | number
+    status?: StringFilter<"KotTicket"> | string
+    printedAt?: DateTimeNullableFilter<"KotTicket"> | Date | string | null
+    createdAt?: DateTimeFilter<"KotTicket"> | Date | string
+    order?: XOR<OrderRelationFilter, OrderWhereInput>
+    items?: KotItemListRelationFilter
+  }, "id" | "kotNumber">
+
+  export type KotTicketOrderByWithAggregationInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    kotNumber?: SortOrder
+    status?: SortOrder
+    printedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: KotTicketCountOrderByAggregateInput
+    _avg?: KotTicketAvgOrderByAggregateInput
+    _max?: KotTicketMaxOrderByAggregateInput
+    _min?: KotTicketMinOrderByAggregateInput
+    _sum?: KotTicketSumOrderByAggregateInput
+  }
+
+  export type KotTicketScalarWhereWithAggregatesInput = {
+    AND?: KotTicketScalarWhereWithAggregatesInput | KotTicketScalarWhereWithAggregatesInput[]
+    OR?: KotTicketScalarWhereWithAggregatesInput[]
+    NOT?: KotTicketScalarWhereWithAggregatesInput | KotTicketScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"KotTicket"> | number
+    orderId?: IntWithAggregatesFilter<"KotTicket"> | number
+    kotNumber?: StringWithAggregatesFilter<"KotTicket"> | string
+    status?: StringWithAggregatesFilter<"KotTicket"> | string
+    printedAt?: DateTimeNullableWithAggregatesFilter<"KotTicket"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"KotTicket"> | Date | string
+  }
+
+  export type KotItemWhereInput = {
+    AND?: KotItemWhereInput | KotItemWhereInput[]
+    OR?: KotItemWhereInput[]
+    NOT?: KotItemWhereInput | KotItemWhereInput[]
+    id?: IntFilter<"KotItem"> | number
+    kotTicketId?: IntFilter<"KotItem"> | number
+    orderItemId?: IntNullableFilter<"KotItem"> | number | null
+    menuItemId?: IntFilter<"KotItem"> | number
+    name?: StringFilter<"KotItem"> | string
+    quantity?: IntFilter<"KotItem"> | number
+    note?: StringNullableFilter<"KotItem"> | string | null
+    status?: StringFilter<"KotItem"> | string
+    createdAt?: DateTimeFilter<"KotItem"> | Date | string
+    ticket?: XOR<KotTicketRelationFilter, KotTicketWhereInput>
+  }
+
+  export type KotItemOrderByWithRelationInput = {
+    id?: SortOrder
+    kotTicketId?: SortOrder
+    orderItemId?: SortOrderInput | SortOrder
+    menuItemId?: SortOrder
+    name?: SortOrder
+    quantity?: SortOrder
+    note?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    ticket?: KotTicketOrderByWithRelationInput
+  }
+
+  export type KotItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: KotItemWhereInput | KotItemWhereInput[]
+    OR?: KotItemWhereInput[]
+    NOT?: KotItemWhereInput | KotItemWhereInput[]
+    kotTicketId?: IntFilter<"KotItem"> | number
+    orderItemId?: IntNullableFilter<"KotItem"> | number | null
+    menuItemId?: IntFilter<"KotItem"> | number
+    name?: StringFilter<"KotItem"> | string
+    quantity?: IntFilter<"KotItem"> | number
+    note?: StringNullableFilter<"KotItem"> | string | null
+    status?: StringFilter<"KotItem"> | string
+    createdAt?: DateTimeFilter<"KotItem"> | Date | string
+    ticket?: XOR<KotTicketRelationFilter, KotTicketWhereInput>
+  }, "id">
+
+  export type KotItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    kotTicketId?: SortOrder
+    orderItemId?: SortOrderInput | SortOrder
+    menuItemId?: SortOrder
+    name?: SortOrder
+    quantity?: SortOrder
+    note?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    _count?: KotItemCountOrderByAggregateInput
+    _avg?: KotItemAvgOrderByAggregateInput
+    _max?: KotItemMaxOrderByAggregateInput
+    _min?: KotItemMinOrderByAggregateInput
+    _sum?: KotItemSumOrderByAggregateInput
+  }
+
+  export type KotItemScalarWhereWithAggregatesInput = {
+    AND?: KotItemScalarWhereWithAggregatesInput | KotItemScalarWhereWithAggregatesInput[]
+    OR?: KotItemScalarWhereWithAggregatesInput[]
+    NOT?: KotItemScalarWhereWithAggregatesInput | KotItemScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"KotItem"> | number
+    kotTicketId?: IntWithAggregatesFilter<"KotItem"> | number
+    orderItemId?: IntNullableWithAggregatesFilter<"KotItem"> | number | null
+    menuItemId?: IntWithAggregatesFilter<"KotItem"> | number
+    name?: StringWithAggregatesFilter<"KotItem"> | string
+    quantity?: IntWithAggregatesFilter<"KotItem"> | number
+    note?: StringNullableWithAggregatesFilter<"KotItem"> | string | null
+    status?: StringWithAggregatesFilter<"KotItem"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"KotItem"> | Date | string
   }
 
   export type BillSequenceWhereInput = {
@@ -15574,6 +18018,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     items?: OrderItemCreateNestedManyWithoutOrderInput
     payments?: PaymentCreateNestedManyWithoutOrderInput
+    kotTickets?: KotTicketCreateNestedManyWithoutOrderInput
   }
 
   export type OrderUncheckedCreateInput = {
@@ -15593,6 +18038,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
+    kotTickets?: KotTicketUncheckedCreateNestedManyWithoutOrderInput
   }
 
   export type OrderUpdateInput = {
@@ -15611,6 +18057,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUpdateManyWithoutOrderNestedInput
     payments?: PaymentUpdateManyWithoutOrderNestedInput
+    kotTickets?: KotTicketUpdateManyWithoutOrderNestedInput
   }
 
   export type OrderUncheckedUpdateInput = {
@@ -15630,6 +18077,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
+    kotTickets?: KotTicketUncheckedUpdateManyWithoutOrderNestedInput
   }
 
   export type OrderCreateManyInput = {
@@ -15680,6 +18128,149 @@ export namespace Prisma {
     finalAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotTicketCreateInput = {
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+    order: OrderCreateNestedOneWithoutKotTicketsInput
+    items?: KotItemCreateNestedManyWithoutTicketInput
+  }
+
+  export type KotTicketUncheckedCreateInput = {
+    id?: number
+    orderId: number
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+    items?: KotItemUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type KotTicketUpdateInput = {
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutKotTicketsNestedInput
+    items?: KotItemUpdateManyWithoutTicketNestedInput
+  }
+
+  export type KotTicketUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: KotItemUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type KotTicketCreateManyInput = {
+    id?: number
+    orderId: number
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type KotTicketUpdateManyMutationInput = {
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotTicketUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotItemCreateInput = {
+    orderItemId?: number | null
+    menuItemId: number
+    name: string
+    quantity: number
+    note?: string | null
+    status?: string
+    createdAt?: Date | string
+    ticket: KotTicketCreateNestedOneWithoutItemsInput
+  }
+
+  export type KotItemUncheckedCreateInput = {
+    id?: number
+    kotTicketId: number
+    orderItemId?: number | null
+    menuItemId: number
+    name: string
+    quantity: number
+    note?: string | null
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type KotItemUpdateInput = {
+    orderItemId?: NullableIntFieldUpdateOperationsInput | number | null
+    menuItemId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    ticket?: KotTicketUpdateOneRequiredWithoutItemsNestedInput
+  }
+
+  export type KotItemUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    kotTicketId?: IntFieldUpdateOperationsInput | number
+    orderItemId?: NullableIntFieldUpdateOperationsInput | number | null
+    menuItemId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotItemCreateManyInput = {
+    id?: number
+    kotTicketId: number
+    orderItemId?: number | null
+    menuItemId: number
+    name: string
+    quantity: number
+    note?: string | null
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type KotItemUpdateManyMutationInput = {
+    orderItemId?: NullableIntFieldUpdateOperationsInput | number | null
+    menuItemId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotItemUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    kotTicketId?: IntFieldUpdateOperationsInput | number
+    orderItemId?: NullableIntFieldUpdateOperationsInput | number | null
+    menuItemId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BillSequenceCreateInput = {
@@ -16586,7 +19177,17 @@ export namespace Prisma {
     none?: PaymentWhereInput
   }
 
+  export type KotTicketListRelationFilter = {
+    every?: KotTicketWhereInput
+    some?: KotTicketWhereInput
+    none?: KotTicketWhereInput
+  }
+
   export type PaymentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KotTicketOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -16675,6 +19276,140 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type OrderRelationFilter = {
+    is?: OrderWhereInput
+    isNot?: OrderWhereInput
+  }
+
+  export type KotItemListRelationFilter = {
+    every?: KotItemWhereInput
+    some?: KotItemWhereInput
+    none?: KotItemWhereInput
+  }
+
+  export type KotItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type KotTicketCountOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    kotNumber?: SortOrder
+    status?: SortOrder
+    printedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type KotTicketAvgOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+  }
+
+  export type KotTicketMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    kotNumber?: SortOrder
+    status?: SortOrder
+    printedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type KotTicketMinOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+    kotNumber?: SortOrder
+    status?: SortOrder
+    printedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type KotTicketSumOrderByAggregateInput = {
+    id?: SortOrder
+    orderId?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type KotTicketRelationFilter = {
+    is?: KotTicketWhereInput
+    isNot?: KotTicketWhereInput
+  }
+
+  export type KotItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    kotTicketId?: SortOrder
+    orderItemId?: SortOrder
+    menuItemId?: SortOrder
+    name?: SortOrder
+    quantity?: SortOrder
+    note?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type KotItemAvgOrderByAggregateInput = {
+    id?: SortOrder
+    kotTicketId?: SortOrder
+    orderItemId?: SortOrder
+    menuItemId?: SortOrder
+    quantity?: SortOrder
+  }
+
+  export type KotItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    kotTicketId?: SortOrder
+    orderItemId?: SortOrder
+    menuItemId?: SortOrder
+    name?: SortOrder
+    quantity?: SortOrder
+    note?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type KotItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    kotTicketId?: SortOrder
+    orderItemId?: SortOrder
+    menuItemId?: SortOrder
+    name?: SortOrder
+    quantity?: SortOrder
+    note?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type KotItemSumOrderByAggregateInput = {
+    id?: SortOrder
+    kotTicketId?: SortOrder
+    orderItemId?: SortOrder
+    menuItemId?: SortOrder
+    quantity?: SortOrder
+  }
+
   export type BillSequenceCountOrderByAggregateInput = {
     id?: SortOrder
     businessDate?: SortOrder
@@ -16704,11 +19439,6 @@ export namespace Prisma {
   export type BillSequenceSumOrderByAggregateInput = {
     id?: SortOrder
     lastNumber?: SortOrder
-  }
-
-  export type OrderRelationFilter = {
-    is?: OrderWhereInput
-    isNot?: OrderWhereInput
   }
 
   export type MenuItemRelationFilter = {
@@ -16762,17 +19492,6 @@ export namespace Prisma {
     quantity?: SortOrder
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type PaymentCountOrderByAggregateInput = {
     id?: SortOrder
     orderId?: SortOrder
@@ -16824,20 +19543,6 @@ export namespace Prisma {
     orderId?: SortOrder
     amount?: SortOrder
     settledAmount?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type ExpenseCountOrderByAggregateInput = {
@@ -17268,6 +19973,13 @@ export namespace Prisma {
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
   }
 
+  export type KotTicketCreateNestedManyWithoutOrderInput = {
+    create?: XOR<KotTicketCreateWithoutOrderInput, KotTicketUncheckedCreateWithoutOrderInput> | KotTicketCreateWithoutOrderInput[] | KotTicketUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: KotTicketCreateOrConnectWithoutOrderInput | KotTicketCreateOrConnectWithoutOrderInput[]
+    createMany?: KotTicketCreateManyOrderInputEnvelope
+    connect?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+  }
+
   export type OrderItemUncheckedCreateNestedManyWithoutOrderInput = {
     create?: XOR<OrderItemCreateWithoutOrderInput, OrderItemUncheckedCreateWithoutOrderInput> | OrderItemCreateWithoutOrderInput[] | OrderItemUncheckedCreateWithoutOrderInput[]
     connectOrCreate?: OrderItemCreateOrConnectWithoutOrderInput | OrderItemCreateOrConnectWithoutOrderInput[]
@@ -17280,6 +19992,13 @@ export namespace Prisma {
     connectOrCreate?: PaymentCreateOrConnectWithoutOrderInput | PaymentCreateOrConnectWithoutOrderInput[]
     createMany?: PaymentCreateManyOrderInputEnvelope
     connect?: PaymentWhereUniqueInput | PaymentWhereUniqueInput[]
+  }
+
+  export type KotTicketUncheckedCreateNestedManyWithoutOrderInput = {
+    create?: XOR<KotTicketCreateWithoutOrderInput, KotTicketUncheckedCreateWithoutOrderInput> | KotTicketCreateWithoutOrderInput[] | KotTicketUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: KotTicketCreateOrConnectWithoutOrderInput | KotTicketCreateOrConnectWithoutOrderInput[]
+    createMany?: KotTicketCreateManyOrderInputEnvelope
+    connect?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -17318,6 +20037,20 @@ export namespace Prisma {
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
   }
 
+  export type KotTicketUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<KotTicketCreateWithoutOrderInput, KotTicketUncheckedCreateWithoutOrderInput> | KotTicketCreateWithoutOrderInput[] | KotTicketUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: KotTicketCreateOrConnectWithoutOrderInput | KotTicketCreateOrConnectWithoutOrderInput[]
+    upsert?: KotTicketUpsertWithWhereUniqueWithoutOrderInput | KotTicketUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: KotTicketCreateManyOrderInputEnvelope
+    set?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    disconnect?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    delete?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    connect?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    update?: KotTicketUpdateWithWhereUniqueWithoutOrderInput | KotTicketUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: KotTicketUpdateManyWithWhereWithoutOrderInput | KotTicketUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: KotTicketScalarWhereInput | KotTicketScalarWhereInput[]
+  }
+
   export type OrderItemUncheckedUpdateManyWithoutOrderNestedInput = {
     create?: XOR<OrderItemCreateWithoutOrderInput, OrderItemUncheckedCreateWithoutOrderInput> | OrderItemCreateWithoutOrderInput[] | OrderItemUncheckedCreateWithoutOrderInput[]
     connectOrCreate?: OrderItemCreateOrConnectWithoutOrderInput | OrderItemCreateOrConnectWithoutOrderInput[]
@@ -17344,6 +20077,94 @@ export namespace Prisma {
     update?: PaymentUpdateWithWhereUniqueWithoutOrderInput | PaymentUpdateWithWhereUniqueWithoutOrderInput[]
     updateMany?: PaymentUpdateManyWithWhereWithoutOrderInput | PaymentUpdateManyWithWhereWithoutOrderInput[]
     deleteMany?: PaymentScalarWhereInput | PaymentScalarWhereInput[]
+  }
+
+  export type KotTicketUncheckedUpdateManyWithoutOrderNestedInput = {
+    create?: XOR<KotTicketCreateWithoutOrderInput, KotTicketUncheckedCreateWithoutOrderInput> | KotTicketCreateWithoutOrderInput[] | KotTicketUncheckedCreateWithoutOrderInput[]
+    connectOrCreate?: KotTicketCreateOrConnectWithoutOrderInput | KotTicketCreateOrConnectWithoutOrderInput[]
+    upsert?: KotTicketUpsertWithWhereUniqueWithoutOrderInput | KotTicketUpsertWithWhereUniqueWithoutOrderInput[]
+    createMany?: KotTicketCreateManyOrderInputEnvelope
+    set?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    disconnect?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    delete?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    connect?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
+    update?: KotTicketUpdateWithWhereUniqueWithoutOrderInput | KotTicketUpdateWithWhereUniqueWithoutOrderInput[]
+    updateMany?: KotTicketUpdateManyWithWhereWithoutOrderInput | KotTicketUpdateManyWithWhereWithoutOrderInput[]
+    deleteMany?: KotTicketScalarWhereInput | KotTicketScalarWhereInput[]
+  }
+
+  export type OrderCreateNestedOneWithoutKotTicketsInput = {
+    create?: XOR<OrderCreateWithoutKotTicketsInput, OrderUncheckedCreateWithoutKotTicketsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutKotTicketsInput
+    connect?: OrderWhereUniqueInput
+  }
+
+  export type KotItemCreateNestedManyWithoutTicketInput = {
+    create?: XOR<KotItemCreateWithoutTicketInput, KotItemUncheckedCreateWithoutTicketInput> | KotItemCreateWithoutTicketInput[] | KotItemUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: KotItemCreateOrConnectWithoutTicketInput | KotItemCreateOrConnectWithoutTicketInput[]
+    createMany?: KotItemCreateManyTicketInputEnvelope
+    connect?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+  }
+
+  export type KotItemUncheckedCreateNestedManyWithoutTicketInput = {
+    create?: XOR<KotItemCreateWithoutTicketInput, KotItemUncheckedCreateWithoutTicketInput> | KotItemCreateWithoutTicketInput[] | KotItemUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: KotItemCreateOrConnectWithoutTicketInput | KotItemCreateOrConnectWithoutTicketInput[]
+    createMany?: KotItemCreateManyTicketInputEnvelope
+    connect?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type OrderUpdateOneRequiredWithoutKotTicketsNestedInput = {
+    create?: XOR<OrderCreateWithoutKotTicketsInput, OrderUncheckedCreateWithoutKotTicketsInput>
+    connectOrCreate?: OrderCreateOrConnectWithoutKotTicketsInput
+    upsert?: OrderUpsertWithoutKotTicketsInput
+    connect?: OrderWhereUniqueInput
+    update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutKotTicketsInput, OrderUpdateWithoutKotTicketsInput>, OrderUncheckedUpdateWithoutKotTicketsInput>
+  }
+
+  export type KotItemUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<KotItemCreateWithoutTicketInput, KotItemUncheckedCreateWithoutTicketInput> | KotItemCreateWithoutTicketInput[] | KotItemUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: KotItemCreateOrConnectWithoutTicketInput | KotItemCreateOrConnectWithoutTicketInput[]
+    upsert?: KotItemUpsertWithWhereUniqueWithoutTicketInput | KotItemUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: KotItemCreateManyTicketInputEnvelope
+    set?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    disconnect?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    delete?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    connect?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    update?: KotItemUpdateWithWhereUniqueWithoutTicketInput | KotItemUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: KotItemUpdateManyWithWhereWithoutTicketInput | KotItemUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: KotItemScalarWhereInput | KotItemScalarWhereInput[]
+  }
+
+  export type KotItemUncheckedUpdateManyWithoutTicketNestedInput = {
+    create?: XOR<KotItemCreateWithoutTicketInput, KotItemUncheckedCreateWithoutTicketInput> | KotItemCreateWithoutTicketInput[] | KotItemUncheckedCreateWithoutTicketInput[]
+    connectOrCreate?: KotItemCreateOrConnectWithoutTicketInput | KotItemCreateOrConnectWithoutTicketInput[]
+    upsert?: KotItemUpsertWithWhereUniqueWithoutTicketInput | KotItemUpsertWithWhereUniqueWithoutTicketInput[]
+    createMany?: KotItemCreateManyTicketInputEnvelope
+    set?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    disconnect?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    delete?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    connect?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
+    update?: KotItemUpdateWithWhereUniqueWithoutTicketInput | KotItemUpdateWithWhereUniqueWithoutTicketInput[]
+    updateMany?: KotItemUpdateManyWithWhereWithoutTicketInput | KotItemUpdateManyWithWhereWithoutTicketInput[]
+    deleteMany?: KotItemScalarWhereInput | KotItemScalarWhereInput[]
+  }
+
+  export type KotTicketCreateNestedOneWithoutItemsInput = {
+    create?: XOR<KotTicketCreateWithoutItemsInput, KotTicketUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: KotTicketCreateOrConnectWithoutItemsInput
+    connect?: KotTicketWhereUniqueInput
+  }
+
+  export type KotTicketUpdateOneRequiredWithoutItemsNestedInput = {
+    create?: XOR<KotTicketCreateWithoutItemsInput, KotTicketUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: KotTicketCreateOrConnectWithoutItemsInput
+    upsert?: KotTicketUpsertWithoutItemsInput
+    connect?: KotTicketWhereUniqueInput
+    update?: XOR<XOR<KotTicketUpdateToOneWithWhereWithoutItemsInput, KotTicketUpdateWithoutItemsInput>, KotTicketUncheckedUpdateWithoutItemsInput>
   }
 
   export type OrderCreateNestedOneWithoutItemsInput = {
@@ -17378,10 +20199,6 @@ export namespace Prisma {
     create?: XOR<OrderCreateWithoutPaymentsInput, OrderUncheckedCreateWithoutPaymentsInput>
     connectOrCreate?: OrderCreateOrConnectWithoutPaymentsInput
     connect?: OrderWhereUniqueInput
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type OrderUpdateOneRequiredWithoutPaymentsNestedInput = {
@@ -18058,6 +20875,32 @@ export namespace Prisma {
     data: PaymentCreateManyOrderInput | PaymentCreateManyOrderInput[]
   }
 
+  export type KotTicketCreateWithoutOrderInput = {
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+    items?: KotItemCreateNestedManyWithoutTicketInput
+  }
+
+  export type KotTicketUncheckedCreateWithoutOrderInput = {
+    id?: number
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+    items?: KotItemUncheckedCreateNestedManyWithoutTicketInput
+  }
+
+  export type KotTicketCreateOrConnectWithoutOrderInput = {
+    where: KotTicketWhereUniqueInput
+    create: XOR<KotTicketCreateWithoutOrderInput, KotTicketUncheckedCreateWithoutOrderInput>
+  }
+
+  export type KotTicketCreateManyOrderInputEnvelope = {
+    data: KotTicketCreateManyOrderInput | KotTicketCreateManyOrderInput[]
+  }
+
   export type OrderItemUpsertWithWhereUniqueWithoutOrderInput = {
     where: OrderItemWhereUniqueInput
     update: XOR<OrderItemUpdateWithoutOrderInput, OrderItemUncheckedUpdateWithoutOrderInput>
@@ -18106,6 +20949,235 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Payment"> | Date | string
   }
 
+  export type KotTicketUpsertWithWhereUniqueWithoutOrderInput = {
+    where: KotTicketWhereUniqueInput
+    update: XOR<KotTicketUpdateWithoutOrderInput, KotTicketUncheckedUpdateWithoutOrderInput>
+    create: XOR<KotTicketCreateWithoutOrderInput, KotTicketUncheckedCreateWithoutOrderInput>
+  }
+
+  export type KotTicketUpdateWithWhereUniqueWithoutOrderInput = {
+    where: KotTicketWhereUniqueInput
+    data: XOR<KotTicketUpdateWithoutOrderInput, KotTicketUncheckedUpdateWithoutOrderInput>
+  }
+
+  export type KotTicketUpdateManyWithWhereWithoutOrderInput = {
+    where: KotTicketScalarWhereInput
+    data: XOR<KotTicketUpdateManyMutationInput, KotTicketUncheckedUpdateManyWithoutOrderInput>
+  }
+
+  export type KotTicketScalarWhereInput = {
+    AND?: KotTicketScalarWhereInput | KotTicketScalarWhereInput[]
+    OR?: KotTicketScalarWhereInput[]
+    NOT?: KotTicketScalarWhereInput | KotTicketScalarWhereInput[]
+    id?: IntFilter<"KotTicket"> | number
+    orderId?: IntFilter<"KotTicket"> | number
+    kotNumber?: StringFilter<"KotTicket"> | string
+    status?: StringFilter<"KotTicket"> | string
+    printedAt?: DateTimeNullableFilter<"KotTicket"> | Date | string | null
+    createdAt?: DateTimeFilter<"KotTicket"> | Date | string
+  }
+
+  export type OrderCreateWithoutKotTicketsInput = {
+    billNumber: string
+    status?: string
+    paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
+    tableId?: number | null
+    orderType?: string
+    subtotal?: Decimal | DecimalJsLike | number | string
+    discountAmount?: Decimal | DecimalJsLike | number | string
+    taxAmount?: Decimal | DecimalJsLike | number | string
+    finalAmount?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    items?: OrderItemCreateNestedManyWithoutOrderInput
+    payments?: PaymentCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderUncheckedCreateWithoutKotTicketsInput = {
+    id?: number
+    billNumber: string
+    status?: string
+    paymentStatus?: string
+    customerName?: string | null
+    customerPhone?: string | null
+    tableId?: number | null
+    orderType?: string
+    subtotal?: Decimal | DecimalJsLike | number | string
+    discountAmount?: Decimal | DecimalJsLike | number | string
+    taxAmount?: Decimal | DecimalJsLike | number | string
+    finalAmount?: Decimal | DecimalJsLike | number | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
+  }
+
+  export type OrderCreateOrConnectWithoutKotTicketsInput = {
+    where: OrderWhereUniqueInput
+    create: XOR<OrderCreateWithoutKotTicketsInput, OrderUncheckedCreateWithoutKotTicketsInput>
+  }
+
+  export type KotItemCreateWithoutTicketInput = {
+    orderItemId?: number | null
+    menuItemId: number
+    name: string
+    quantity: number
+    note?: string | null
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type KotItemUncheckedCreateWithoutTicketInput = {
+    id?: number
+    orderItemId?: number | null
+    menuItemId: number
+    name: string
+    quantity: number
+    note?: string | null
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type KotItemCreateOrConnectWithoutTicketInput = {
+    where: KotItemWhereUniqueInput
+    create: XOR<KotItemCreateWithoutTicketInput, KotItemUncheckedCreateWithoutTicketInput>
+  }
+
+  export type KotItemCreateManyTicketInputEnvelope = {
+    data: KotItemCreateManyTicketInput | KotItemCreateManyTicketInput[]
+  }
+
+  export type OrderUpsertWithoutKotTicketsInput = {
+    update: XOR<OrderUpdateWithoutKotTicketsInput, OrderUncheckedUpdateWithoutKotTicketsInput>
+    create: XOR<OrderCreateWithoutKotTicketsInput, OrderUncheckedCreateWithoutKotTicketsInput>
+    where?: OrderWhereInput
+  }
+
+  export type OrderUpdateToOneWithWhereWithoutKotTicketsInput = {
+    where?: OrderWhereInput
+    data: XOR<OrderUpdateWithoutKotTicketsInput, OrderUncheckedUpdateWithoutKotTicketsInput>
+  }
+
+  export type OrderUpdateWithoutKotTicketsInput = {
+    billNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
+    subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    finalAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: OrderItemUpdateManyWithoutOrderNestedInput
+    payments?: PaymentUpdateManyWithoutOrderNestedInput
+  }
+
+  export type OrderUncheckedUpdateWithoutKotTicketsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    billNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    paymentStatus?: StringFieldUpdateOperationsInput | string
+    customerName?: NullableStringFieldUpdateOperationsInput | string | null
+    customerPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    tableId?: NullableIntFieldUpdateOperationsInput | number | null
+    orderType?: StringFieldUpdateOperationsInput | string
+    subtotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    discountAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    taxAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    finalAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type KotItemUpsertWithWhereUniqueWithoutTicketInput = {
+    where: KotItemWhereUniqueInput
+    update: XOR<KotItemUpdateWithoutTicketInput, KotItemUncheckedUpdateWithoutTicketInput>
+    create: XOR<KotItemCreateWithoutTicketInput, KotItemUncheckedCreateWithoutTicketInput>
+  }
+
+  export type KotItemUpdateWithWhereUniqueWithoutTicketInput = {
+    where: KotItemWhereUniqueInput
+    data: XOR<KotItemUpdateWithoutTicketInput, KotItemUncheckedUpdateWithoutTicketInput>
+  }
+
+  export type KotItemUpdateManyWithWhereWithoutTicketInput = {
+    where: KotItemScalarWhereInput
+    data: XOR<KotItemUpdateManyMutationInput, KotItemUncheckedUpdateManyWithoutTicketInput>
+  }
+
+  export type KotItemScalarWhereInput = {
+    AND?: KotItemScalarWhereInput | KotItemScalarWhereInput[]
+    OR?: KotItemScalarWhereInput[]
+    NOT?: KotItemScalarWhereInput | KotItemScalarWhereInput[]
+    id?: IntFilter<"KotItem"> | number
+    kotTicketId?: IntFilter<"KotItem"> | number
+    orderItemId?: IntNullableFilter<"KotItem"> | number | null
+    menuItemId?: IntFilter<"KotItem"> | number
+    name?: StringFilter<"KotItem"> | string
+    quantity?: IntFilter<"KotItem"> | number
+    note?: StringNullableFilter<"KotItem"> | string | null
+    status?: StringFilter<"KotItem"> | string
+    createdAt?: DateTimeFilter<"KotItem"> | Date | string
+  }
+
+  export type KotTicketCreateWithoutItemsInput = {
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+    order: OrderCreateNestedOneWithoutKotTicketsInput
+  }
+
+  export type KotTicketUncheckedCreateWithoutItemsInput = {
+    id?: number
+    orderId: number
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type KotTicketCreateOrConnectWithoutItemsInput = {
+    where: KotTicketWhereUniqueInput
+    create: XOR<KotTicketCreateWithoutItemsInput, KotTicketUncheckedCreateWithoutItemsInput>
+  }
+
+  export type KotTicketUpsertWithoutItemsInput = {
+    update: XOR<KotTicketUpdateWithoutItemsInput, KotTicketUncheckedUpdateWithoutItemsInput>
+    create: XOR<KotTicketCreateWithoutItemsInput, KotTicketUncheckedCreateWithoutItemsInput>
+    where?: KotTicketWhereInput
+  }
+
+  export type KotTicketUpdateToOneWithWhereWithoutItemsInput = {
+    where?: KotTicketWhereInput
+    data: XOR<KotTicketUpdateWithoutItemsInput, KotTicketUncheckedUpdateWithoutItemsInput>
+  }
+
+  export type KotTicketUpdateWithoutItemsInput = {
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutKotTicketsNestedInput
+  }
+
+  export type KotTicketUncheckedUpdateWithoutItemsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrderCreateWithoutItemsInput = {
     billNumber: string
     status?: string
@@ -18121,6 +21193,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payments?: PaymentCreateNestedManyWithoutOrderInput
+    kotTickets?: KotTicketCreateNestedManyWithoutOrderInput
   }
 
   export type OrderUncheckedCreateWithoutItemsInput = {
@@ -18139,6 +21212,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     payments?: PaymentUncheckedCreateNestedManyWithoutOrderInput
+    kotTickets?: KotTicketUncheckedCreateNestedManyWithoutOrderInput
   }
 
   export type OrderCreateOrConnectWithoutItemsInput = {
@@ -18198,6 +21272,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: PaymentUpdateManyWithoutOrderNestedInput
+    kotTickets?: KotTicketUpdateManyWithoutOrderNestedInput
   }
 
   export type OrderUncheckedUpdateWithoutItemsInput = {
@@ -18216,6 +21291,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payments?: PaymentUncheckedUpdateManyWithoutOrderNestedInput
+    kotTickets?: KotTicketUncheckedUpdateManyWithoutOrderNestedInput
   }
 
   export type MenuItemUpsertWithoutOrderItemsInput = {
@@ -18265,6 +21341,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     items?: OrderItemCreateNestedManyWithoutOrderInput
+    kotTickets?: KotTicketCreateNestedManyWithoutOrderInput
   }
 
   export type OrderUncheckedCreateWithoutPaymentsInput = {
@@ -18283,6 +21360,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     items?: OrderItemUncheckedCreateNestedManyWithoutOrderInput
+    kotTickets?: KotTicketUncheckedCreateNestedManyWithoutOrderInput
   }
 
   export type OrderCreateOrConnectWithoutPaymentsInput = {
@@ -18316,6 +21394,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUpdateManyWithoutOrderNestedInput
+    kotTickets?: KotTicketUpdateManyWithoutOrderNestedInput
   }
 
   export type OrderUncheckedUpdateWithoutPaymentsInput = {
@@ -18334,6 +21413,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+    kotTickets?: KotTicketUncheckedUpdateManyWithoutOrderNestedInput
   }
 
   export type PurchaseCreateWithoutSupplierInput = {
@@ -18741,6 +21821,14 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type KotTicketCreateManyOrderInput = {
+    id?: number
+    kotNumber: string
+    status?: string
+    printedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
   export type OrderItemUpdateWithoutOrderInput = {
     name?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -18799,6 +21887,74 @@ export namespace Prisma {
     settledAmount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     referenceId?: NullableStringFieldUpdateOperationsInput | string | null
     settledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotTicketUpdateWithoutOrderInput = {
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: KotItemUpdateManyWithoutTicketNestedInput
+  }
+
+  export type KotTicketUncheckedUpdateWithoutOrderInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    items?: KotItemUncheckedUpdateManyWithoutTicketNestedInput
+  }
+
+  export type KotTicketUncheckedUpdateManyWithoutOrderInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    kotNumber?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    printedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotItemCreateManyTicketInput = {
+    id?: number
+    orderItemId?: number | null
+    menuItemId: number
+    name: string
+    quantity: number
+    note?: string | null
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type KotItemUpdateWithoutTicketInput = {
+    orderItemId?: NullableIntFieldUpdateOperationsInput | number | null
+    menuItemId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotItemUncheckedUpdateWithoutTicketInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderItemId?: NullableIntFieldUpdateOperationsInput | number | null
+    menuItemId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type KotItemUncheckedUpdateManyWithoutTicketInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderItemId?: NullableIntFieldUpdateOperationsInput | number | null
+    menuItemId?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    quantity?: IntFieldUpdateOperationsInput | number
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18924,6 +22080,10 @@ export namespace Prisma {
      */
     export type OrderCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrderCountOutputTypeDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use KotTicketCountOutputTypeDefaultArgs instead
+     */
+    export type KotTicketCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = KotTicketCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use SupplierCountOutputTypeDefaultArgs instead
      */
     export type SupplierCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SupplierCountOutputTypeDefaultArgs<ExtArgs>
@@ -18951,6 +22111,14 @@ export namespace Prisma {
      * @deprecated Use OrderDefaultArgs instead
      */
     export type OrderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrderDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use KotTicketDefaultArgs instead
+     */
+    export type KotTicketArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = KotTicketDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use KotItemDefaultArgs instead
+     */
+    export type KotItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = KotItemDefaultArgs<ExtArgs>
     /**
      * @deprecated Use BillSequenceDefaultArgs instead
      */

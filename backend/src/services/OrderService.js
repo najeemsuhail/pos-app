@@ -2,6 +2,7 @@ const OrderRepository = require('../repositories/OrderRepository');
 const OrderItemRepository = require('../repositories/OrderItemRepository');
 const PaymentRepository = require('../repositories/PaymentRepository');
 const MenuItemRepository = require('../repositories/MenuItemRepository');
+const KotRepository = require('../repositories/KotRepository');
 const prisma = require('../db/prisma');
 const { mapOrder, mapPayment } = require('../db/mappers');
 const { formatBillDate, formatDailyBillNumber, calculateTax } = require('../utils/billing');
@@ -378,6 +379,22 @@ class OrderService {
   async getOrderPayments(orderId) {
     await this.getOrderById(orderId);
     return await PaymentRepository.findByOrderId(orderId);
+  }
+
+  async createKotTicket(orderId) {
+    const order = await this.getOrderById(orderId);
+    const items = await this.getOrderItems(orderId);
+
+    if (items.length === 0) {
+      throw { status: 400, message: 'Order must have at least one item before sending KOT' };
+    }
+
+    return await KotRepository.createForOrder(order, items);
+  }
+
+  async getKotTickets(orderId) {
+    await this.getOrderById(orderId);
+    return await KotRepository.findByOrderId(orderId);
   }
 
   async getAllOrders(limit = 100, offset = 0) {

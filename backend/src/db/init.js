@@ -97,6 +97,33 @@ async function ensureSchema() {
   `);
 
   await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS kot_tickets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id INTEGER NOT NULL,
+      kot_number TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'printed',
+      printed_at DATETIME,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS kot_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      kot_ticket_id INTEGER NOT NULL,
+      order_item_id INTEGER,
+      menu_item_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      note TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (kot_ticket_id) REFERENCES kot_tickets (id) ON DELETE CASCADE
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS payments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       order_id INTEGER NOT NULL,
@@ -200,6 +227,10 @@ async function ensureSchema() {
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_menu_items_category_id ON menu_items(category_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_staff_attendance_attendance_date ON staff_attendance(attendance_date)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_kot_tickets_order_id ON kot_tickets(order_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_kot_tickets_status ON kot_tickets(status)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_kot_items_kot_ticket_id ON kot_items(kot_ticket_id)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_kot_items_order_item_id ON kot_items(order_item_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id)');

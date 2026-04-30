@@ -122,6 +122,40 @@ function mapPayment(payment) {
   };
 }
 
+function mapKotItem(item) {
+  if (!item) {
+    return null;
+  }
+
+  return {
+    id: item.id,
+    kot_ticket_id: item.kotTicketId,
+    order_item_id: item.orderItemId,
+    menu_item_id: item.menuItemId,
+    name: item.name,
+    quantity: item.quantity,
+    note: item.note,
+    status: item.status,
+    created_at: item.createdAt,
+  };
+}
+
+function mapKotTicket(ticket) {
+  if (!ticket) {
+    return null;
+  }
+
+  return {
+    id: ticket.id,
+    order_id: ticket.orderId,
+    kot_number: ticket.kotNumber,
+    status: ticket.status,
+    printed_at: ticket.printedAt,
+    created_at: ticket.createdAt,
+    items: Array.isArray(ticket.items) ? ticket.items.map(mapKotItem) : [],
+  };
+}
+
 function mapExpense(expense) {
   if (!expense) {
     return null;
@@ -240,6 +274,8 @@ module.exports = {
   mapOrder,
   mapOrderItem,
   mapPayment,
+  mapKotTicket,
+  mapKotItem,
   mapExpense,
   mapAttendance,
   mapSupplier,

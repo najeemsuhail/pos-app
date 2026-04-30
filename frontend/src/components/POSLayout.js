@@ -9,6 +9,7 @@ const POSLayout = ({
   totals,
   discount,
   taxRate,
+  onSendKot,
   onDiscountChange,
   cartItems,
   onRemoveItem,
@@ -124,6 +125,14 @@ const POSLayout = ({
         return;
       }
 
+      if (event.key === 'F8') {
+        event.preventDefault();
+        if (selectedOrderType !== 'dine_in' || selectedTableId) {
+          onSendKot();
+        }
+        return;
+      }
+
       if (event.key === 'F1' && event.shiftKey) {
         event.preventDefault();
         setShowHelp((prev) => !prev);
@@ -150,7 +159,7 @@ const POSLayout = ({
         return;
       }
 
-      if (/^F([1-9]|1[0-2])$/.test(event.key)) {
+      if (/^F([1-7]|1[0-2])$/.test(event.key)) {
         event.preventDefault();
         const tableIndex = Number(event.key.slice(1));
         if (tableNumbers.includes(tableIndex)) {
@@ -259,6 +268,7 @@ const POSLayout = ({
     onAddItem,
     onFinalizeOrder,
     onRemoveItem,
+    onSendKot,
     onSelectTable,
     onUpdateQuantity,
     selectedCategory,
@@ -605,13 +615,27 @@ const POSLayout = ({
           )}
         </div>
 
-        <button
-          className="pay-btn"
-          onClick={() => onFinalizeOrder(discount)}
-          disabled={(selectedOrderType === 'dine_in' && !selectedTableId) || cartItems.length === 0}
-        >
-          PAY (F9)
-        </button>
+        <div className="bill-actions">
+            <button
+              className="kot-btn"
+              type="button"
+              onClick={onSendKot}
+              aria-label="Send KOT with F8"
+              title="Send KOT (F8)"
+              disabled={(selectedOrderType === 'dine_in' && !selectedTableId) || cartItems.length === 0}
+            >
+              KOT
+          </button>
+
+          <button
+            className="pay-btn"
+            type="button"
+            onClick={() => onFinalizeOrder(discount)}
+            disabled={(selectedOrderType === 'dine_in' && !selectedTableId) || cartItems.length === 0}
+          >
+            PAY (F9)
+          </button>
+        </div>
       </aside>
     </div>
 
@@ -629,7 +653,8 @@ const POSLayout = ({
           </div>
           <div className="shortcut-grid" aria-label="Keyboard shortcuts">
             <div className="shortcut-item">
-              <kbd>F1-F12</kbd>
+              <kbd>F1-F7</kbd>
+              <kbd>F10-F12</kbd>
               <span>Select table directly</span>
             </div>
             <div className="shortcut-item">
@@ -662,6 +687,10 @@ const POSLayout = ({
             <div className="shortcut-item">
               <kbd>Esc</kbd>
               <span>Reset search and category</span>
+            </div>
+            <div className="shortcut-item">
+              <kbd>F8</kbd>
+              <span>Send KOT</span>
             </div>
             <div className="shortcut-item">
               <kbd>F9</kbd>

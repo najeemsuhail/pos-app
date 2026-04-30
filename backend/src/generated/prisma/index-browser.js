@@ -175,6 +175,27 @@ exports.Prisma.OrderScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.KotTicketScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  kotNumber: 'kotNumber',
+  status: 'status',
+  printedAt: 'printedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.KotItemScalarFieldEnum = {
+  id: 'id',
+  kotTicketId: 'kotTicketId',
+  orderItemId: 'orderItemId',
+  menuItemId: 'menuItemId',
+  name: 'name',
+  quantity: 'quantity',
+  note: 'note',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.BillSequenceScalarFieldEnum = {
   id: 'id',
   businessDate: 'businessDate',
@@ -270,6 +291,8 @@ exports.Prisma.ModelName = {
   Category: 'Category',
   MenuItem: 'MenuItem',
   Order: 'Order',
+  KotTicket: 'KotTicket',
+  KotItem: 'KotItem',
   BillSequence: 'BillSequence',
   OrderItem: 'OrderItem',
   Payment: 'Payment',

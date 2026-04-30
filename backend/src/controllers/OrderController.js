@@ -1,6 +1,6 @@
 const OrderService = require('../services/OrderService');
 const OrderItemRepository = require('../repositories/OrderItemRepository');
-const { generateThermalReceipt } = require('../utils/printer');
+const { generateThermalReceipt, generateKotTicket } = require('../utils/printer');
 const SettingService = require('../services/SettingService');
 const SyncService = require('../services/SyncService');
 
@@ -161,6 +161,29 @@ class OrderController {
       const receipt = generateThermalReceipt(order, items, payments);
       res.setHeader('Content-Type', 'text/plain');
       res.send(receipt);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createKot(req, res, next) {
+    try {
+      const { id } = req.params;
+      const order = await OrderService.getOrderById(id);
+      const ticket = await OrderService.createKotTicket(id);
+      const kot = generateKotTicket(order, ticket);
+
+      res.status(201).json({ ticket, kot });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getKots(req, res, next) {
+    try {
+      const { id } = req.params;
+      const tickets = await OrderService.getKotTickets(id);
+      res.json(tickets);
     } catch (error) {
       next(error);
     }

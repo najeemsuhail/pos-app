@@ -875,7 +875,15 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
 }
 
+.bill-actions {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
 .pay-btn {
+  width: 100%;
   min-height: 52px;
   border: none;
   border-radius: 14px;
@@ -886,6 +894,36 @@
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kot-btn {
+  width: 82px;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.kot-btn:hover:not(:disabled),
+.kot-btn:focus-visible:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--text-secondary);
+  outline: none;
+}
+
+.kot-btn:disabled {
+  border-color: var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .pay-btn:hover:not(:disabled),

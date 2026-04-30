@@ -174,4 +174,52 @@ const generateThermalReceipt = (order, items, payments) => {
   return receipt;
 };
 
-module.exports = { generateThermalReceipt };
+const generateKotTicket = (order, ticket) => {
+  const settings = SettingService.getSettings();
+  const width = 40;
+  const itemWidth = 30;
+  const qtyWidth = width - itemWidth;
+  const line = '='.repeat(width);
+  const tableLabel = order.table_id
+    ? settings.tableNames?.[Number(order.table_id) - 1] || `Table ${order.table_id}`
+    : null;
+  const orderTypeLabel = getOrderTypeLabel(order.order_type);
+  const printedAt = ticket.printed_at || ticket.created_at || new Date();
+
+  let kot = '';
+
+  if (settings.storeName) {
+    kot += settings.storeName.padStart(Math.floor((width + settings.storeName.length) / 2)).slice(0, width) + '\n';
+  }
+
+  kot += 'KITCHEN ORDER TICKET'.padStart(Math.floor((width + 20) / 2)).slice(0, width) + '\n';
+  kot += line + '\n';
+  kot += `KOT No  : ${ticket.kot_number}\n`;
+  kot += `Bill No : ${order.bill_number}\n`;
+  kot += `Date    : ${new Date(printedAt).toLocaleDateString()}\n`;
+  kot += `Time    : ${new Date(printedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}\n`;
+  kot += `Type    : ${orderTypeLabel}\n`;
+  if (tableLabel) {
+    kot += `Table   : ${tableLabel}\n`;
+  }
+  kot += line + '\n\n';
+  kot += 'Item'.padEnd(itemWidth) + 'Qty'.padStart(qtyWidth) + '\n';
+  kot += line + '\n';
+
+  (ticket.items || []).forEach((item) => {
+    const wrappedName = wrapText(item.name, itemWidth);
+    const qtyText = String(item.quantity).padStart(qtyWidth);
+
+    wrappedName.forEach((lineText, index) => {
+      kot += `${lineText.padEnd(itemWidth)}${index === 0 ? qtyText : ' '.repeat(qtyWidth)}\n`;
+    });
+  });
+
+  kot += '\n' + line + '\n';
+  kot += 'No prices on KOT'.padStart(Math.floor((width + 16) / 2)).slice(0, width) + '\n';
+  kot += line + '\n\n';
+
+  return kot;
+};
+
+module.exports = { generateThermalReceipt, generateKotTicket };

@@ -24,6 +24,8 @@ router.put('/:id/sync-items', authenticate, authorize('Admin', 'Staff'), (req, r
 router.post('/:id/finalize', authenticate, authorize('Admin', 'Staff'), (req, res, next) =>
   OrderController.finalize(req, res, next)
 );
+router.post('/:id/kot', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.createKot(req, res, next));
+router.get('/:id/kot', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.getKots(req, res, next));
 router.post('/:id/payments', authenticate, authorize('Admin', 'Staff'), (req, res, next) => OrderController.pay(req, res, next));
 router.post('/:id/payments/:paymentId/settle', authenticate, authorize('Admin', 'Staff'), (req, res, next) =>
   OrderController.settlePayment(req, res, next)

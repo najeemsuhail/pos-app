@@ -89,11 +89,46 @@ model Order {
   
   items    OrderItem[]
   payments Payment[]
+  kotTickets KotTicket[]
 
   @@index([status])
   @@index([orderType])
   @@index([createdAt])
   @@map("orders")
+}
+
+model KotTicket {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @map("order_id")
+  kotNumber String   @unique @map("kot_number")
+  status    String   @default("printed")
+  printedAt DateTime? @map("printed_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  items KotItem[]
+
+  @@index([orderId])
+  @@index([status])
+  @@map("kot_tickets")
+}
+
+model KotItem {
+  id          Int      @id @default(autoincrement())
+  kotTicketId Int      @map("kot_ticket_id")
+  orderItemId Int?     @map("order_item_id")
+  menuItemId  Int      @map("menu_item_id")
+  name        String
+  quantity    Int
+  note        String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  ticket KotTicket @relation(fields: [kotTicketId], references: [id], onDelete: Cascade)
+
+  @@index([kotTicketId])
+  @@index([orderItemId])
+  @@map("kot_items")
 }
 
 model BillSequence {

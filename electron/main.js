@@ -230,6 +230,7 @@ ipcMain.handle('desktop:get-printers', async () => {
 ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
   return new Promise((resolve) => {
     const useSilentPrint = !!printerName && printerName !== 'browser-default';
+    let resolved = false;
 
     let printWindow = new BrowserWindow({
       show: !useSilentPrint,
@@ -242,10 +243,36 @@ ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
       }
     });
 
+    const finish = (result) => {
+      if (resolved) {
+        return;
+      }
+
+      resolved = true;
+      resolve(result);
+    };
+
+    const closePrintWindow = () => {
+      if (printWindow && !printWindow.isDestroyed()) {
+        printWindow.close();
+      }
+      printWindow = null;
+    };
+
+    printWindow.on('closed', () => {
+      finish({ success: false, errorType: 'cancelled' });
+      printWindow = null;
+    });
+
     const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
     printWindow.loadURL(dataUrl);
 
     printWindow.webContents.on('did-finish-load', () => {
+      if (!printWindow || printWindow.isDestroyed()) {
+        finish({ success: false, errorType: 'cancelled' });
+        return;
+      }
+
       const printOptions = {
         silent: useSilentPrint,
         printBackground: true,
@@ -259,9 +286,14 @@ ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
       }
 
       printWindow.webContents.print(printOptions, (success, errorType) => {
-        printWindow.close();
-        resolve({ success, errorType });
+        finish({ success, errorType });
+        closePrintWindow();
       });
+    });
+
+    printWindow.webContents.on('did-fail-load', () => {
+      finish({ success: false, errorType: 'Print preview failed to load' });
+      closePrintWindow();
     });
   });
 });

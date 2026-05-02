@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
+import PaginationControls from './PaginationControls';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 const DEFAULT_EXPENSE_CATEGORIES = ['Rent', 'Utilities', 'Office Supplies', 'Salary', 'Maintenance', 'Transport', 'Marketing', 'Other'];
@@ -21,7 +22,9 @@ const saveCustomCategories = (cats) => {
 };
 
 const ExpenseManagementTab = () => {
+  const pageSize = 25;
   const [expenses, setExpenses] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: pageSize, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ startDate: today, endDate: today });
@@ -66,6 +69,7 @@ const ExpenseManagementTab = () => {
         className={`tab-toggle-button ${viewMode === 'ledger' ? 'active' : ''}`}
         aria-pressed={viewMode === 'ledger'}
         onClick={() => setViewMode('ledger')}
+        disabled={viewMode === 'ledger'}
         style={{ width: '120px' }}
       >
         Ledger
@@ -75,6 +79,7 @@ const ExpenseManagementTab = () => {
         className={`tab-toggle-button ${viewMode === 'report' ? 'active' : ''}`}
         aria-pressed={viewMode === 'report'}
         onClick={() => setViewMode('report')}
+        disabled={viewMode === 'report'}
         style={{ width: '120px' }}
       >
         Report
@@ -105,11 +110,12 @@ const ExpenseManagementTab = () => {
 
   const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FFCD56', '#C9CBCF'];
 
-  const fetchExpenses = useCallback(async (startDate = filters.startDate, endDate = filters.endDate) => {
+  const fetchExpenses = useCallback(async (startDate = filters.startDate, endDate = filters.endDate, page = 1) => {
     try {
       setLoading(true);
-      const response = await expenseService.getAll(startDate, endDate);
-      setExpenses(response.data);
+      const response = await expenseService.getAll(startDate, endDate, { page, limit: pageSize });
+      setExpenses(response.data.data || []);
+      setPagination(response.data.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 });
       setError('');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to fetch expenses');
@@ -152,7 +158,7 @@ const ExpenseManagementTab = () => {
       });
       setError('');
       setShowAddForm(false);
-      fetchExpenses();
+      fetchExpenses(filters.startDate, filters.endDate, 1);
       fetchUniqueNotes();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to save expense');
@@ -176,7 +182,7 @@ const ExpenseManagementTab = () => {
       await expenseService.update(editingExpense.id, payload);
       setEditingExpense(null);
       setError('');
-      fetchExpenses();
+      fetchExpenses(filters.startDate, filters.endDate, pagination.page);
       fetchUniqueNotes();
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to update expense');
@@ -191,7 +197,7 @@ const ExpenseManagementTab = () => {
     try {
       await expenseService.delete(id);
       setError('');
-      fetchExpenses();
+      fetchExpenses(filters.startDate, filters.endDate, pagination.page);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to delete expense');
     }
@@ -251,8 +257,7 @@ const ExpenseManagementTab = () => {
   if (viewMode === 'report') {
     return (
       <div className="admin-tab-content">
-        {renderViewModeSwitcher()}
-        <ExpenseReportSection />
+        <ExpenseReportSection headerAction={renderViewModeSwitcher()} />
       </div>
     );
   }
@@ -374,7 +379,7 @@ const ExpenseManagementTab = () => {
           <label>End Date:</label>
           <DatePicker selected={parseDateStr(filters.endDate)} onChange={(date) => setFilters({ ...filters, endDate: formatDateStr(date) })} className="date-input" dateFormat="yyyy-MM-dd" />
         </div>
-        <button className="btn-primary" onClick={() => fetchExpenses(filters.startDate, filters.endDate)}>Refresh</button>
+        <button className="btn-primary" onClick={() => fetchExpenses(filters.startDate, filters.endDate, 1)}>Refresh</button>
       </div>
 
       <div className="report-grid">
@@ -496,6 +501,10 @@ const ExpenseManagementTab = () => {
               )}
             </tbody>
           </table>
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(page) => fetchExpenses(filters.startDate, filters.endDate, page)}
+          />
         </div>
       )}
 

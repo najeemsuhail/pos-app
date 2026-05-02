@@ -1,5 +1,6 @@
 const ExpenseService = require('../services/ExpenseService');
 const SyncService = require('../services/SyncService');
+const { parsePagination, buildPaginationMeta, hasPaginationParams } = require('../utils/pagination');
 
 class ExpenseController {
   async create(req, res, next) {
@@ -23,6 +24,21 @@ class ExpenseController {
   async getAll(req, res, next) {
     try {
       const { startDate, endDate } = req.query;
+      if (hasPaginationParams(req.query)) {
+        const pagination = parsePagination(req.query);
+        const result = await ExpenseService.getPaginatedExpenses(
+          startDate,
+          endDate,
+          pagination.limit,
+          pagination.offset
+        );
+
+        return res.json({
+          data: result.data,
+          pagination: buildPaginationMeta({ ...pagination, total: result.total }),
+        });
+      }
+
       const expenses = await ExpenseService.getExpenses(startDate, endDate);
       res.json(expenses);
     } catch (error) {

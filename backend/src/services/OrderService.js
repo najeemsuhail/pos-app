@@ -406,6 +406,10 @@ class OrderService {
     return await OrderRepository.findAll(limit, offset);
   }
 
+  async getPaginatedOrders(params = {}) {
+    return OrderRepository.findPaginated(params);
+  }
+
   async getOrdersByDateRange(startDate, endDate) {
     return await OrderRepository.findByDateRange(startDate, endDate);
   }

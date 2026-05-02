@@ -18,14 +18,7 @@ class ExpenseRepository {
   }
 
   async findAll(startDate = null, endDate = null) {
-    const where = startDate && endDate
-      ? {
-          expenseDate: {
-            gte: new Date(startDate),
-            lte: new Date(endDate),
-          },
-        }
-      : undefined;
+    const where = this.buildWhere(startDate, endDate);
 
     const expenses = await prisma.expense.findMany({
       where,
@@ -33,6 +26,32 @@ class ExpenseRepository {
     });
 
     return expenses.map(mapExpense);
+  }
+
+  buildWhere(startDate = null, endDate = null) {
+    return startDate && endDate
+      ? {
+          expenseDate: {
+            gte: new Date(startDate),
+            lte: new Date(endDate),
+          },
+        }
+      : undefined;
+  }
+
+  async findPaginated(startDate = null, endDate = null, limit = 25, offset = 0) {
+    const where = this.buildWhere(startDate, endDate);
+    const [expenses, total] = await prisma.$transaction([
+      prisma.expense.findMany({
+        where,
+        orderBy: [{ expenseDate: 'desc' }, { createdAt: 'desc' }],
+        take: limit,
+        skip: offset,
+      }),
+      prisma.expense.count({ where }),
+    ]);
+
+    return { data: expenses.map(mapExpense), total };
   }
 
   async findByDateRange(startDate, endDate) {

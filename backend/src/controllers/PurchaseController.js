@@ -1,5 +1,6 @@
 const SupplierService = require('../services/SupplierService');
 const PurchaseService = require('../services/PurchaseService');
+const { parsePagination, buildPaginationMeta, hasPaginationParams } = require('../utils/pagination');
 
 class PurchaseController {
   async getSuppliers(req, res, next) {
@@ -41,6 +42,22 @@ class PurchaseController {
   async getPurchases(req, res, next) {
     try {
       const { startDate, endDate, supplierId } = req.query;
+      if (hasPaginationParams(req.query)) {
+        const pagination = parsePagination(req.query);
+        const result = await PurchaseService.getPaginatedPurchases(
+          startDate,
+          endDate,
+          supplierId,
+          pagination.limit,
+          pagination.offset
+        );
+
+        return res.json({
+          data: result.data,
+          pagination: buildPaginationMeta({ ...pagination, total: result.total }),
+        });
+      }
+
       const purchases = await PurchaseService.getPurchases(startDate, endDate, supplierId);
       res.json(purchases);
     } catch (error) {

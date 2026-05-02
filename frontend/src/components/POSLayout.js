@@ -624,7 +624,7 @@ const POSLayout = ({
               title="Send KOT (F8)"
               disabled={(selectedOrderType === 'dine_in' && !selectedTableId) || cartItems.length === 0}
             >
-              KOT
+              KOT (F8)
           </button>
 
           <button

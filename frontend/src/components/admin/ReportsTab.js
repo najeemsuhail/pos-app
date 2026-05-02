@@ -17,6 +17,21 @@ const ORDER_TYPE_LABELS = {
   pickup: 'Pickup',
 };
 
+const PdfIcon = () => (
+  <svg className="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M6 2h8l4 4v16H6z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    <path d="M14 2v5h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    <path d="M8 14h8M8 18h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+const ExcelIcon = () => (
+  <svg className="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 3h16v18H4z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    <path d="M4 9h16M4 15h16M10 3v18M16 3v18" fill="none" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
 const ReportsTab = () => {
   const [reportType, setReportType] = useState('daily');
   const [report, setReport] = useState(null);
@@ -561,18 +576,20 @@ const ReportsTab = () => {
           <>
             <button
               onClick={handleExportPDF}
-              className="btn-success"
+              className="btn-success report-export-button"
               title="Download report as PDF"
               style={{ width: '80px', flex: 'none', height: '38px' }}
             >
+              <PdfIcon />
               PDF
             </button>
             <button
               onClick={handleExportExcel}
-              className="btn-secondary"
+              className="btn-secondary report-export-button"
               title="Download report as Excel"
               style={{ width: '80px', flex: 'none', height: '38px' }}
             >
+              <ExcelIcon />
               Excel
             </button>
           </>

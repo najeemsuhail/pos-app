@@ -324,13 +324,12 @@ const POSPage = () => {
       await refreshActiveOrders();
       setCurrentOrder(order);
       setOrder(order);
+      setLoading(false);
 
-      try {
-        await printReceiptContent(response.data.kot, 'KOT');
-      } catch (printError) {
+      printReceiptContent(response.data.kot, 'KOT').catch((printError) => {
         console.error('KOT print error:', printError);
         showAlert('KOT sent, but printing failed: ' + printError.message, 'Print Error');
-      }
+      });
     } catch (error) {
       showAlert('Error sending KOT: ' + (error.response?.data?.error || error.message), 'KOT Error');
     } finally {
@@ -366,19 +365,17 @@ const POSPage = () => {
       await refreshActiveOrders();
 
       setShowPaymentModal(false);
-
-      try {
-        await printReceiptContent(receiptRes.data);
-      } catch (printError) {
-        console.error('Receipt print error:', printError);
-        showAlert(`Payment completed, but receipt printing failed: ${printError.message}`, 'Print Error');
-      }
+      resetCurrentOrderSlot();
+      setLoading(false);
 
       if (paymentRes.data?.payment_status === 'pending_settlement') {
         showAlert('Order completed. Payment is pending settlement and will be collected later.', 'Payment Pending');
       }
 
-      resetCurrentOrderSlot();
+      printReceiptContent(receiptRes.data).catch((printError) => {
+        console.error('Receipt print error:', printError);
+        showAlert(`Payment completed, but receipt printing failed: ${printError.message}`, 'Print Error');
+      });
     } catch (error) {
       showAlert('Error processing payment: ' + (error.response?.data?.error || error.message), 'Payment Error');
     } finally {

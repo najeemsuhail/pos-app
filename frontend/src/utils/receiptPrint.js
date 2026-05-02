@@ -58,6 +58,24 @@ function getReceiptLineDisplayText(line) {
   return line;
 }
 
+function withTimeout(promise, timeoutMs, message) {
+  let timeoutId;
+
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      reject(new Error(message));
+    }, timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    window.clearTimeout(timeoutId);
+  });
+}
+
+function requiresVisiblePrintDialog(printerName) {
+  return /pdf|xps|onenote|document writer/i.test(printerName || '');
+}
+
 export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
   const receiptLines = receipt
     .split('\n')
@@ -74,17 +92,40 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
   return `
     <html>
       <head>
-        <title>Print Receipt</title>
+        <title>Print ${documentLabel}</title>
         <style>
           @media print {
             body { margin: 0; }
             .print-shell { box-shadow: none; border: none; }
+            .print-actions { display: none; }
           }
           body {
             margin: 0;
             padding: 16px;
             background: #f3f4f6;
             font-family: Arial, sans-serif;
+            color: #111827;
+          }
+          .print-actions {
+            max-width: 340px;
+            margin: 0 auto 12px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+          }
+          .print-actions button {
+            border: 0;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font: 700 13px Arial, sans-serif;
+            cursor: pointer;
+          }
+          .print-actions .primary {
+            background: #111827;
+            color: #ffffff;
+          }
+          .print-actions .secondary {
+            background: #e5e7eb;
             color: #111827;
           }
           .print-shell {
@@ -123,8 +164,53 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
           }
           .receipt-line.total { font-size: 12px; }
         </style>
+        <script>
+          async function printReceiptPreview() {
+            if (window.posDesktop && window.posDesktop.printCurrentWindow) {
+              const result = await window.posDesktop.printCurrentWindow();
+              if (!result || !result.success) {
+                window.alert(result && result.errorType ? result.errorType : 'Printing failed');
+              }
+              return;
+            }
+
+            window.print();
+          }
+
+          async function saveReceiptPdf() {
+            if (!window.posDesktop || !window.posDesktop.saveCurrentWindowPdf) {
+              window.alert('Save PDF is available only in the desktop app');
+              return;
+            }
+
+            const result = await window.posDesktop.saveCurrentWindowPdf();
+            if (result && result.success) {
+              return;
+            }
+
+            if (result && (result.errorType === 'cancelled' || result.errorType === 'canceled')) {
+              return;
+            }
+
+            window.alert(result && result.errorType ? result.errorType : 'Unable to save PDF');
+          }
+
+          function closeReceiptPreview() {
+            if (window.posDesktop && window.posDesktop.closeCurrentWindow) {
+              window.posDesktop.closeCurrentWindow();
+              return;
+            }
+
+            window.close();
+          }
+        </script>
       </head>
       <body>
+        <div class="print-actions">
+          <button class="secondary" type="button" onclick="closeReceiptPreview()">Close</button>
+          <button class="secondary" type="button" onclick="saveReceiptPdf()">Save PDF</button>
+          <button class="primary" type="button" onclick="printReceiptPreview()">Print</button>
+        </div>
         <div class="print-shell">
           <div class="receipt-paper">${receiptMarkup}</div>
         </div>
@@ -138,7 +224,14 @@ export async function printReceiptContent(receipt, documentLabel = 'Receipt') {
 
   if (window.posDesktop && window.posDesktop.printReceipt) {
     const printerName = localStorage.getItem('receiptPrinter') || 'browser-default';
-    const result = await window.posDesktop.printReceipt(htmlContent, printerName);
+    const usesVisibleDialog = printerName === 'browser-default' || requiresVisiblePrintDialog(printerName);
+    const result = await withTimeout(
+      window.posDesktop.printReceipt(htmlContent, printerName),
+      usesVisibleDialog ? 120000 : 25000,
+      usesVisibleDialog
+        ? 'Print dialog timed out'
+        : 'Printer did not respond within 25 seconds'
+    );
 
     if (!result.success) {
       if (result.errorType === 'cancelled' || result.errorType === 'canceled') {

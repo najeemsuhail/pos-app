@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ReceiptModal from '../ReceiptModal';
 import OrderDetailsModal from './OrderDetailsModal';
 import SettlementModal from './SettlementModal';
+import PaginationControls from './PaginationControls';
 import api, { orderService } from '../../services/api';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { printReceiptContent } from '../../utils/receiptPrint';
 
+const PAGE_SIZE = 25;
+
 const OrderHistoryTab = () => {
   const [orders, setOrders] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -25,23 +29,39 @@ const OrderHistoryTab = () => {
   const [settlingPaymentId, setSettlingPaymentId] = useState(null);
   const [paymentToSettle, setPaymentToSettle] = useState(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async (params = {}) => {
+  const fetchOrders = useCallback(async (params = {}) => {
     try {
       setLoading(true);
       setError('');
-      const response = await api.get('/orders', { params });
-      setOrders(response.data);
+      const requestParams = {
+        page: params.page || 1,
+        limit: PAGE_SIZE,
+        status: params.statusFilter ?? statusFilter,
+        paymentStatus: params.paymentStatusFilter ?? paymentStatusFilter,
+      };
+
+      const nextStartDate = params.startDate ?? startDate;
+      const nextEndDate = params.endDate ?? endDate;
+      if (nextStartDate && nextEndDate) {
+        requestParams.startDate = new Date(nextStartDate).toISOString();
+        requestParams.endDate = new Date(nextEndDate).toISOString();
+      }
+
+      const response = await orderService.getAll(requestParams);
+      setOrders(response.data.data || []);
+      setPagination(response.data.pagination || { page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 });
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load orders');
       setOrders([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [endDate, paymentStatusFilter, startDate, statusFilter]);
+
+  useEffect(() => {
+    fetchOrders({ page: 1 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFilterByDate = () => {
     if (!startDate || !endDate) {
@@ -49,10 +69,7 @@ const OrderHistoryTab = () => {
       return;
     }
 
-    fetchOrders({
-      startDate: new Date(startDate).toISOString(),
-      endDate: new Date(endDate).toISOString(),
-    });
+    fetchOrders({ page: 1, startDate, endDate });
   };
 
   const showPendingSettlements = () => {
@@ -64,7 +81,7 @@ const OrderHistoryTab = () => {
     setEndDate('');
     setStatusFilter('all');
     setPaymentStatusFilter('all');
-    fetchOrders();
+    fetchOrders({ page: 1, startDate: '', endDate: '', statusFilter: 'all', paymentStatusFilter: 'all' });
   };
 
   const handleViewDetails = async (orderId) => {
@@ -109,7 +126,7 @@ const OrderHistoryTab = () => {
       setIsCancelling(true);
       setError('');
       await orderService.cancel(orderId);
-      await fetchOrders();
+      await fetchOrders({ page: pagination.page });
 
       if (selectedOrder?.id === orderId) {
         setSelectedOrder((current) => (current ? { ...current, status: 'cancelled' } : current));
@@ -147,7 +164,7 @@ const OrderHistoryTab = () => {
         settled_amount: nextSettledAmount,
         reference_id: referenceId,
       });
-      await fetchOrders();
+      await fetchOrders({ page: pagination.page });
       await refreshSelectedOrder(selectedOrder.id);
       setPaymentToSettle(null);
     } catch (err) {
@@ -157,17 +174,7 @@ const OrderHistoryTab = () => {
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
-    if (statusFilter !== 'all' && order.status !== statusFilter) {
-      return false;
-    }
-
-    if (paymentStatusFilter !== 'all' && (order.payment_status || 'unpaid') !== paymentStatusFilter) {
-      return false;
-    }
-
-    return true;
-  });
+  const filteredOrders = orders;
 
   const pendingSettlementOrders = filteredOrders.filter(
     (order) => (order.payment_status || 'unpaid') === 'pending_settlement'
@@ -316,7 +323,11 @@ const OrderHistoryTab = () => {
           <label>Status:</label>
           <select
             value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setStatusFilter(value);
+              fetchOrders({ page: 1, statusFilter: value });
+            }}
             className="date-input"
           >
             <option value="all">All Orders</option>
@@ -330,7 +341,11 @@ const OrderHistoryTab = () => {
           <label>Payment:</label>
           <select
             value={paymentStatusFilter}
-            onChange={(event) => setPaymentStatusFilter(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              setPaymentStatusFilter(value);
+              fetchOrders({ page: 1, paymentStatusFilter: value });
+            }}
             className="date-input"
           >
             <option value="all">All Payments</option>
@@ -347,14 +362,13 @@ const OrderHistoryTab = () => {
       ) : filteredOrders.length === 0 ? (
         <div className="empty-state">No orders found</div>
       ) : (
-        <div className="items-table">
+        <div className="items-table compact-table order-history-table">
           <table className="data-table">
             <thead>
               <tr>
                 <th>Bill #</th>
                 <th>Type</th>
                 <th>Date & Time</th>
-                <th>Items</th>
                 <th>Subtotal</th>
                 <th>Tax</th>
                 <th>Discount</th>
@@ -379,9 +393,6 @@ const OrderHistoryTab = () => {
                   </td>
                   <td>{formatOrderType(order.order_type)}</td>
                   <td>{formatDate(order.created_at)}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <span className="badge">{order.item_count || '-'}</span>
-                  </td>
                   <td>{formatCurrency(order.subtotal)}</td>
                   <td>{formatCurrency(order.tax_amount)}</td>
                   <td>{formatCurrency(order.discount_amount)}</td>
@@ -421,7 +432,7 @@ const OrderHistoryTab = () => {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <div className="order-history-actions">
                       <button
                         onClick={() => handleViewDetails(order.id)}
                         className="btn-edit"
@@ -455,6 +466,10 @@ const OrderHistoryTab = () => {
               ))}
             </tbody>
           </table>
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(page) => fetchOrders({ page })}
+          />
         </div>
       )}
 

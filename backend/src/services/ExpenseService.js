@@ -28,6 +28,24 @@ class ExpenseService {
     return ExpenseRepository.findAll();
   }
 
+  async getPaginatedExpenses(startDate = null, endDate = null, limit = 25, offset = 0) {
+    let normalizedStart = null;
+    let normalizedEnd = null;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+
+      normalizedStart = start.toISOString();
+      normalizedEnd = end.toISOString();
+    }
+
+    return ExpenseRepository.findPaginated(normalizedStart, normalizedEnd, limit, offset);
+  }
+
   async getExpensesByDateRange(startDate, endDate) {
     return ExpenseRepository.findByDateRange(startDate, endDate);
   }

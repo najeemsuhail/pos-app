@@ -148,6 +148,22 @@ class PurchaseService {
     return PurchaseRepository.findAll(normalizedStart, normalizedEnd, supplierId);
   }
 
+  async getPaginatedPurchases(startDate = null, endDate = null, supplierId = null, limit = 25, offset = 0) {
+    let normalizedStart = null;
+    let normalizedEnd = null;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      normalizedStart = start.toISOString();
+      normalizedEnd = end.toISOString();
+    }
+
+    return PurchaseRepository.findPaginated(normalizedStart, normalizedEnd, supplierId, limit, offset);
+  }
+
   async getSummary(startDate = null, endDate = null, supplierId = null) {
     const purchases = await this.getPurchases(startDate, endDate, supplierId);
 

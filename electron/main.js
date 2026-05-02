@@ -227,21 +227,154 @@ ipcMain.handle('desktop:get-printers', async () => {
   return [];
 });
 
-ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
-  return new Promise((resolve) => {
-    const useSilentPrint = !!printerName && printerName !== 'browser-default';
-    let resolved = false;
+ipcMain.handle('desktop:print-current-window', async (event) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
 
-    let printWindow = new BrowserWindow({
-      show: !useSilentPrint,
-      width: 420,
-      height: 760,
-      autoHideMenuBar: true,
+  if (!targetWindow || targetWindow.isDestroyed()) {
+    return { success: false, errorType: 'Print window is not available' };
+  }
+
+  return new Promise((resolve) => {
+    targetWindow.webContents.print({
+      silent: false,
+      printBackground: true,
+    }, (success, errorType) => {
+      resolve({ success, errorType });
+    });
+  });
+});
+
+async function getPrintableHtmlFromWindow(targetWindow) {
+  return targetWindow.webContents.executeJavaScript(`
+    (() => {
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelectorAll('.print-actions, script').forEach((element) => element.remove());
+
+      const style = document.createElement('style');
+      style.textContent = [
+        '@page { size: A4; margin: 10mm; }',
+        'html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }',
+        '.print-shell { box-shadow: none !important; border: 0 !important; margin: 0 auto !important; }'
+      ].join(' ');
+      clone.querySelector('head').appendChild(style);
+
+      return '<!doctype html>' + clone.outerHTML;
+    })();
+  `);
+}
+
+function loadHtmlInWindow(targetWindow, html) {
+  return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      targetWindow.webContents.removeListener('did-finish-load', handleFinish);
+      targetWindow.webContents.removeListener('did-fail-load', handleFail);
+    };
+
+    const handleFinish = () => {
+      cleanup();
+      setTimeout(resolve, 250);
+    };
+
+    const handleFail = () => {
+      cleanup();
+      reject(new Error('Print content failed to load'));
+    };
+
+    targetWindow.webContents.once('did-finish-load', handleFinish);
+    targetWindow.webContents.once('did-fail-load', handleFail);
+    targetWindow.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html)).catch((error) => {
+      cleanup();
+      reject(error);
+    });
+  });
+}
+
+ipcMain.handle('desktop:save-current-window-pdf', async (event) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
+
+  if (!targetWindow || targetWindow.isDestroyed()) {
+    return { success: false, errorType: 'Print window is not available' };
+  }
+
+  const result = await dialog.showSaveDialog(targetWindow, {
+    title: 'Save Receipt PDF',
+    defaultPath: path.join(app.getPath('documents'), `receipt-${Date.now()}.pdf`),
+    filters: [
+      { name: 'PDF Document', extensions: ['pdf'] },
+    ],
+  });
+
+  if (result.canceled || !result.filePath) {
+    return { success: false, errorType: 'cancelled' };
+  }
+
+  try {
+    const printableHtml = await getPrintableHtmlFromWindow(targetWindow);
+    const textLength = await targetWindow.webContents.executeJavaScript(`
+      (document.querySelector('.receipt-paper')?.innerText || '').trim().length
+    `);
+
+    if (!textLength) {
+      return { success: false, errorType: 'Receipt preview has no printable content' };
+    }
+
+    let pdfWindow = new BrowserWindow({
+      show: false,
+      width: 900,
+      height: 1200,
       webPreferences: {
         nodeIntegration: false,
-        contextIsolation: true
-      }
+        contextIsolation: true,
+      },
     });
+
+    let pdfBuffer;
+    try {
+      await loadHtmlInWindow(pdfWindow, printableHtml);
+
+      pdfBuffer = await pdfWindow.webContents.printToPDF({
+        printBackground: true,
+        pageSize: 'A4',
+      });
+    } finally {
+      if (pdfWindow && !pdfWindow.isDestroyed()) {
+        pdfWindow.close();
+      }
+    }
+
+    if (!pdfBuffer || pdfBuffer.length < 1000) {
+      return { success: false, errorType: 'Generated PDF is empty' };
+    }
+
+    fs.writeFileSync(result.filePath, pdfBuffer);
+    return { success: true, filePath: result.filePath };
+  } catch (error) {
+    return { success: false, errorType: error.message || 'Unable to save PDF' };
+  }
+});
+
+ipcMain.handle('desktop:close-current-window', async (event) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
+
+  if (targetWindow && !targetWindow.isDestroyed()) {
+    targetWindow.close();
+  }
+
+  return { success: true };
+});
+
+function requiresVisiblePrintDialog(printerName) {
+  return /pdf|xps|onenote|document writer/i.test(printerName || '');
+}
+
+ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
+  return new Promise((resolve) => {
+    const useSilentPrint = !!printerName
+      && printerName !== 'browser-default'
+      && !requiresVisiblePrintDialog(printerName);
+    let resolved = false;
+    let printWindow = null;
+    let printTimeout = null;
 
     const finish = (result) => {
       if (resolved) {
@@ -249,6 +382,10 @@ ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
       }
 
       resolved = true;
+      if (printTimeout) {
+        clearTimeout(printTimeout);
+        printTimeout = null;
+      }
       resolve(result);
     };
 
@@ -259,13 +396,36 @@ ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
       printWindow = null;
     };
 
+    printTimeout = setTimeout(() => {
+      finish({
+        success: false,
+        errorType: useSilentPrint ? 'Printer did not respond' : 'Print dialog timed out',
+      });
+      closePrintWindow();
+    }, useSilentPrint ? 20000 : 120000);
+
+    printWindow = new BrowserWindow({
+      show: !useSilentPrint,
+      width: 420,
+      height: 760,
+      autoHideMenuBar: true,
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.js'),
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+
     printWindow.on('closed', () => {
       finish({ success: false, errorType: 'cancelled' });
       printWindow = null;
     });
 
     const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
-    printWindow.loadURL(dataUrl);
+    printWindow.loadURL(dataUrl).catch(() => {
+      finish({ success: false, errorType: 'Print preview failed to load' });
+      closePrintWindow();
+    });
 
     printWindow.webContents.on('did-finish-load', () => {
       if (!printWindow || printWindow.isDestroyed()) {
@@ -283,6 +443,8 @@ ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
       } else {
         printWindow.show();
         printWindow.focus();
+        finish({ success: true, preview: true });
+        return;
       }
 
       printWindow.webContents.print(printOptions, (success, errorType) => {

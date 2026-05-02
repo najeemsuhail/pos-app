@@ -3,6 +3,7 @@ const OrderItemRepository = require('../repositories/OrderItemRepository');
 const { generateThermalReceipt, generateKotTicket } = require('../utils/printer');
 const SettingService = require('../services/SettingService');
 const SyncService = require('../services/SyncService');
+const { parsePagination, buildPaginationMeta, hasPaginationParams } = require('../utils/pagination');
 
 class OrderController {
   async create(req, res, next) {
@@ -202,7 +203,24 @@ class OrderController {
 
   async getAll(req, res, next) {
     try {
-      const { limit = 100, offset = 0, startDate, endDate } = req.query;
+      const { limit = 100, offset = 0, startDate, endDate, status, paymentStatus } = req.query;
+
+      if (hasPaginationParams(req.query)) {
+        const pagination = parsePagination(req.query);
+        const result = await OrderService.getPaginatedOrders({
+          startDate,
+          endDate,
+          status,
+          paymentStatus,
+          limit: pagination.limit,
+          offset: pagination.offset,
+        });
+
+        return res.json({
+          data: result.data,
+          pagination: buildPaginationMeta({ ...pagination, total: result.total }),
+        });
+      }
 
       let orders;
       if (startDate && endDate) {

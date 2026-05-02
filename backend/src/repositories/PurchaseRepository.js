@@ -31,6 +31,36 @@ class PurchaseRepository {
   }
 
   async findAll(startDate = null, endDate = null, supplierId = null) {
+    const where = this.buildWhere(startDate, endDate, supplierId);
+
+    const purchases = await prisma.purchase.findMany({
+      where,
+      include: this.includeGraph(),
+      orderBy: [{ purchaseDate: 'desc' }, { createdAt: 'desc' }],
+    });
+
+    return purchases.map(mapPurchase);
+  }
+
+  includeGraph() {
+    return {
+      supplier: {
+        include: {
+          purchases: {
+            select: {
+              totalAmount: true,
+              paidAmount: true,
+            },
+          },
+        },
+      },
+      items: {
+        include: { ingredient: true },
+      },
+    };
+  }
+
+  buildWhere(startDate = null, endDate = null, supplierId = null) {
     const where = {};
 
     if (startDate && endDate) {
@@ -44,27 +74,23 @@ class PurchaseRepository {
       where.supplierId = Number(supplierId);
     }
 
-    const purchases = await prisma.purchase.findMany({
-      where,
-      include: {
-        supplier: {
-          include: {
-            purchases: {
-              select: {
-                totalAmount: true,
-                paidAmount: true,
-              },
-            },
-          },
-        },
-        items: {
-          include: { ingredient: true },
-        },
-      },
-      orderBy: [{ purchaseDate: 'desc' }, { createdAt: 'desc' }],
-    });
+    return where;
+  }
 
-    return purchases.map(mapPurchase);
+  async findPaginated(startDate = null, endDate = null, supplierId = null, limit = 25, offset = 0) {
+    const where = this.buildWhere(startDate, endDate, supplierId);
+    const [purchases, total] = await prisma.$transaction([
+      prisma.purchase.findMany({
+        where,
+        include: this.includeGraph(),
+        orderBy: [{ purchaseDate: 'desc' }, { createdAt: 'desc' }],
+        take: limit,
+        skip: offset,
+      }),
+      prisma.purchase.count({ where }),
+    ]);
+
+    return { data: purchases.map(mapPurchase), total };
   }
 
   async findById(id) {
@@ -89,7 +115,6 @@ class PurchaseRepository {
 
     return purchase ? mapPurchase(purchase) : null;
   }
-
   async updatePayment(id, paidAmount, paymentStatus) {
     const purchase = await prisma.purchase.update({
       where: { id: Number(id) },

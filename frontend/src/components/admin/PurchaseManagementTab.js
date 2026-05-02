@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { downloadExcelWorkbook } from '../../utils/excelExport';
 import { ingredientService, purchaseService } from '../../services/api';
+import PaginationControls from './PaginationControls';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -18,9 +19,11 @@ const createEmptyItem = () => ({
 const money = (value) => `Rs. ${Number(value || 0).toFixed(2)}`;
 
 const PurchaseManagementTab = () => {
+  const pageSize = 25;
   const [suppliers, setSuppliers] = useState([]);
   const [ingredients, setIngredients] = useState([]);
   const [purchases, setPurchases] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: pageSize, total: 0, totalPages: 1 });
   const [summary, setSummary] = useState({ purchase_count: 0, total_amount: 0, paid_amount: 0, due_amount: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -43,17 +46,18 @@ const PurchaseManagementTab = () => {
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [editingPurchase, setEditingPurchase] = useState(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const [suppliersResponse, purchasesResponse, summaryResponse] = await Promise.all([
         purchaseService.getSuppliers(),
-        purchaseService.getAll(filters.startDate, filters.endDate, filters.supplierId || undefined),
+        purchaseService.getAll(filters.startDate, filters.endDate, filters.supplierId || undefined, { page, limit: pageSize }),
         purchaseService.getSummary(filters.startDate, filters.endDate, filters.supplierId || undefined),
       ]);
 
       setSuppliers(suppliersResponse.data);
-      setPurchases(purchasesResponse.data);
+      setPurchases(purchasesResponse.data.data || []);
+      setPagination(purchasesResponse.data.pagination || { page: 1, limit: pageSize, total: 0, totalPages: 1 });
       setSummary(summaryResponse.data);
       setError('');
     } catch (err) {
@@ -119,7 +123,7 @@ const PurchaseManagementTab = () => {
         await purchaseService.deleteSupplier(supplierId);
         setSuccess('Supplier deleted successfully');
         setTimeout(() => setSuccess(''), 3000);
-        await fetchData();
+        await fetchData(1);
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to delete supplier');
       }
@@ -209,7 +213,7 @@ const PurchaseManagementTab = () => {
         await purchaseService.delete(purchaseId);
         setSuccess('Purchase deleted successfully');
         setTimeout(() => setSuccess(''), 3000);
-        await fetchData();
+        await fetchData(pagination.page);
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to delete purchase');
       }
@@ -251,7 +255,7 @@ const PurchaseManagementTab = () => {
       setPaymentDrafts((current) => ({ ...current, [purchaseId]: '' }));
       setSuccess('Payment recorded successfully');
       setTimeout(() => setSuccess(''), 3000);
-      await fetchData();
+      await fetchData(pagination.page);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to record payment');
     }
@@ -630,11 +634,17 @@ const PurchaseManagementTab = () => {
               ))}
               {purchases.length === 0 && (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: 'center' }}>No purchases found</td>
+                  <td colSpan="10" style={{ textAlign: 'center' }}>No purchases found</td>
                 </tr>
               )}
             </tbody>
           </table>
+        )}
+        {!loading && (
+          <PaginationControls
+            pagination={pagination}
+            onPageChange={(page) => fetchData(page)}
+          />
         )}
       </div>
     </div>

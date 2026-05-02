@@ -8,6 +8,21 @@ import { downloadExcelWorkbook } from '../../utils/excelExport';
 
 const money = (v) => `Rs. ${parseFloat(v || 0).toFixed(2)}`;
 
+const PdfIcon = () => (
+  <svg className="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M6 2h8l4 4v16H6z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    <path d="M14 2v5h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    <path d="M8 14h8M8 18h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+const ExcelIcon = () => (
+  <svg className="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 3h16v18H4z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    <path d="M4 9h16M4 15h16M10 3v18M16 3v18" fill="none" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
 const getWeekRange = (dateStr) => {
   const date = new Date(dateStr);
   const day = date.getDay();
@@ -30,7 +45,7 @@ const getMonthRange = (monthStr) => {
   };
 };
 
-const ExpenseReportSection = () => {
+const ExpenseReportSection = ({ headerAction = null }) => {
   const todayStr = new Date().toISOString().split('T')[0];
   const [period, setPeriod] = useState('daily');
   const [selectedDate, setSelectedDate] = useState(todayStr);
@@ -262,6 +277,7 @@ const ExpenseReportSection = () => {
             Supplier purchases are tracked in the Purchases tab. This section is only for operating expenses.
           </p>
         </div>
+        {headerAction}
       </div>
 
       {/* Period Selector */}
@@ -311,10 +327,12 @@ const ExpenseReportSection = () => {
           </button>
           {fetched && expenses.length > 0 && (
             <>
-              <button className="btn-success" onClick={handleExportPDF} style={{ height: '38px', width: '80px' }}>
+              <button className="btn-success report-export-button" onClick={handleExportPDF} style={{ height: '38px', width: '80px' }}>
+                <PdfIcon />
                 PDF
               </button>
-              <button className="btn-secondary" onClick={handleExportExcel} style={{ height: '38px', width: '80px' }}>
+              <button className="btn-secondary report-export-button" onClick={handleExportExcel} style={{ height: '38px', width: '80px' }}>
+                <ExcelIcon />
                 Excel
               </button>
             </>

@@ -82,6 +82,27 @@ class OrderRepository {
     return mapOrder(order);
   }
 
+  buildWhere({ startDate = null, endDate = null, status = null, paymentStatus = null } = {}) {
+    const where = {};
+
+    if (startDate && endDate) {
+      where.createdAt = {
+        gte: new Date(startDate),
+        lt: new Date(endDate),
+      };
+    }
+
+    if (status && status !== 'all') {
+      where.status = status;
+    }
+
+    if (paymentStatus && paymentStatus !== 'all') {
+      where.paymentStatus = paymentStatus;
+    }
+
+    return where;
+  }
+
   async findAll(limit = 100, offset = 0) {
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: 'desc' },
@@ -89,6 +110,21 @@ class OrderRepository {
       skip: offset,
     });
     return orders.map(mapOrder);
+  }
+
+  async findPaginated({ startDate = null, endDate = null, status = null, paymentStatus = null, limit = 25, offset = 0 } = {}) {
+    const where = this.buildWhere({ startDate, endDate, status, paymentStatus });
+    const [orders, total] = await prisma.$transaction([
+      prisma.order.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+      }),
+      prisma.order.count({ where }),
+    ]);
+
+    return { data: orders.map(mapOrder), total };
   }
 
   async findByDateRange(startDate, endDate) {

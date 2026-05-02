@@ -98,6 +98,7 @@ export const ingredientService = {
 
 export const orderService = {
   create: (data = {}) => api.post('/orders', data),
+  getAll: (params = {}) => api.get('/orders', { params }),
   getById: (id) => api.get(`/orders/${id}`),
   getActiveOrders: () => api.get('/orders/active'),
   getActiveTables: () => api.get('/orders/tables/active'),
@@ -124,7 +125,7 @@ export const reportService = {
 };
 
 export const expenseService = {
-  getAll: (startDate, endDate) => api.get('/expenses', { params: { startDate, endDate } }),
+  getAll: (startDate, endDate, options = {}) => api.get('/expenses', { params: { startDate, endDate, ...options } }),
   getUniqueNotes: () => api.get('/expenses/notes'),
   create: (data) => api.post('/expenses', data),
   update: (id, data) => api.patch(`/expenses/${id}`, data),
@@ -147,7 +148,7 @@ export const purchaseService = {
   createSupplier: (data) => api.post('/purchases/suppliers', data),
   updateSupplier: (id, data) => api.patch(`/purchases/suppliers/${id}`, data),
   deleteSupplier: (id) => api.delete(`/purchases/suppliers/${id}`),
-  getAll: (startDate, endDate, supplierId) => api.get('/purchases', { params: { startDate, endDate, supplierId } }),
+  getAll: (startDate, endDate, supplierId, options = {}) => api.get('/purchases', { params: { startDate, endDate, supplierId, ...options } }),
   getSummary: (startDate, endDate, supplierId) => api.get('/purchases/summary', { params: { startDate, endDate, supplierId } }),
   create: (data) => api.post('/purchases', data),
   update: (id, data) => api.patch(`/purchases/${id}`, data),

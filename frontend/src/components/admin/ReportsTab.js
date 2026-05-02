@@ -48,6 +48,8 @@ const ReportsTab = () => {
   const [purchaseSummary, setPurchaseSummary] = useState({ totalAmount: 0, totalPaid: 0, totalDue: 0 });
   const [itemSortKey, setItemSortKey] = useState('quantity');
   const [itemSortDir, setItemSortDir] = useState('desc');
+  const [categorySortKey, setCategorySortKey] = useState('revenue');
+  const [categorySortDir, setCategorySortDir] = useState('desc');
 
   const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
   const tooltipStyle = {
@@ -279,9 +281,10 @@ const ReportsTab = () => {
 
     const itemRows = [
       { cells: ['Items Sold'], style: 'title' },
-      { cells: ['Item Name', 'Qty Sold', 'Revenue', 'Avg Price', 'Orders'], style: 'header' },
+      { cells: ['Item Name', 'Category', 'Qty Sold', 'Revenue', 'Avg Price', 'Orders'], style: 'header' },
       ...(report.allItems || []).map((item) => [
         item.name,
+        item.category || 'Uncategorized',
         integerCell(item.quantity),
         currencyCell(item.revenue),
         currencyCell(item.avgPrice),
@@ -290,8 +293,35 @@ const ReportsTab = () => {
       ...(report.allItems && report.allItems.length > 0
         ? [[
             { value: 'Total', style: 'totalLabel' },
+            '',
             integerCell(report.allItems.reduce((sum, item) => sum + Number(item.quantity || 0), 0)),
             currencyCell(report.allItems.reduce((sum, item) => sum + Number(item.revenue || 0), 0), 'totalCurrency'),
+            '',
+            '',
+          ]]
+        : []),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
+    ];
+
+    const categoryRows = [
+      { cells: ['Category Sales'], style: 'title' },
+      { cells: ['Category', 'Items', 'Qty Sold', 'Revenue', 'Avg Price', 'Orders'], style: 'header' },
+      ...(report.categorySales || []).map((category) => [
+        category.category,
+        integerCell(category.itemCount),
+        integerCell(category.quantity),
+        currencyCell(category.revenue),
+        currencyCell(category.avgPrice),
+        integerCell(category.orderCount),
+      ]),
+      ...(report.categorySales && report.categorySales.length > 0
+        ? [[
+            { value: 'Total', style: 'totalLabel' },
+            integerCell(report.categorySales.reduce((sum, category) => sum + Number(category.itemCount || 0), 0)),
+            integerCell(report.categorySales.reduce((sum, category) => sum + Number(category.quantity || 0), 0)),
+            currencyCell(report.categorySales.reduce((sum, category) => sum + Number(category.revenue || 0), 0), 'totalCurrency'),
             '',
             '',
           ]]
@@ -419,7 +449,8 @@ const ReportsTab = () => {
       { name: 'OrderTypes', columns: [160, 90, 100, 120], rows: orderTypeRows },
       { name: 'Payments', columns: [180, 140], rows: paymentRows },
       { name: 'Hourly', columns: [90, 80, 80, 110, 110, 110], rows: hourlyRows },
-      { name: 'Items', columns: [220, 90, 120, 120, 90], rows: itemRows },
+      { name: 'Items', columns: [220, 160, 90, 120, 120, 90], rows: itemRows },
+      { name: 'Categories', columns: [180, 90, 90, 120, 120, 90], rows: categoryRows },
       { name: 'Expenses', columns: [180, 220, 90, 120], rows: expenseRows },
       { name: 'Purchases', columns: [110, 180, 120, 260, 100, 100, 100, 110], rows: purchaseRows },
       { name: 'Orders', columns: [100, 140, 140, 70, 100, 90, 100, 110, 90, 110], rows: orderRows },
@@ -461,15 +492,42 @@ const ReportsTab = () => {
     }
   };
 
+  const handleCategorySort = (key) => {
+    if (categorySortKey === key) {
+      setCategorySortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setCategorySortKey(key);
+      setCategorySortDir('desc');
+    }
+  };
+
+  const compareReportValues = (aVal, bVal, sortDir) => {
+    if (typeof aVal === 'string') {
+      return sortDir === 'asc'
+        ? aVal.localeCompare(bVal || '')
+        : (bVal || '').localeCompare(aVal);
+    }
+
+    return sortDir === 'asc'
+      ? Number(aVal || 0) - Number(bVal || 0)
+      : Number(bVal || 0) - Number(aVal || 0);
+  };
+
   const getSortedAllItems = (items) => {
     if (!items) return [];
     return [...items].sort((a, b) => {
       const aVal = a[itemSortKey];
       const bVal = b[itemSortKey];
-      if (typeof aVal === 'string') {
-        return itemSortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      }
-      return itemSortDir === 'asc' ? aVal - bVal : bVal - aVal;
+      return compareReportValues(aVal, bVal, itemSortDir);
+    });
+  };
+
+  const getSortedCategorySales = (categories) => {
+    if (!categories) return [];
+    return [...categories].sort((a, b) => {
+      const aVal = a[categorySortKey];
+      const bVal = b[categorySortKey];
+      return compareReportValues(aVal, bVal, categorySortDir);
     });
   };
 
@@ -514,6 +572,7 @@ const ReportsTab = () => {
       { id: 'report-payments', label: 'Payments', show: true },
       { id: 'report-expenses', label: 'Expenses', show: Boolean(report.expensesByCategory?.length) },
       { id: 'report-items', label: 'Items Sold', show: Boolean(report.allItems?.length) },
+      { id: 'report-categories', label: 'Category Sales', show: Boolean(report.categorySales?.length) },
       { id: 'report-orders', label: 'Orders', show: Boolean(report.orders?.length) },
     ].filter((section) => section.show);
   }, [orderTypeBreakdown.length, report, revenueAnalytics]);
@@ -528,6 +587,11 @@ const ReportsTab = () => {
   const SortArrow = ({ col }) => {
     if (itemSortKey !== col) return <span style={{ opacity: 0.3, marginLeft: 4 }}>⇅</span>;
     return <span style={{ marginLeft: 4 }}>{itemSortDir === 'asc' ? '▲' : '▼'}</span>;
+  };
+
+  const CategorySortArrow = ({ col }) => {
+    if (categorySortKey !== col) return <span style={{ opacity: 0.3, marginLeft: 4 }}>⇅</span>;
+    return <span style={{ marginLeft: 4 }}>{categorySortDir === 'asc' ? '▲' : '▼'}</span>;
   };
 
   return (
@@ -888,6 +952,9 @@ const ReportsTab = () => {
                     <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('name')}>
                       Item Name <SortArrow col="name" />
                     </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('category')}>
+                      Category <SortArrow col="category" />
+                    </th>
                     <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleItemSort('quantity')}>
                       Qty Sold <SortArrow col="quantity" />
                     </th>
@@ -907,6 +974,7 @@ const ReportsTab = () => {
                     <tr key={idx}>
                       <td style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{idx + 1}</td>
                       <td><strong>{item.name}</strong></td>
+                      <td>{item.category || 'Uncategorized'}</td>
                       <td style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{item.quantity}</td>
                       <td className="sales-cell">Rs. {item.revenue.toFixed(2)}</td>
                       <td>Rs. {item.avgPrice.toFixed(2)}</td>
@@ -918,11 +986,82 @@ const ReportsTab = () => {
                   <tr style={{ backgroundColor: 'var(--surface-muted)', fontWeight: 'bold' }}>
                     <td></td>
                     <td>Total</td>
+                    <td></td>
                     <td style={{ color: 'var(--primary-color)' }}>
                       {report.allItems.reduce((s, i) => s + i.quantity, 0)}
                     </td>
                     <td className="sales-cell">
                       Rs. {report.allItems.reduce((s, i) => s + i.revenue, 0).toFixed(2)}
+                    </td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          )}
+
+          {report.categorySales && report.categorySales.length > 0 && (
+            <div className="section-container report-section-anchor" id="report-categories">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0 }}>Category Sales Report ({report.categorySales.length} categories)</h3>
+                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Click column headers to sort</span>
+              </div>
+              <div className="report-grid">
+                {getSortedCategorySales(report.categorySales).slice(0, 4).map((category) => (
+                  <div className="report-card" key={category.category}>
+                    <h4>{category.category}</h4>
+                    <p className="report-value">Rs. {Number(category.revenue || 0).toFixed(2)}</p>
+                    <div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
+                      {category.quantity} sold | {category.itemCount} items
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleCategorySort('category')}>
+                      Category <CategorySortArrow col="category" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleCategorySort('itemCount')}>
+                      Items <CategorySortArrow col="itemCount" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleCategorySort('quantity')}>
+                      Qty Sold <CategorySortArrow col="quantity" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleCategorySort('revenue')}>
+                      Revenue (Rs.) <CategorySortArrow col="revenue" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleCategorySort('avgPrice')}>
+                      Avg Price <CategorySortArrow col="avgPrice" />
+                    </th>
+                    <th style={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleCategorySort('orderCount')}>
+                      Orders <CategorySortArrow col="orderCount" />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {getSortedCategorySales(report.categorySales).map((category) => (
+                    <tr key={category.category}>
+                      <td><strong>{category.category}</strong></td>
+                      <td>{category.itemCount}</td>
+                      <td style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{category.quantity}</td>
+                      <td className="sales-cell">Rs. {Number(category.revenue || 0).toFixed(2)}</td>
+                      <td>Rs. {Number(category.avgPrice || 0).toFixed(2)}</td>
+                      <td>{category.orderCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr style={{ backgroundColor: 'var(--surface-muted)', fontWeight: 'bold' }}>
+                    <td>Total</td>
+                    <td>{report.categorySales.reduce((s, c) => s + Number(c.itemCount || 0), 0)}</td>
+                    <td style={{ color: 'var(--primary-color)' }}>
+                      {report.categorySales.reduce((s, c) => s + Number(c.quantity || 0), 0)}
+                    </td>
+                    <td className="sales-cell">
+                      Rs. {report.categorySales.reduce((s, c) => s + Number(c.revenue || 0), 0).toFixed(2)}
                     </td>
                     <td></td>
                     <td></td>

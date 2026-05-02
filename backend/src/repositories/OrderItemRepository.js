@@ -28,6 +28,13 @@ class OrderItemRepository {
       where: {
         orderId: { in: orderIds.map(Number) },
       },
+      include: {
+        menuItem: {
+          include: {
+            category: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'asc' },
     });
     return items.map(mapOrderItem);

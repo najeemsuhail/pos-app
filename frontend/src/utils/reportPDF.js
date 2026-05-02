@@ -190,6 +190,7 @@ const createReportHTML = (report, reportType) => {
       <tr style="${idx % 2 === 0 ? 'background-color: #f9f9f9;' : ''}">
         <td style="padding: 7px; border: 1px solid #ddd;">${idx + 1}</td>
         <td style="padding: 7px; border: 1px solid #ddd;"><strong>${item.name}</strong></td>
+        <td style="padding: 7px; border: 1px solid #ddd;">${item.category || 'Uncategorized'}</td>
         <td style="padding: 7px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${item.quantity}</td>
         <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(item.revenue)}</td>
         <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(item.avgPrice)}</td>
@@ -205,6 +206,7 @@ const createReportHTML = (report, reportType) => {
             <tr style="background-color: #8e44ad; color: white;">
               <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">#</th>
               <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Item Name</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Category</th>
               <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Qty Sold</th>
               <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Revenue</th>
               <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Avg Price</th>
@@ -216,6 +218,53 @@ const createReportHTML = (report, reportType) => {
             <tr style="background-color: #f0e8f8; font-weight: bold;">
               <td style="padding: 8px; border: 1px solid #ddd;"></td>
               <td style="padding: 8px; border: 1px solid #ddd;">Total</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"></td>
+              <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${totalQty}</td>
+              <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${money(totalRev)}</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"></td>
+              <td style="padding: 8px; border: 1px solid #ddd;"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    `;
+  }
+
+  let categorySalesHTML = '';
+  if (report.categorySales && report.categorySales.length > 0) {
+    const totalQty = report.categorySales.reduce((s, c) => s + Number(c.quantity || 0), 0);
+    const totalRev = report.categorySales.reduce((s, c) => s + Number(c.revenue || 0), 0);
+
+    const categoryTable = report.categorySales.map((category, idx) => `
+      <tr style="${idx % 2 === 0 ? 'background-color: #f9f9f9;' : ''}">
+        <td style="padding: 7px; border: 1px solid #ddd;"><strong>${category.category}</strong></td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${category.itemCount}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${category.quantity}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(category.revenue)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(category.avgPrice)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${category.orderCount}</td>
+      </tr>
+    `).join('');
+
+    categorySalesHTML = `
+      <div style="margin-bottom: 30px;">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #0f766e; padding-bottom: 10px;">Category Sales Report (${report.categorySales.length} categories)</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11px;">
+          <thead>
+            <tr style="background-color: #0f766e; color: white;">
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Category</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Items</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Qty Sold</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Revenue</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Avg Price</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Orders</th>
+            </tr>
+          </thead>
+          <tbody>${categoryTable}</tbody>
+          <tfoot>
+            <tr style="background-color: #e6f4f1; font-weight: bold;">
+              <td style="padding: 8px; border: 1px solid #ddd;">Total</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"></td>
               <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${totalQty}</td>
               <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${money(totalRev)}</td>
               <td style="padding: 8px; border: 1px solid #ddd;"></td>
@@ -257,6 +306,6 @@ const createReportHTML = (report, reportType) => {
     </div>
   `;
 
-  div.innerHTML = header + summary + orderTypes + profitLoss + hourlyHTML + allItemsHTML + payment + footer;
+  div.innerHTML = header + summary + orderTypes + profitLoss + hourlyHTML + allItemsHTML + categorySalesHTML + payment + footer;
   return div;
 };

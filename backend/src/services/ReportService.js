@@ -94,15 +94,17 @@ class ReportService {
       .map((order) => order.id);
 
     if (paidOrderIds.length === 0) {
-      return { topItems: [], bottomItems: [], allItems: [] };
+      return { topItems: [], bottomItems: [], allItems: [], categorySales: [] };
     }
 
     const orderItems = await OrderItemRepository.findByOrderIds(paidOrderIds);
     const grouped = new Map();
 
     orderItems.forEach((item) => {
-      const existing = grouped.get(item.name) || {
+      const itemKey = item.menu_item_id || `${item.category?.id || 'uncategorized'}:${item.name}`;
+      const existing = grouped.get(itemKey) || {
         name: item.name,
+        category: item.category?.name || 'Uncategorized',
         quantity: 0,
         revenue: 0,
         totalPrice: 0,
@@ -119,20 +121,52 @@ class ReportService {
       existing.lineCount += 1;
       existing.orderIds.add(item.order_id);
 
-      grouped.set(item.name, existing);
+      grouped.set(itemKey, existing);
     });
 
-    const rankedItems = Array.from(grouped.values())
+    const groupedItems = Array.from(grouped.values())
       .map((item) => ({
         name: item.name,
+        category: item.category,
         quantity: item.quantity,
         revenue: item.revenue,
         avgPrice: item.lineCount > 0 ? item.totalPrice / item.lineCount : 0,
         orderCount: item.orderIds.size,
+        orderIds: item.orderIds,
       }))
       .sort((a, b) => b.quantity - a.quantity);
 
-    return { allItems: rankedItems };
+    const categorySales = Array.from(groupedItems.reduce((acc, item) => {
+      const category = item.category || 'Uncategorized';
+      const existing = acc.get(category) || {
+        category,
+        quantity: 0,
+        revenue: 0,
+        itemCount: 0,
+        orderIds: new Set(),
+      };
+
+      existing.quantity += Number(item.quantity) || 0;
+      existing.revenue += Number(item.revenue) || 0;
+      existing.itemCount += 1;
+      item.orderIds?.forEach((orderId) => existing.orderIds.add(orderId));
+
+      acc.set(category, existing);
+      return acc;
+    }, new Map()).values())
+      .map((category) => ({
+        category: category.category,
+        quantity: category.quantity,
+        revenue: category.revenue,
+        avgPrice: category.quantity > 0 ? category.revenue / category.quantity : 0,
+        itemCount: category.itemCount,
+        orderCount: category.orderIds.size,
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    const rankedItems = groupedItems.map(({ orderIds, ...item }) => item);
+
+    return { allItems: rankedItems, categorySales };
   }
 
   async getOrderSummaries(orders) {
@@ -174,7 +208,7 @@ class ReportService {
     const paymentByMethod = this.buildPaymentBreakdown(payments);
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
-    const { allItems } = await this.getTopBottomItems(orders);
+    const { allItems, categorySales } = await this.getTopBottomItems(orders);
     const orderSummaries = await this.getOrderSummaries(orders);
 
     return {
@@ -194,6 +228,7 @@ class ReportService {
       averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
       allItems,
+      categorySales,
       orders: orderSummaries,
     };
   }
@@ -219,7 +254,7 @@ class ReportService {
     const paymentByMethod = this.buildPaymentBreakdown(payments);
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
-    const { allItems } = await this.getTopBottomItems(orders);
+    const { allItems, categorySales } = await this.getTopBottomItems(orders);
     const orderSummaries = await this.getOrderSummaries(orders);
 
     return {
@@ -240,6 +275,7 @@ class ReportService {
       averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
       allItems,
+      categorySales,
       orders: orderSummaries,
     };
   }

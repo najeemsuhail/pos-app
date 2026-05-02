@@ -157,6 +157,8 @@ function mapOrderItem(item) {
     price: toNumber(item.price),
     quantity: item.quantity,
     created_at: item.createdAt,
+    menu_item: item.menuItem ? mapMenuItem(item.menuItem) : undefined,
+    category: item.menuItem?.category ? mapCategory(item.menuItem.category) : undefined,
   };
 }
 

@@ -5,6 +5,10 @@ node_modules/
 dist/
 build/
 public/
+!frontend/public/
+!frontend/public/vendor/
+!frontend/public/vendor/html2pdf.bundle.min.js
+!frontend/public/vendor/html2pdf.bundle.min.js.LICENSE.txt
 release/
 .DS_Store
 .vscode/

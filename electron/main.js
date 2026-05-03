@@ -227,7 +227,7 @@ ipcMain.handle('desktop:get-printers', async () => {
   return [];
 });
 
-ipcMain.handle('desktop:print-current-window', async (event) => {
+ipcMain.handle('desktop:print-current-window', async (event, printerName) => {
   const targetWindow = BrowserWindow.fromWebContents(event.sender);
 
   if (!targetWindow || targetWindow.isDestroyed()) {
@@ -235,10 +235,23 @@ ipcMain.handle('desktop:print-current-window', async (event) => {
   }
 
   return new Promise((resolve) => {
-    targetWindow.webContents.print({
+    const printOptions = {
       silent: false,
       printBackground: true,
-    }, (success, errorType) => {
+    };
+
+    // If a specific printer is requested, use it
+    if (printerName && printerName !== 'browser-default') {
+      printOptions.deviceName = printerName;
+      console.log(`[Print Preview] Using printer: "${printerName}"`);
+    }
+
+    targetWindow.webContents.print(printOptions, (success, errorType) => {
+      if (!success) {
+        console.error(`[Print Preview Error] Printer: "${printerName || 'browser-default'}", Error: "${errorType}"`);
+      } else {
+        console.log(`[Print Preview Success] Printer: "${printerName || 'browser-default'}"`);
+      }
       resolve({ success, errorType });
     });
   });
@@ -440,17 +453,36 @@ ipcMain.handle('desktop:print-receipt', async (event, html, printerName) => {
 
       if (useSilentPrint) {
         printOptions.deviceName = printerName;
-      } else {
-        printWindow.show();
-        printWindow.focus();
-        finish({ success: true, preview: true });
+        console.log(`[Print] Using printer: "${printerName}"`, printOptions);
+      }
+
+      const runPrint = () => {
+        if (!printWindow || printWindow.isDestroyed()) {
+          finish({ success: false, errorType: 'cancelled' });
+          return;
+        }
+
+        printWindow.webContents.print(printOptions, (success, errorType) => {
+          if (!success) {
+            console.error(`[Print Error] Printer: "${printerName}", Error: "${errorType}"`);
+          } else {
+            console.log(`[Print Success] Printer: "${printerName || 'browser-default'}"`);
+          }
+          finish({ success, errorType });
+          if (useSilentPrint) {
+            closePrintWindow();
+          }
+        });
+      };
+
+      if (useSilentPrint) {
+        runPrint();
         return;
       }
 
-      printWindow.webContents.print(printOptions, (success, errorType) => {
-        finish({ success, errorType });
-        closePrintWindow();
-      });
+      printWindow.show();
+      printWindow.focus();
+      setTimeout(runPrint, 350);
     });
 
     printWindow.webContents.on('did-fail-load', () => {

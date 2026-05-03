@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import ReceiptModal from '../ReceiptModal';
+import DatePicker from '../DatePicker';
 import OrderDetailsModal from './OrderDetailsModal';
 import SettlementModal from './SettlementModal';
 import PaginationControls from './PaginationControls';
@@ -22,10 +20,8 @@ const OrderHistoryTab = () => {
   const [endDate, setEndDate] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
-  const [receiptPreview, setReceiptPreview] = useState('');
-  const [receiptBillNumber, setReceiptBillNumber] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
-  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
+  const [loadingReceiptOrderId, setLoadingReceiptOrderId] = useState(null);
   const [settlingPaymentId, setSettlingPaymentId] = useState(null);
   const [paymentToSettle, setPaymentToSettle] = useState(null);
 
@@ -96,24 +92,14 @@ const OrderHistoryTab = () => {
 
   const handleReprint = async (orderId, billNumber) => {
     try {
-      setIsLoadingReceipt(true);
+      setLoadingReceiptOrderId(orderId);
       setError('');
       const response = await orderService.getReceipt(orderId);
-      setReceiptPreview(response.data);
-      setReceiptBillNumber(billNumber);
+      await printReceiptContent(response.data, billNumber ? `Receipt ${billNumber}` : 'Receipt');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to load receipt');
+      setError(err.response?.data?.error || err.message || 'Failed to print receipt');
     } finally {
-      setIsLoadingReceipt(false);
-    }
-  };
-
-  const handlePrintReceipt = async () => {
-    try {
-      await printReceiptContent(receiptPreview);
-    } catch (printError) {
-      console.error('Receipt print error:', printError);
-      setError(`Failed to print receipt: ${printError.message}`);
+      setLoadingReceiptOrderId(null);
     }
   };
 
@@ -444,10 +430,10 @@ const OrderHistoryTab = () => {
                         <button
                           onClick={() => handleReprint(order.id, order.bill_number)}
                           className="btn-secondary"
-                          disabled={isLoadingReceipt}
+                          disabled={loadingReceiptOrderId === order.id}
                           title="Reprint bill"
                         >
-                          {isLoadingReceipt ? 'Loading...' : 'Reprint'}
+                          {loadingReceiptOrderId === order.id ? 'Loading...' : 'Reprint'}
                         </button>
                       )}
                       {order.status === 'pending' && (
@@ -502,17 +488,6 @@ const OrderHistoryTab = () => {
         />
       )}
 
-      {receiptPreview && (
-        <ReceiptModal
-          receipt={receiptPreview}
-          billNumber={receiptBillNumber}
-          onPrint={handlePrintReceipt}
-          onClose={() => {
-            setReceiptPreview('');
-            setReceiptBillNumber('');
-          }}
-        />
-      )}
     </div>
   );
 };

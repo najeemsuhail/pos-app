@@ -1,6 +1,7 @@
-import html2pdf from 'html2pdf.js';
+import { loadHtml2Pdf } from './html2pdfLoader';
 
-export const generatePDF = (report, reportType) => {
+export const generatePDF = async (report, reportType) => {
+  const html2pdf = await loadHtml2Pdf();
   const element = createReportHTML(report, reportType);
 
   const opt = {

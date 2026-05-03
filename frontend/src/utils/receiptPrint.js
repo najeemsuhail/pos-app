@@ -9,62 +9,31 @@ function escapeReceiptLine(line) {
 function getReceiptLineClassName(line) {
   const trimmed = line.trim();
 
-  if (!trimmed) {
-    return 'receipt-line spacer';
-  }
-
-  if (/^=+$/.test(trimmed)) {
-    return 'receipt-line separator';
-  }
-
-  if (trimmed === 'PAYMENT BREAKDOWN') {
-    return 'receipt-line section-title';
-  }
-
-  if (trimmed === 'KITCHEN ORDER TICKET') {
-    return 'receipt-line section-title';
-  }
-
-  if (trimmed.startsWith('TOTAL:')) {
-    return 'receipt-line total';
-  }
-
-  if (/^(Subtotal:|Discount:|Tax \([^)]+\):)/.test(trimmed)) {
-    return 'receipt-line summary';
-  }
-
+  if (!trimmed) return 'receipt-line spacer';
+  if (/^=+$/.test(trimmed)) return 'receipt-line separator';
+  if (trimmed === 'PAYMENT BREAKDOWN') return 'receipt-line section-title';
+  if (trimmed === 'KITCHEN ORDER TICKET') return 'receipt-line section-title';
+  if (trimmed.startsWith('TOTAL:')) return 'receipt-line total';
+  if (/^(Subtotal:|Discount:|Tax \([^)]+\):)/.test(trimmed)) return 'receipt-line summary';
   if (/^(KOT No|Bill No|Date|Time|Table|Customer|Phone|Order|Payment|Type)\s*:/.test(trimmed)) {
     return 'receipt-line meta';
   }
-
-  if (trimmed === 'Thank you! Please visit again.') {
-    return 'receipt-line footer';
-  }
-
-  if (/^Item\s+Qty\s+Amount$/.test(trimmed)) {
-    return 'receipt-line header-row';
-  }
+  if (trimmed === 'Thank you! Please visit again.') return 'receipt-line footer';
+  if (/^Item\s+Qty\s+Amount$/.test(trimmed)) return 'receipt-line header-row';
 
   return 'receipt-line';
 }
 
 function getReceiptLineDisplayText(line) {
   const trimmed = line.trim();
-
-  if (trimmed === 'Thank you! Please visit again.') {
-    return trimmed;
-  }
-
+  if (trimmed === 'Thank you! Please visit again.') return trimmed;
   return line;
 }
 
 function withTimeout(promise, timeoutMs, message) {
   let timeoutId;
-
   const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = window.setTimeout(() => {
-      reject(new Error(message));
-    }, timeoutMs);
+    timeoutId = window.setTimeout(() => reject(new Error(message)), timeoutMs);
   });
 
   return Promise.race([promise, timeoutPromise]).finally(() => {
@@ -72,8 +41,44 @@ function withTimeout(promise, timeoutMs, message) {
   });
 }
 
+function isCancelledPrint(result) {
+  return result?.errorType === 'cancelled' || result?.errorType === 'canceled';
+}
+
 function requiresVisiblePrintDialog(printerName) {
   return /pdf|xps|onenote|document writer/i.test(printerName || '');
+}
+
+function getReceiptPrinterSetting() {
+  return localStorage.getItem('receiptPrinter') || 'browser-default';
+}
+
+function clearReceiptPrinterSetting() {
+  localStorage.removeItem('receiptPrinter');
+}
+
+function openBrowserPrintDialog(htmlContent) {
+  const popup = window.open('', '_blank', 'width=430,height=760');
+
+  if (!popup) {
+    throw new Error('Print window was blocked');
+  }
+
+  const printScript = `
+    <script>
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          window.focus();
+          window.print();
+        }, 500);
+      });
+    </script>
+  `;
+  const printableHtml = htmlContent.replace('</body>', `${printScript}</body>`);
+
+  popup.document.open();
+  popup.document.write(`<!doctype html>${printableHtml}`);
+  popup.document.close();
 }
 
 export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
@@ -97,35 +102,12 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
           @media print {
             body { margin: 0; }
             .print-shell { box-shadow: none; border: none; }
-            .print-actions { display: none; }
           }
           body {
             margin: 0;
             padding: 16px;
             background: #f3f4f6;
             font-family: Arial, sans-serif;
-            color: #111827;
-          }
-          .print-actions {
-            max-width: 340px;
-            margin: 0 auto 12px;
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-          }
-          .print-actions button {
-            border: 0;
-            border-radius: 8px;
-            padding: 9px 14px;
-            font: 700 13px Arial, sans-serif;
-            cursor: pointer;
-          }
-          .print-actions .primary {
-            background: #111827;
-            color: #ffffff;
-          }
-          .print-actions .secondary {
-            background: #e5e7eb;
             color: #111827;
           }
           .print-shell {
@@ -164,53 +146,8 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
           }
           .receipt-line.total { font-size: 12px; }
         </style>
-        <script>
-          async function printReceiptPreview() {
-            if (window.posDesktop && window.posDesktop.printCurrentWindow) {
-              const result = await window.posDesktop.printCurrentWindow();
-              if (!result || !result.success) {
-                window.alert(result && result.errorType ? result.errorType : 'Printing failed');
-              }
-              return;
-            }
-
-            window.print();
-          }
-
-          async function saveReceiptPdf() {
-            if (!window.posDesktop || !window.posDesktop.saveCurrentWindowPdf) {
-              window.alert('Save PDF is available only in the desktop app');
-              return;
-            }
-
-            const result = await window.posDesktop.saveCurrentWindowPdf();
-            if (result && result.success) {
-              return;
-            }
-
-            if (result && (result.errorType === 'cancelled' || result.errorType === 'canceled')) {
-              return;
-            }
-
-            window.alert(result && result.errorType ? result.errorType : 'Unable to save PDF');
-          }
-
-          function closeReceiptPreview() {
-            if (window.posDesktop && window.posDesktop.closeCurrentWindow) {
-              window.posDesktop.closeCurrentWindow();
-              return;
-            }
-
-            window.close();
-          }
-        </script>
       </head>
       <body>
-        <div class="print-actions">
-          <button class="secondary" type="button" onclick="closeReceiptPreview()">Close</button>
-          <button class="secondary" type="button" onclick="saveReceiptPdf()">Save PDF</button>
-          <button class="primary" type="button" onclick="printReceiptPreview()">Print</button>
-        </div>
         <div class="print-shell">
           <div class="receipt-paper">${receiptMarkup}</div>
         </div>
@@ -220,71 +157,93 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
 }
 
 export async function printReceiptContent(receipt, documentLabel = 'Receipt') {
+  let printerName = getReceiptPrinterSetting();
   const htmlContent = buildReceiptPrintHtml(receipt, documentLabel);
 
-  if (window.posDesktop && window.posDesktop.printReceipt) {
-    const printerName = localStorage.getItem('receiptPrinter') || 'browser-default';
-    const usesVisibleDialog = printerName === 'browser-default' || requiresVisiblePrintDialog(printerName);
-    const result = await withTimeout(
-      window.posDesktop.printReceipt(htmlContent, printerName),
-      usesVisibleDialog ? 120000 : 25000,
-      usesVisibleDialog
-        ? 'Print dialog timed out'
-        : 'Printer did not respond within 25 seconds'
-    );
+  if (window.posDesktop?.getPrinters && printerName !== 'browser-default') {
+    try {
+      const availablePrinters = await window.posDesktop.getPrinters();
+      const printerExists = availablePrinters.some((printer) => printer.name === printerName);
 
-    if (!result.success) {
-      if (result.errorType === 'cancelled' || result.errorType === 'canceled') {
-        return;
+      if (!printerExists) {
+        console.warn(`Printer "${printerName}" not found. Using browser print dialog.`);
+        printerName = 'browser-default';
+        clearReceiptPrinterSetting();
       }
-
-      throw new Error(result.errorType || 'Printing failed');
+    } catch (err) {
+      console.error('Error detecting printers:', err);
+      printerName = 'browser-default';
     }
+  }
 
+  const usesSilentPrinter = printerName !== 'browser-default' && !requiresVisiblePrintDialog(printerName);
+
+  if (!usesSilentPrinter) {
+    openBrowserPrintDialog(htmlContent);
     return;
   }
 
-  const existingIframe = document.getElementById('print-iframe');
-  if (existingIframe) {
-    existingIframe.remove();
+  if (window.posDesktop && typeof window.posDesktop.printReceipt === 'function') {
+
+    try {
+      const result = await withTimeout(
+        window.posDesktop.printReceipt(htmlContent, printerName),
+        25000,
+        'Printer did not respond within 25 seconds'
+      );
+
+      if (result.success || isCancelledPrint(result)) return;
+
+      console.warn('Desktop printing failed:', result.errorType);
+    } catch (err) {
+      console.error('Desktop print error:', err.message);
+    }
   }
+
+  const existingIframe = document.getElementById('print-iframe');
+  if (existingIframe) existingIframe.remove();
 
   const iframe = document.createElement('iframe');
   iframe.id = 'print-iframe';
   iframe.style.position = 'fixed';
-  iframe.style.right = '0';
-  iframe.style.bottom = '0';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '-9999px';
+  iframe.style.width = '800px';
+  iframe.style.height = '600px';
   iframe.style.border = '0';
 
   const cleanup = () => {
     window.setTimeout(() => {
-      if (iframe.parentNode) {
-        iframe.remove();
-      }
-    }, 100);
+      if (iframe.parentNode) iframe.remove();
+    }, 3000);
   };
 
   await new Promise((resolve, reject) => {
-    iframe.onload = resolve;
+    iframe.onload = async () => {
+      try {
+        await iframe.contentDocument.fonts.ready;
+      } catch (_) {
+        await new Promise((r) => setTimeout(r, 800));
+      }
+      resolve();
+    };
     iframe.onerror = () => reject(new Error('Print preview failed to load'));
     iframe.srcdoc = htmlContent;
     document.body.appendChild(iframe);
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 250));
-
   try {
     const printWindow = iframe.contentWindow;
-    if (!printWindow) {
-      throw new Error('Print preview is not available');
-    }
+    if (!printWindow) throw new Error('Print preview is not available');
 
     printWindow.onafterprint = cleanup;
-    printWindow.focus();
+
+    try {
+      printWindow.focus();
+    } catch (_) {}
+
     printWindow.print();
-    window.setTimeout(cleanup, 1000);
+    window.setTimeout(cleanup, 3000);
   } catch (error) {
     cleanup();
     throw error;

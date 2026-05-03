@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from '../DatePicker';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { downloadExcelWorkbook } from '../../utils/excelExport';
 import { ingredientService, purchaseService } from '../../services/api';

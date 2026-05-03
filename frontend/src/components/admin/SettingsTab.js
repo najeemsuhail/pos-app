@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { adminService, settingService, syncService } from '../../services/api';
 
 const DEFAULT_TABLE_COUNT = 12;
@@ -8,11 +8,7 @@ const DEFAULT_BILL_NUMBER_PREFIX = 'BILL';
 
 const normalizeTableCount = (value) => {
   const parsed = Number.parseInt(value, 10);
-
-  if (!Number.isFinite(parsed)) {
-    return DEFAULT_TABLE_COUNT;
-  }
-
+  if (!Number.isFinite(parsed)) return DEFAULT_TABLE_COUNT;
   return Math.min(Math.max(parsed, MIN_TABLE_COUNT), MAX_TABLE_COUNT);
 };
 
@@ -20,10 +16,7 @@ const buildDefaultTableNames = (tableCount = DEFAULT_TABLE_COUNT) =>
   Array.from({ length: normalizeTableCount(tableCount) }, (_, index) => `Table ${index + 1}`);
 
 const normalizeBillNumberPrefix = (value) => {
-  if (typeof value !== 'string') {
-    return DEFAULT_BILL_NUMBER_PREFIX;
-  }
-
+  if (typeof value !== 'string') return DEFAULT_BILL_NUMBER_PREFIX;
   const normalized = value
     .trim()
     .toUpperCase()
@@ -31,7 +24,6 @@ const normalizeBillNumberPrefix = (value) => {
     .replace(/[^A-Z0-9-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
-
   return normalized || DEFAULT_BILL_NUMBER_PREFIX;
 };
 
@@ -43,7 +35,10 @@ const SettingsTab = () => {
   const [success, setSuccess] = useState('');
 
   const [printers, setPrinters] = useState([]);
+  const [isLoadingPrinters, setIsLoadingPrinters] = useState(false);
   const [selectedPrinter, setSelectedPrinter] = useState('browser-default');
+  const [savedPrinter, setSavedPrinter] = useState('browser-default');
+
   const [storeSettings, setStoreSettings] = useState({
     storeName: '',
     storeAddressLocality: '',
@@ -65,19 +60,53 @@ const SettingsTab = () => {
   const [syncMessage, setSyncMessage] = useState('');
   const [syncMessageType, setSyncMessageType] = useState('success');
 
-  useEffect(() => {
-    if (window.posDesktop && window.posDesktop.getPrinters) {
-      window.posDesktop.getPrinters()
-        .then((printersList) => {
-          setPrinters(printersList || []);
-        })
-        .catch((err) => console.error('Could not load printers', err));
+  // Extracted into useCallback so it can be called on mount, on manual
+  // refresh, and when the main process signals a printer-list change.
+  const loadPrinters = useCallback(async () => {
+    if (!window.posDesktop?.getPrinters) {
+      // No desktop API — just restore saved preference if any
+      const storedPrinter = localStorage.getItem('receiptPrinter') || 'browser-default';
+      setSavedPrinter(storedPrinter);
+      setSelectedPrinter(storedPrinter);
+      return;
     }
 
-    const savedPrinter = localStorage.getItem('receiptPrinter');
-    if (savedPrinter) {
-      setSelectedPrinter(savedPrinter);
+    setIsLoadingPrinters(true);
+    try {
+      const printersList = await window.posDesktop.getPrinters();
+      const list = printersList || [];
+      setPrinters(list);
+
+      const storedPrinter = localStorage.getItem('receiptPrinter') || 'browser-default';
+
+      if (storedPrinter !== 'browser-default') {
+        const stillExists = list.some(p => p.name === storedPrinter);
+        if (stillExists) {
+          setSavedPrinter(storedPrinter);
+          setSelectedPrinter(storedPrinter);
+        } else {
+          // Saved printer gone. Fall back to preview/browser printing instead
+          // of silently selecting a different physical printer.
+          console.warn(`Saved printer "${storedPrinter}" not found. Resetting.`);
+          localStorage.removeItem('receiptPrinter');
+          setSavedPrinter('browser-default');
+          setSelectedPrinter('browser-default');
+        }
+      } else {
+        // Keep preview/browser printing as the default. Physical printers are
+        // used only after the user explicitly chooses one.
+        setSavedPrinter('browser-default');
+        setSelectedPrinter('browser-default');
+      }
+    } catch (err) {
+      console.error('Could not load printers:', err);
+    } finally {
+      setIsLoadingPrinters(false);
     }
+  }, []);
+
+  useEffect(() => {
+    loadPrinters();
 
     settingService.getAll()
       .then((res) => setStoreSettings({
@@ -85,7 +114,9 @@ const SettingsTab = () => {
         billNumberPrefix: normalizeBillNumberPrefix(res.data.billNumberPrefix),
         tableCount: normalizeTableCount(res.data.tableCount),
         tableNames: Array.isArray(res.data.tableNames)
-          ? buildDefaultTableNames(res.data.tableCount).map((fallback, index) => res.data.tableNames[index] || fallback)
+          ? buildDefaultTableNames(res.data.tableCount).map(
+              (fallback, index) => res.data.tableNames[index] || fallback
+            )
           : buildDefaultTableNames(res.data.tableCount),
       }))
       .catch((err) => console.error('Failed to load settings:', err));
@@ -97,7 +128,24 @@ const SettingsTab = () => {
     syncService.getStatus()
       .then((res) => setSyncStatus(res.data))
       .catch((err) => console.error('Failed to load sync status:', err));
-  }, [defaultTableNames]);
+  }, [defaultTableNames, loadPrinters]);
+
+  // Listen for printer-list changes pushed from the main process.
+  // Requires onPrintersChanged / offPrintersChanged in preload.js.
+  useEffect(() => {
+    if (!window.posDesktop?.onPrintersChanged) return;
+
+    const handlePrintersChanged = () => {
+      console.log('Printer list changed — refreshing');
+      loadPrinters();
+    };
+
+    window.posDesktop.onPrintersChanged(handlePrintersChanged);
+
+    return () => {
+      window.posDesktop.offPrintersChanged(handlePrintersChanged);
+    };
+  }, [loadPrinters]);
 
   const refreshSyncStatus = async () => {
     const response = await syncService.getStatus();
@@ -106,23 +154,30 @@ const SettingsTab = () => {
   };
 
   const formatSyncTime = (value) => {
-    if (!value) {
-      return 'Never';
-    }
-
+    if (!value) return 'Never';
     const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-      return 'Never';
-    }
-
+    if (Number.isNaN(parsed.getTime())) return 'Never';
     return parsed.toLocaleString();
   };
 
   const handlePrinterChange = (event) => {
-    const value = event.target.value;
-    setSelectedPrinter(value);
-    localStorage.setItem('receiptPrinter', value);
+    setSelectedPrinter(event.target.value);
+  };
+
+  const handleSavePrinterSettings = () => {
+    if (selectedPrinter === 'browser-default') {
+      localStorage.removeItem('receiptPrinter');
+    } else {
+      localStorage.setItem('receiptPrinter', selectedPrinter);
+    }
+    setSavedPrinter(selectedPrinter);
     setSuccess('Printer settings saved successfully!');
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleRefreshPrinters = async () => {
+    await loadPrinters();
+    setSuccess('Printer list refreshed.');
     setTimeout(() => setSuccess(''), 3000);
   };
 
@@ -135,13 +190,10 @@ const SettingsTab = () => {
   const handleTableCountChange = (value) => {
     const tableCount = normalizeTableCount(value);
     const existingNames = Array.isArray(storeSettings.tableNames) ? storeSettings.tableNames : [];
-    const nextTableNames = buildDefaultTableNames(tableCount).map((fallback, index) => existingNames[index] || fallback);
-
-    setStoreSettings({
-      ...storeSettings,
-      tableCount,
-      tableNames: nextTableNames,
-    });
+    const nextTableNames = buildDefaultTableNames(tableCount).map(
+      (fallback, index) => existingNames[index] || fallback
+    );
+    setStoreSettings({ ...storeSettings, tableCount, tableNames: nextTableNames });
   };
 
   const handleSaveStoreSettings = async () => {
@@ -152,7 +204,11 @@ const SettingsTab = () => {
       try {
         response = await settingService.update(storeSettings);
       } catch (err) {
-        if (err.response?.status === 404 || err.response?.status === 401 || err.response?.status === 403) {
+        if (
+          err.response?.status === 404 ||
+          err.response?.status === 401 ||
+          err.response?.status === 403
+        ) {
           response = await settingService.updateLegacy(storeSettings);
         } else {
           throw err;
@@ -163,7 +219,9 @@ const SettingsTab = () => {
         billNumberPrefix: normalizeBillNumberPrefix(response.data.billNumberPrefix),
         tableCount: normalizeTableCount(response.data.tableCount),
         tableNames: Array.isArray(response.data.tableNames)
-          ? buildDefaultTableNames(response.data.tableCount).map((fallback, index) => response.data.tableNames[index] || fallback)
+          ? buildDefaultTableNames(response.data.tableCount).map(
+              (fallback, index) => response.data.tableNames[index] || fallback
+            )
           : buildDefaultTableNames(response.data.tableCount),
       });
       setSuccess('Store settings saved successfully!');
@@ -217,10 +275,9 @@ const SettingsTab = () => {
       setError('Please type RESET to confirm');
       return;
     }
-
-    if (!window.confirm('CRITICAL: This will permanently delete all order history, products, and categories. This action is irreversible. Are you absolutely sure?')) {
-      return;
-    }
+    if (!window.confirm(
+      'CRITICAL: This will permanently delete all order history, products, and categories. This action is irreversible. Are you absolutely sure?'
+    )) return;
 
     try {
       setLoading(true);
@@ -228,9 +285,7 @@ const SettingsTab = () => {
       const response = await adminService.resetDatabase();
       setSuccess(response.data.message);
       setResetConfirm('');
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
+      setTimeout(() => window.location.reload(), 3000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to reset system');
     } finally {
@@ -245,6 +300,8 @@ const SettingsTab = () => {
       </div>
 
       <div className="settings-container">
+
+        {/* Store Information */}
         <div className="settings-section" style={{ marginBottom: '30px' }}>
           <h3>Store Information</h3>
           <p>These details will appear on the receipts.</p>
@@ -255,7 +312,7 @@ const SettingsTab = () => {
                 type="text"
                 className="settings-input"
                 value={storeSettings.storeName}
-                onChange={(event) => setStoreSettings({ ...storeSettings, storeName: event.target.value })}
+                onChange={(e) => setStoreSettings({ ...storeSettings, storeName: e.target.value })}
                 disabled={isSavingSettings}
               />
             </div>
@@ -265,7 +322,7 @@ const SettingsTab = () => {
                 type="text"
                 className="settings-input"
                 value={storeSettings.storeAddressLocality}
-                onChange={(event) => setStoreSettings({ ...storeSettings, storeAddressLocality: event.target.value })}
+                onChange={(e) => setStoreSettings({ ...storeSettings, storeAddressLocality: e.target.value })}
                 disabled={isSavingSettings}
               />
             </div>
@@ -275,7 +332,7 @@ const SettingsTab = () => {
                 type="text"
                 className="settings-input"
                 value={storeSettings.storePhone}
-                onChange={(event) => setStoreSettings({ ...storeSettings, storePhone: event.target.value })}
+                onChange={(e) => setStoreSettings({ ...storeSettings, storePhone: e.target.value })}
                 disabled={isSavingSettings}
               />
             </div>
@@ -287,7 +344,7 @@ const SettingsTab = () => {
                 value={storeSettings.taxRate}
                 min="0"
                 step="0.01"
-                onChange={(event) => setStoreSettings({ ...storeSettings, taxRate: Number(event.target.value) })}
+                onChange={(e) => setStoreSettings({ ...storeSettings, taxRate: Number(e.target.value) })}
                 disabled={isSavingSettings}
               />
             </div>
@@ -297,7 +354,7 @@ const SettingsTab = () => {
                 type="text"
                 className="settings-input"
                 value={storeSettings.billNumberPrefix}
-                onChange={(event) => setStoreSettings({ ...storeSettings, billNumberPrefix: event.target.value })}
+                onChange={(e) => setStoreSettings({ ...storeSettings, billNumberPrefix: e.target.value })}
                 placeholder={DEFAULT_BILL_NUMBER_PREFIX}
                 disabled={isSavingSettings}
               />
@@ -314,7 +371,7 @@ const SettingsTab = () => {
                 min={MIN_TABLE_COUNT}
                 max={MAX_TABLE_COUNT}
                 step="1"
-                onChange={(event) => handleTableCountChange(event.target.value)}
+                onChange={(e) => handleTableCountChange(e.target.value)}
                 disabled={isSavingSettings}
               />
               <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-secondary)' }}>
@@ -331,6 +388,7 @@ const SettingsTab = () => {
           </div>
         </div>
 
+        {/* Table Names */}
         <div className="settings-section" style={{ marginBottom: '30px' }}>
           <h3>Table Names</h3>
           <p>Rename your tables here. The POS will use the configured table count and keep numeric table ids internally.</p>
@@ -343,7 +401,7 @@ const SettingsTab = () => {
                     type="text"
                     className="settings-input"
                     value={tableName}
-                    onChange={(event) => handleTableNameChange(index, event.target.value)}
+                    onChange={(e) => handleTableNameChange(index, e.target.value)}
                     placeholder={`Table ${index + 1}`}
                     disabled={isSavingSettings}
                   />
@@ -360,31 +418,73 @@ const SettingsTab = () => {
           </div>
         </div>
 
+        {/* Hardware — only shown in desktop app */}
         {window.posDesktop && (
           <div className="settings-section hardware-zone" style={{ marginBottom: '30px' }}>
             <h3>Hardware and Devices</h3>
             <div className="setting-card">
               <div className="setting-info">
                 <h4>Receipt Printer</h4>
-                <p>Select the physical printer used for generating receipts. Overrides browser default printing dialog for silent printing.</p>
+                <p>
+                  This selection controls receipt printing for Pay and Reprint.
+                  Browser default opens the print dialog; a real printer prints silently.
+                </p>
               </div>
               <div className="setting-action">
-                <select
-                  className="settings-select"
-                  value={selectedPrinter}
-                  onChange={handlePrinterChange}
-                  style={{ width: '100%', maxWidth: '300px' }}
-                >
-                  <option value="browser-default">Standard Browser Print Dialog</option>
-                  {printers.map((printer) => (
-                    <option key={printer.name} value={printer.name}>{printer.displayName || printer.name}</option>
-                  ))}
-                </select>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', width: '100%' }}>
+                  <select
+                    className="settings-select"
+                    value={selectedPrinter}
+                    onChange={handlePrinterChange}
+                    disabled={isLoadingPrinters}
+                    style={{ flex: '1', minWidth: '200px', maxWidth: '300px' }}
+                  >
+                    <option value="browser-default">Browser Default / Print Dialog</option>
+                    {printers.map((printer) => (
+                      <option key={printer.name} value={printer.name}>
+                        {printer.displayName || printer.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Manual refresh — also fires automatically via onPrintersChanged */}
+                  <button
+                    className="btn-gradient"
+                    onClick={handleRefreshPrinters}
+                    disabled={isLoadingPrinters}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {isLoadingPrinters ? 'Detecting...' : '↻ Refresh Printers'}
+                  </button>
+
+                  <button
+                    className={`btn-gradient ${selectedPrinter === savedPrinter ? 'btn-disabled' : ''}`}
+                    onClick={handleSavePrinterSettings}
+                    disabled={selectedPrinter === savedPrinter}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    Save Printer
+                  </button>
+                </div>
+
+                {selectedPrinter !== savedPrinter && (
+                  <small style={{ color: 'var(--warning-color)', marginTop: '8px', display: 'block' }}>
+                    Printer selection has not been saved yet.
+                  </small>
+                )}
+
+                {/* Hint when no printers are detected */}
+                {!isLoadingPrinters && printers.length === 0 && (
+                  <small style={{ color: 'var(--text-secondary)', marginTop: '8px', display: 'block' }}>
+                    No printers detected. Receipts will use the browser print dialog until a printer is connected.
+                  </small>
+                )}
               </div>
             </div>
           </div>
         )}
 
+        {/* Cloud Sync */}
         <div className="settings-section" style={{ marginBottom: '30px' }}>
           <h3>Cloud Sync</h3>
           <p>Keep local POS data in sync with an online server whenever internet is available.</p>
@@ -394,7 +494,7 @@ const SettingsTab = () => {
                 <input
                   type="checkbox"
                   checked={syncConfig.syncEnabled}
-                  onChange={(event) => setSyncConfig({ ...syncConfig, syncEnabled: event.target.checked })}
+                  onChange={(e) => setSyncConfig({ ...syncConfig, syncEnabled: e.target.checked })}
                   style={{ marginRight: '8px' }}
                   disabled={isSavingSync}
                 />
@@ -407,7 +507,7 @@ const SettingsTab = () => {
                 type="text"
                 className="settings-input"
                 value={syncConfig.syncServerUrl}
-                onChange={(event) => setSyncConfig({ ...syncConfig, syncServerUrl: event.target.value })}
+                onChange={(e) => setSyncConfig({ ...syncConfig, syncServerUrl: e.target.value })}
                 placeholder="https://your-sync-server.com"
                 disabled={isSavingSync}
               />
@@ -418,7 +518,7 @@ const SettingsTab = () => {
                 type="text"
                 className="settings-input"
                 value={syncConfig.syncApiKey}
-                onChange={(event) => setSyncConfig({ ...syncConfig, syncApiKey: event.target.value })}
+                onChange={(e) => setSyncConfig({ ...syncConfig, syncApiKey: e.target.value })}
                 placeholder="Optional shared secret"
                 disabled={isSavingSync}
               />
@@ -466,23 +566,25 @@ const SettingsTab = () => {
           </div>
         </div>
 
+        {/* Danger Zone */}
         <div className="settings-section danger-zone">
           <h3>Danger Zone</h3>
           <p>The following actions are destructive and cannot be undone. Use with extreme caution.</p>
-
           <div className="setting-card">
             <div className="setting-info">
               <h4>Factory Reset / Clear All Data</h4>
-              <p>Permanently delete all transaction history, sales records, product catalogs, and staff accounts. The current Administrator account and software license will be preserved.</p>
+              <p>
+                Permanently delete all transaction history, sales records, product catalogs, and staff accounts.
+                The current Administrator account and software license will be preserved.
+              </p>
             </div>
-
             <div className="setting-action">
               <div className="reset-confirmation">
                 <label>Type <strong>RESET</strong> to confirm:</label>
                 <input
                   type="text"
                   value={resetConfirm}
-                  onChange={(event) => setResetConfirm(event.target.value)}
+                  onChange={(e) => setResetConfirm(e.target.value)}
                   placeholder="RESET"
                   className="reset-input"
                 />
@@ -497,6 +599,7 @@ const SettingsTab = () => {
             </div>
           </div>
         </div>
+
       </div>
 
       {error && <div className="error-message" style={{ marginTop: '20px' }}>{error}</div>}
@@ -541,11 +644,10 @@ const SettingsTab = () => {
         }
         .setting-action {
           display: flex;
-          align-items: flex-end;
-          gap: 20px;
+          flex-direction: column;
+          gap: 8px;
           border-top: 1px solid var(--border-color);
           padding-top: 20px;
-          flex-wrap: wrap;
         }
         .reset-confirmation {
           display: flex;
@@ -586,15 +688,9 @@ const SettingsTab = () => {
           cursor: not-allowed;
         }
         @media (max-width: 768px) {
-          .settings-container {
-            max-width: 100%;
-          }
-          .setting-card {
-            width: 100%;
-          }
-          .table-settings-grid {
-            grid-template-columns: 1fr;
-          }
+          .settings-container { max-width: 100%; }
+          .setting-card { width: 100%; }
+          .table-settings-grid { grid-template-columns: 1fr; }
         }
       `}} />
     </div>

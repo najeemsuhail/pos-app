@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from '../DatePicker';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
-import html2pdf from 'html2pdf.js';
+import { loadHtml2Pdf } from '../../utils/html2pdfLoader';
 import { downloadExcelWorkbook } from '../../utils/excelExport';
 
 const money = (v) => `Rs. ${parseFloat(v || 0).toFixed(2)}`;
@@ -111,8 +110,9 @@ const ExpenseReportSection = ({ headerAction = null }) => {
 
   const toggleCat = (cat) => setExpandedCats((prev) => ({ ...prev, [cat]: !prev[cat] }));
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (!fetched || expenses.length === 0) return;
+    const html2pdf = await loadHtml2Pdf();
     const div = document.createElement('div');
     div.style.padding = '20px';
     div.style.fontFamily = 'Arial, sans-serif';

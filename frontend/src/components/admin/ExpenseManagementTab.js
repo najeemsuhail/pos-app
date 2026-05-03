@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import ExpenseReportSection from './ExpenseReportSection';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from '../DatePicker';
 import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
 import PaginationControls from './PaginationControls';

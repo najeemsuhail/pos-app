@@ -7,6 +7,8 @@ const DEFAULT_TABLE_COUNT = 12;
 const MIN_TABLE_COUNT = 1;
 const MAX_TABLE_COUNT = 50;
 const DEFAULT_BILL_NUMBER_PREFIX = 'BILL';
+const DEFAULT_SHOP_OPENING_TIME = '09:00';
+const DEFAULT_SHOP_CLOSING_TIME = '22:00';
 
 function normalizeTableCount(tableCount) {
   const parsed = Number.parseInt(tableCount, 10);
@@ -57,12 +59,25 @@ function normalizeBillNumberPrefix(prefix) {
   return normalized || DEFAULT_BILL_NUMBER_PREFIX;
 }
 
+function normalizeShopTime(value, fallback) {
+  if (typeof value !== 'string') {
+    return fallback;
+  }
+
+  const trimmed = value.trim();
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(trimmed);
+
+  return match ? trimmed : fallback;
+}
+
 const defaultSettings = {
   storeName: 'CHEWBIE CAFE',
   storeAddressLocality: 'Panaji, Goa',
   storePhone: '9876543210',
   taxRate: 5,
   billNumberPrefix: DEFAULT_BILL_NUMBER_PREFIX,
+  shopOpeningTime: DEFAULT_SHOP_OPENING_TIME,
+  shopClosingTime: DEFAULT_SHOP_CLOSING_TIME,
   tableCount: DEFAULT_TABLE_COUNT,
   tableNames: buildDefaultTableNames(),
 };
@@ -79,6 +94,8 @@ class SettingService {
           ...safeParsed,
           taxRate: Number.isFinite(Number(safeParsed.taxRate)) ? Number(safeParsed.taxRate) : defaultSettings.taxRate,
           billNumberPrefix: normalizeBillNumberPrefix(safeParsed.billNumberPrefix),
+          shopOpeningTime: normalizeShopTime(safeParsed.shopOpeningTime, DEFAULT_SHOP_OPENING_TIME),
+          shopClosingTime: normalizeShopTime(safeParsed.shopClosingTime, DEFAULT_SHOP_CLOSING_TIME),
           tableCount: normalizeTableCount(safeParsed.tableCount),
           tableNames: normalizeTableNames(safeParsed.tableNames, safeParsed.tableCount),
         };
@@ -101,6 +118,14 @@ class SettingService {
       ...safeNewSettings,
       taxRate: Number.isFinite(Number(safeNewSettings.taxRate ?? current.taxRate)) ? Number(safeNewSettings.taxRate ?? current.taxRate) : defaultSettings.taxRate,
       billNumberPrefix: normalizeBillNumberPrefix(safeNewSettings.billNumberPrefix ?? current.billNumberPrefix),
+      shopOpeningTime: normalizeShopTime(
+        safeNewSettings.shopOpeningTime ?? current.shopOpeningTime,
+        DEFAULT_SHOP_OPENING_TIME
+      ),
+      shopClosingTime: normalizeShopTime(
+        safeNewSettings.shopClosingTime ?? current.shopClosingTime,
+        DEFAULT_SHOP_CLOSING_TIME
+      ),
       tableCount,
       tableNames: normalizeTableNames(safeNewSettings.tableNames ?? current.tableNames, tableCount),
     };

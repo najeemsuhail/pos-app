@@ -18,6 +18,7 @@ const POSLayout = ({
   selectedOrderType,
   tableNumbers,
   tableNames,
+  shopHours,
   activeOrders = [],
   onSelectTable,
   onSelectOrderType,
@@ -33,6 +34,7 @@ const POSLayout = ({
   const [showTableNav, setShowTableNav] = useState(false);
   const [canScrollTableLeft, setCanScrollTableLeft] = useState(false);
   const [canScrollTableRight, setCanScrollTableRight] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
 
   const billItemsRef = useRef(null);
   const prevCartLengthRef = useRef(0);
@@ -83,6 +85,39 @@ const POSLayout = ({
   };
 
   const categoryTotals = totals || { subtotal: 0, tax: 0, discount: 0, total: 0 };
+
+  const shopStatus = useMemo(() => {
+    const openingTime = shopHours?.openingTime;
+    const closingTime = shopHours?.closingTime;
+
+    if (!openingTime || !closingTime) {
+      return null;
+    }
+
+    const toMinutes = (value) => {
+      const [hours, minutes] = String(value).split(':').map(Number);
+      return (hours * 60) + minutes;
+    };
+
+    const openMinutes = toMinutes(openingTime);
+    const closeMinutes = toMinutes(closingTime);
+    const now = currentTime;
+    const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+    const isOpen = openMinutes <= closeMinutes
+      ? currentMinutes >= openMinutes && currentMinutes < closeMinutes
+      : currentMinutes >= openMinutes || currentMinutes < closeMinutes;
+
+    return {
+      isOpen,
+      label: isOpen ? 'Open' : 'Closed',
+      hours: `${openingTime} - ${closingTime}`,
+    };
+  }, [currentTime, shopHours]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (searchInputRef.current) {
@@ -345,6 +380,12 @@ const POSLayout = ({
           <div>
             <h3>Tables</h3>
           </div>
+          {shopStatus && (
+            <div className={`shop-status-pill ${shopStatus.isOpen ? 'open' : 'closed'}`} title={`Shop hours: ${shopStatus.hours}`}>
+              <span>{shopStatus.label}</span>
+              <strong>{shopStatus.hours}</strong>
+            </div>
+          )}
           <div className="table-dock-status">
             <span>{getOrderModeLabel(selectedOrderType)}</span>
             <strong>{currentOrder?.bill_number ? `Bill ${currentOrder.bill_number}` : 'Ready for new order'}</strong>

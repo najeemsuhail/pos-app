@@ -76,6 +76,14 @@ const getCustomerPaymentLabel = (payment) => {
   return method || 'Payment';
 };
 
+const formatShopHours = (settings) => {
+  if (!settings.shopOpeningTime || !settings.shopClosingTime) {
+    return null;
+  }
+
+  return `${settings.shopOpeningTime} - ${settings.shopClosingTime}`;
+};
+
 const generateThermalReceipt = (order, items, payments) => {
   const settings = SettingService.getSettings();
   const width = 40; // 80mm thermal width in characters
@@ -88,6 +96,7 @@ const generateThermalReceipt = (order, items, payments) => {
     ? settings.tableNames?.[Number(order.table_id) - 1] || `Table ${order.table_id}`
     : null;
   const orderTypeLabel = getOrderTypeLabel(order.order_type);
+  const shopHours = formatShopHours(settings);
 
   // Convert decimal strings from PostgreSQL to numbers
   const subtotal = parseFloat(order.subtotal) || 0;
@@ -107,6 +116,10 @@ const generateThermalReceipt = (order, items, payments) => {
   if (settings.storePhone) {
     const phoneStr = `Ph: ${settings.storePhone}`;
     receipt += phoneStr.padStart(Math.floor((width + phoneStr.length) / 2)).slice(0, width) + '\n';
+  }
+  if (shopHours) {
+    const hoursStr = `Hours: ${shopHours}`;
+    receipt += hoursStr.padStart(Math.floor((width + hoursStr.length) / 2)).slice(0, width) + '\n';
   }
 
   receipt += '\n' + line + '\n';
@@ -185,11 +198,16 @@ const generateKotTicket = (order, ticket) => {
     : null;
   const orderTypeLabel = getOrderTypeLabel(order.order_type);
   const printedAt = ticket.printed_at || ticket.created_at || new Date();
+  const shopHours = formatShopHours(settings);
 
   let kot = '';
 
   if (settings.storeName) {
     kot += settings.storeName.padStart(Math.floor((width + settings.storeName.length) / 2)).slice(0, width) + '\n';
+  }
+  if (shopHours) {
+    const hoursStr = `Hours: ${shopHours}`;
+    kot += hoursStr.padStart(Math.floor((width + hoursStr.length) / 2)).slice(0, width) + '\n';
   }
 
   kot += 'KITCHEN ORDER TICKET'.padStart(Math.floor((width + 20) / 2)).slice(0, width) + '\n';

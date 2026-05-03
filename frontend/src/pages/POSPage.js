@@ -10,6 +10,8 @@ import { printReceiptContent } from '../utils/receiptPrint';
 import '../styles/POS.css';
 
 const DEFAULT_TABLE_COUNT = 12;
+const DEFAULT_SHOP_OPENING_TIME = '09:00';
+const DEFAULT_SHOP_CLOSING_TIME = '22:00';
 const ORDER_TYPES = {
   DINE_IN: 'dine_in',
   TAKEAWAY: 'takeaway',
@@ -35,6 +37,10 @@ const POSPage = () => {
   const [tableNames, setTableNames] = useState([]);
   const [tableCount, setTableCount] = useState(DEFAULT_TABLE_COUNT);
   const [taxRate, setTaxRate] = useState(5);
+  const [shopHours, setShopHours] = useState({
+    openingTime: DEFAULT_SHOP_OPENING_TIME,
+    closingTime: DEFAULT_SHOP_CLOSING_TIME,
+  });
   const [user, setUser] = useState(null);
   const hydrateInProgressRef = useRef(false);
   const persistInFlightRef = useRef(false);
@@ -67,6 +73,10 @@ const POSPage = () => {
       setTableCount(Number(settingsRes.data.tableCount) || DEFAULT_TABLE_COUNT);
       setTableNames(settingsRes.data.tableNames || []);
       setTaxRate(Number(settingsRes.data.taxRate) || 0);
+      setShopHours({
+        openingTime: settingsRes.data.shopOpeningTime || DEFAULT_SHOP_OPENING_TIME,
+        closingTime: settingsRes.data.shopClosingTime || DEFAULT_SHOP_CLOSING_TIME,
+      });
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -425,6 +435,7 @@ const POSPage = () => {
         selectedOrderType={selectedOrderType}
         tableNumbers={tableNumbers}
         tableNames={tableNames}
+        shopHours={shopHours}
         activeOrders={activeOrders}
         onSelectTable={handleSelectTable}
         onSelectOrderType={handleSelectOrderType}

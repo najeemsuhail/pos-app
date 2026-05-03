@@ -5,6 +5,8 @@ const DEFAULT_TABLE_COUNT = 12;
 const MIN_TABLE_COUNT = 1;
 const MAX_TABLE_COUNT = 50;
 const DEFAULT_BILL_NUMBER_PREFIX = 'BILL';
+const DEFAULT_SHOP_OPENING_TIME = '09:00';
+const DEFAULT_SHOP_CLOSING_TIME = '22:00';
 
 const normalizeTableCount = (value) => {
   const parsed = Number.parseInt(value, 10);
@@ -27,6 +29,11 @@ const normalizeBillNumberPrefix = (value) => {
   return normalized || DEFAULT_BILL_NUMBER_PREFIX;
 };
 
+const normalizeShopTime = (value, fallback) => {
+  if (typeof value !== 'string') return fallback;
+  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value.trim()) ? value.trim() : fallback;
+};
+
 const SettingsTab = () => {
   const defaultTableNames = useMemo(() => buildDefaultTableNames(), []);
   const [resetConfirm, setResetConfirm] = useState('');
@@ -45,6 +52,8 @@ const SettingsTab = () => {
     storePhone: '',
     taxRate: 5,
     billNumberPrefix: DEFAULT_BILL_NUMBER_PREFIX,
+    shopOpeningTime: DEFAULT_SHOP_OPENING_TIME,
+    shopClosingTime: DEFAULT_SHOP_CLOSING_TIME,
     tableCount: DEFAULT_TABLE_COUNT,
     tableNames: defaultTableNames,
   });
@@ -112,6 +121,8 @@ const SettingsTab = () => {
       .then((res) => setStoreSettings({
         ...res.data,
         billNumberPrefix: normalizeBillNumberPrefix(res.data.billNumberPrefix),
+        shopOpeningTime: normalizeShopTime(res.data.shopOpeningTime, DEFAULT_SHOP_OPENING_TIME),
+        shopClosingTime: normalizeShopTime(res.data.shopClosingTime, DEFAULT_SHOP_CLOSING_TIME),
         tableCount: normalizeTableCount(res.data.tableCount),
         tableNames: Array.isArray(res.data.tableNames)
           ? buildDefaultTableNames(res.data.tableCount).map(
@@ -217,6 +228,8 @@ const SettingsTab = () => {
       setStoreSettings({
         ...response.data,
         billNumberPrefix: normalizeBillNumberPrefix(response.data.billNumberPrefix),
+        shopOpeningTime: normalizeShopTime(response.data.shopOpeningTime, DEFAULT_SHOP_OPENING_TIME),
+        shopClosingTime: normalizeShopTime(response.data.shopClosingTime, DEFAULT_SHOP_CLOSING_TIME),
         tableCount: normalizeTableCount(response.data.tableCount),
         tableNames: Array.isArray(response.data.tableNames)
           ? buildDefaultTableNames(response.data.tableCount).map(
@@ -335,6 +348,31 @@ const SettingsTab = () => {
                 onChange={(e) => setStoreSettings({ ...storeSettings, storePhone: e.target.value })}
                 disabled={isSavingSettings}
               />
+            </div>
+            <div className="shop-hours-grid" style={{ width: '100%', marginBottom: '15px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Opening Time</label>
+                <input
+                  type="time"
+                  className="settings-input"
+                  value={storeSettings.shopOpeningTime}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, shopOpeningTime: e.target.value })}
+                  disabled={isSavingSettings}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px' }}>Closing Time</label>
+                <input
+                  type="time"
+                  className="settings-input"
+                  value={storeSettings.shopClosingTime}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, shopClosingTime: e.target.value })}
+                  disabled={isSavingSettings}
+                />
+              </div>
+              <small style={{ gridColumn: '1 / -1', display: 'block', marginTop: '-4px', color: 'var(--text-secondary)' }}>
+                These timings appear on POS and receipts.
+              </small>
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Tax Rate (%)</label>
@@ -683,6 +721,11 @@ const SettingsTab = () => {
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 14px;
         }
+        .shop-hours-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 14px;
+        }
         .btn-disabled {
           opacity: 0.5;
           cursor: not-allowed;
@@ -690,6 +733,7 @@ const SettingsTab = () => {
         @media (max-width: 768px) {
           .settings-container { max-width: 100%; }
           .setting-card { width: 100%; }
+          .shop-hours-grid { grid-template-columns: 1fr; }
           .table-settings-grid { grid-template-columns: 1fr; }
         }
       `}} />

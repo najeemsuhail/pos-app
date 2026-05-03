@@ -919,7 +919,7 @@
 
 .bill-actions {
   display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
+  grid-template-columns: minmax(112px, 0.42fr) minmax(0, 1fr);
   gap: 10px;
   align-items: stretch;
 }
@@ -933,21 +933,24 @@
   color: white;
   font-size: 16px;
   font-weight: 800;
+  white-space: nowrap;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .kot-btn {
-  width: 82px;
+  width: 100%;
+  min-width: 112px;
   min-height: 52px;
-  padding: 0 14px;
+  padding: 0 12px;
   border: 1px solid var(--border-color);
   border-radius: 12px;
   background: var(--bg-secondary);
   color: var(--text-primary);
   font-size: 13px;
   font-weight: 800;
+  white-space: nowrap;
   cursor: pointer;
   box-shadow: none;
   transition: background 0.2s ease, border-color 0.2s ease;

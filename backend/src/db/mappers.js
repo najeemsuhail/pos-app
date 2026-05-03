@@ -328,6 +328,48 @@ function mapPurchase(purchase) {
   };
 }
 
+function mapShift(shift) {
+  if (!shift) {
+    return null;
+  }
+
+  return {
+    id: shift.id,
+    status: shift.status,
+    opened_by_user_id: shift.openedByUserId,
+    closed_by_user_id: shift.closedByUserId,
+    opening_cash: toNumber(shift.openingCash),
+    closing_cash: toNumber(shift.closingCash),
+    cash_total: toNumber(shift.cashTotal),
+    card_total: toNumber(shift.cardTotal),
+    upi_total: toNumber(shift.upiTotal),
+    other_total: toNumber(shift.otherTotal),
+    total_payments: toNumber(shift.totalPayments),
+    expected_cash: toNumber(shift.expectedCash),
+    difference: toNumber(shift.difference),
+    opening_notes: shift.openingNotes,
+    closing_notes: shift.closingNotes,
+    opened_at: shift.openedAt,
+    closed_at: shift.closedAt,
+    created_at: shift.createdAt,
+    updated_at: shift.updatedAt,
+    opened_by: shift.openedBy
+      ? {
+          id: shift.openedBy.id,
+          name: shift.openedBy.name,
+          role: shift.openedBy.role,
+        }
+      : null,
+    closed_by: shift.closedBy
+      ? {
+          id: shift.closedBy.id,
+          name: shift.closedBy.name,
+          role: shift.closedBy.role,
+        }
+      : null,
+  };
+}
+
 module.exports = {
   mapUser,
   mapCategory,
@@ -345,4 +387,5 @@ module.exports = {
   mapSupplier,
   mapPurchaseItem,
   mapPurchase,
+  mapShift,
 };

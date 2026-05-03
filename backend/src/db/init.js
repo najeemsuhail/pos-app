@@ -32,6 +32,32 @@ async function ensureSchema() {
   `);
 
   await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS shifts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      status TEXT NOT NULL DEFAULT 'open',
+      opened_by_user_id INTEGER NOT NULL,
+      closed_by_user_id INTEGER,
+      opening_cash DECIMAL NOT NULL DEFAULT 0,
+      closing_cash DECIMAL,
+      cash_total DECIMAL NOT NULL DEFAULT 0,
+      card_total DECIMAL NOT NULL DEFAULT 0,
+      upi_total DECIMAL NOT NULL DEFAULT 0,
+      other_total DECIMAL NOT NULL DEFAULT 0,
+      total_payments DECIMAL NOT NULL DEFAULT 0,
+      expected_cash DECIMAL,
+      difference DECIMAL,
+      opening_notes TEXT,
+      closing_notes TEXT,
+      opened_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      closed_at DATETIME,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (opened_by_user_id) REFERENCES users (id),
+      FOREIGN KEY (closed_by_user_id) REFERENCES users (id)
+    )
+  `);
+
+  await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -272,6 +298,9 @@ async function ensureSchema() {
 
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_menu_items_category_id ON menu_items(category_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_staff_attendance_attendance_date ON staff_attendance(attendance_date)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_shifts_status ON shifts(status)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_shifts_opened_at ON shifts(opened_at)');
+  await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_shifts_closed_at ON shifts(closed_at)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_kot_tickets_order_id ON kot_tickets(order_id)');
   await prisma.$executeRawUnsafe('CREATE INDEX IF NOT EXISTS idx_kot_tickets_status ON kot_tickets(status)');

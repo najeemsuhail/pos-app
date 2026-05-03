@@ -278,6 +278,56 @@ const ReportsTab = () => {
       ['Generated At', generatedAt],
     ];
 
+    const shiftSummary = report.shiftSummary || {};
+    const shiftRows = [
+      { cells: ['Shift Time Report'], style: 'title' },
+      { cells: ['Metric', 'Value'], style: 'header' },
+      ['Configured Opening Time', shiftSummary.openingTime || '-'],
+      ['Configured Closing Time', shiftSummary.closingTime || '-'],
+      ['Scheduled Duration', shiftSummary.scheduledDurationLabel || '-'],
+      ['First Order Time', shiftSummary.firstOrderAt ? dateCell(shiftSummary.firstOrderAt) : '-'],
+      ['Last Order Time', shiftSummary.lastOrderAt ? dateCell(shiftSummary.lastOrderAt) : '-'],
+      ['Actual Order Span', shiftSummary.actualDurationLabel || '-'],
+      ['In-Shift Orders', integerCell(shiftSummary.inShiftOrders)],
+      ['In-Shift Paid Orders', integerCell(shiftSummary.inShiftPaidOrders)],
+      ['In-Shift Sales', currencyCell(shiftSummary.inShiftSales)],
+      ['Out-of-Shift Orders', integerCell(shiftSummary.outOfShiftOrders)],
+      ['Out-of-Shift Paid Orders', integerCell(shiftSummary.outOfShiftPaidOrders)],
+      ['Out-of-Shift Sales', currencyCell(shiftSummary.outOfShiftSales)],
+      [],
+      { cells: ['Date', 'First Order', 'Last Order', 'Orders', 'In-Shift Orders', 'In-Shift Sales', 'Out-of-Shift Orders', 'Out-of-Shift Sales'], style: 'header' },
+      ...((shiftSummary.days || []).map((day) => [
+        day.date,
+        day.firstOrderAt ? dateCell(day.firstOrderAt) : '-',
+        day.lastOrderAt ? dateCell(day.lastOrderAt) : '-',
+        integerCell(day.totalOrders),
+        integerCell(day.inShiftOrders),
+        currencyCell(day.inShiftSales),
+        integerCell(day.outOfShiftOrders),
+        currencyCell(day.outOfShiftSales),
+      ])),
+      [],
+      ['Period', periodLabel],
+      ['Generated At', generatedAt],
+      [],
+      { cells: ['Recorded Shifts'], style: 'title' },
+      { cells: ['Status', 'Opened By', 'Opened At', 'Closed By', 'Closed At', 'Opening Cash', 'Closing Cash', 'Cash', 'Card', 'UPI', 'Other', 'Difference'], style: 'header' },
+      ...((report.shifts || []).map((shift) => [
+        shift.status,
+        shift.opened_by?.name || '',
+        shift.opened_at ? dateCell(shift.opened_at) : '-',
+        shift.closed_by?.name || '',
+        shift.closed_at ? dateCell(shift.closed_at) : '-',
+        currencyCell(shift.opening_cash),
+        shift.closing_cash === null ? '-' : currencyCell(shift.closing_cash),
+        currencyCell(shift.cash_total),
+        currencyCell(shift.card_total),
+        currencyCell(shift.upi_total),
+        currencyCell(shift.other_total),
+        shift.difference === null ? '-' : currencyCell(shift.difference),
+      ])),
+    ];
+
     const itemRows = [
       { cells: ['Items Sold'], style: 'title' },
       { cells: ['Item Name', 'Category', 'Qty Sold', 'Revenue', 'Avg Price', 'Orders'], style: 'header' },
@@ -447,6 +497,7 @@ const ReportsTab = () => {
       { name: 'Revenue', columns: [180, 140, 100], rows: revenueRows },
       { name: 'OrderTypes', columns: [160, 90, 100, 120], rows: orderTypeRows },
       { name: 'Payments', columns: [180, 140], rows: paymentRows },
+      { name: 'ShiftTime', columns: [150, 150, 150, 90, 110, 120, 120, 120, 120, 120, 120, 120], rows: shiftRows },
       { name: 'Hourly', columns: [90, 80, 80, 110, 110, 110], rows: hourlyRows },
       { name: 'Items', columns: [220, 160, 90, 120, 120, 90], rows: itemRows },
       { name: 'Categories', columns: [180, 90, 90, 120, 120, 90], rows: categoryRows },
@@ -481,6 +532,7 @@ const ReportsTab = () => {
   const formatDate = (dateString) => new Date(dateString).toLocaleString();
   const formatCurrency = (amount) => `Rs. ${parseFloat(amount).toFixed(2)}`;
   const getHourLabel = (hour) => `${String(hour).padStart(2, '0')}:00`;
+  const formatOptionalDate = (dateString) => (dateString ? formatDate(dateString) : '-');
 
   const handleItemSort = (key) => {
     if (itemSortKey === key) {
@@ -567,6 +619,7 @@ const ReportsTab = () => {
       { id: 'report-order-types', label: 'Order Types', show: Boolean(orderTypeBreakdown.length) },
       { id: 'report-profit-loss', label: 'Profit & Loss', show: Boolean(report.profitLoss) },
       { id: 'report-revenue', label: 'Revenue', show: Boolean(revenueAnalytics) },
+      { id: 'report-shift-time', label: 'Shift Time', show: Boolean(report.shiftSummary || report.shifts?.length) },
       { id: 'report-hourly', label: 'Hourly', show: Boolean(report.hourlyBreakdown?.length) },
       { id: 'report-payments', label: 'Payments', show: true },
       { id: 'report-expenses', label: 'Expenses', show: Boolean(report.expensesByCategory?.length) },
@@ -841,6 +894,131 @@ const ReportsTab = () => {
                   <tr style={{ backgroundColor: 'var(--surface-muted)' }}><td><strong>Net After Expenses</strong></td><td><strong>{parseFloat(revenueAnalytics.revenue.netAfterExpenses || 0).toFixed(2)}</strong></td></tr>
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {report.shiftSummary && (
+            <div className="section-container report-section-anchor" id="report-shift-time">
+              <h3>Shift Time Report</h3>
+              {report.shifts?.length > 0 && (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Opened By</th>
+                      <th>Opened At</th>
+                      <th>Closed By</th>
+                      <th>Closed At</th>
+                      <th>Opening Cash</th>
+                      <th>Closing Cash</th>
+                      <th>Cash</th>
+                      <th>Card</th>
+                      <th>UPI</th>
+                      <th>Difference</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.shifts.map((shift) => (
+                      <tr key={shift.id}>
+                        <td><strong>{shift.status}</strong></td>
+                        <td>{shift.opened_by?.name || '-'}</td>
+                        <td>{formatOptionalDate(shift.opened_at)}</td>
+                        <td>{shift.closed_by?.name || '-'}</td>
+                        <td>{formatOptionalDate(shift.closed_at)}</td>
+                        <td>{formatCurrency(shift.opening_cash)}</td>
+                        <td>{shift.closing_cash === null ? '-' : formatCurrency(shift.closing_cash)}</td>
+                        <td>{formatCurrency(shift.cash_total)}</td>
+                        <td>{formatCurrency(shift.card_total)}</td>
+                        <td>{formatCurrency(shift.upi_total)}</td>
+                        <td style={{ color: Number(shift.difference || 0) < 0 ? 'var(--danger-color)' : 'var(--success-color)', fontWeight: 'bold' }}>
+                          {shift.difference === null ? '-' : formatCurrency(shift.difference)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              <div className="report-grid">
+                <div className="report-card">
+                  <h4>Configured Hours</h4>
+                  <p className="report-value">{report.shiftSummary.openingTime} - {report.shiftSummary.closingTime}</p>
+                  <div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
+                    {report.shiftSummary.scheduledDurationLabel}
+                  </div>
+                </div>
+                <div className="report-card">
+                  <h4>First Order</h4>
+                  <p className="report-value" style={{ fontSize: '18px' }}>
+                    {formatOptionalDate(report.shiftSummary.firstOrderAt)}
+                  </p>
+                </div>
+                <div className="report-card">
+                  <h4>Last Order</h4>
+                  <p className="report-value" style={{ fontSize: '18px' }}>
+                    {formatOptionalDate(report.shiftSummary.lastOrderAt)}
+                  </p>
+                </div>
+                <div className="report-card">
+                  <h4>Actual Order Span</h4>
+                  <p className="report-value">{report.shiftSummary.actualDurationLabel}</p>
+                </div>
+              </div>
+
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Orders</th>
+                    <th>Paid Orders</th>
+                    <th>Sales (Rs.)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Inside configured shift</strong></td>
+                    <td>{report.shiftSummary.inShiftOrders}</td>
+                    <td>{report.shiftSummary.inShiftPaidOrders}</td>
+                    <td className="sales-cell">Rs. {Number(report.shiftSummary.inShiftSales || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Outside configured shift</strong></td>
+                    <td>{report.shiftSummary.outOfShiftOrders}</td>
+                    <td>{report.shiftSummary.outOfShiftPaidOrders}</td>
+                    <td className="sales-cell">Rs. {Number(report.shiftSummary.outOfShiftSales || 0).toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {report.shiftSummary.days?.length > 0 && (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>First Order</th>
+                      <th>Last Order</th>
+                      <th>Orders</th>
+                      <th>In Shift</th>
+                      <th>In-Shift Sales</th>
+                      <th>Out of Shift</th>
+                      <th>Out-of-Shift Sales</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.shiftSummary.days.map((day) => (
+                      <tr key={day.date}>
+                        <td><strong>{day.date}</strong></td>
+                        <td>{formatOptionalDate(day.firstOrderAt)}</td>
+                        <td>{formatOptionalDate(day.lastOrderAt)}</td>
+                        <td>{day.totalOrders}</td>
+                        <td>{day.inShiftOrders}</td>
+                        <td className="sales-cell">Rs. {Number(day.inShiftSales || 0).toFixed(2)}</td>
+                        <td>{day.outOfShiftOrders}</td>
+                        <td className="sales-cell">Rs. {Number(day.outOfShiftSales || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 

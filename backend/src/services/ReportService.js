@@ -2,6 +2,8 @@ const OrderRepository = require('../repositories/OrderRepository');
 const OrderItemRepository = require('../repositories/OrderItemRepository');
 const PaymentRepository = require('../repositories/PaymentRepository');
 const ExpenseRepository = require('../repositories/ExpenseRepository');
+const ShiftRepository = require('../repositories/ShiftRepository');
+const SettingService = require('./SettingService');
 const {
   ORDER_STATUSES,
   ORDER_PAYMENT_STATUSES,
@@ -14,6 +16,139 @@ const {
 } = require('../utils/paymentState');
 
 class ReportService {
+  timeToMinutes(time) {
+    const [hours, minutes] = String(time || '').split(':').map(Number);
+
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+      return null;
+    }
+
+    return (hours * 60) + minutes;
+  }
+
+  formatDuration(minutes) {
+    if (!Number.isFinite(minutes) || minutes <= 0) {
+      return '0h 0m';
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = Math.round(minutes % 60);
+
+    return `${hours}h ${remainingMinutes}m`;
+  }
+
+  getBusinessDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
+  isWithinShift(date, openMinutes, closeMinutes) {
+    const currentMinutes = (date.getHours() * 60) + date.getMinutes();
+
+    return openMinutes <= closeMinutes
+      ? currentMinutes >= openMinutes && currentMinutes < closeMinutes
+      : currentMinutes >= openMinutes || currentMinutes < closeMinutes;
+  }
+
+  getScheduledDurationMinutes(openMinutes, closeMinutes) {
+    return openMinutes <= closeMinutes
+      ? closeMinutes - openMinutes
+      : (24 * 60) - openMinutes + closeMinutes;
+  }
+
+  buildShiftSummary(orders) {
+    const settings = SettingService.getSettings();
+    const openingTime = settings.shopOpeningTime;
+    const closingTime = settings.shopClosingTime;
+    const openMinutes = this.timeToMinutes(openingTime);
+    const closeMinutes = this.timeToMinutes(closingTime);
+
+    if (openMinutes === null || closeMinutes === null) {
+      return null;
+    }
+
+    const sortedOrders = [...orders].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const scheduledDurationMinutes = this.getScheduledDurationMinutes(openMinutes, closeMinutes);
+    const summary = {
+      openingTime,
+      closingTime,
+      scheduledDurationMinutes,
+      scheduledDurationLabel: this.formatDuration(scheduledDurationMinutes),
+      firstOrderAt: sortedOrders[0]?.created_at || null,
+      lastOrderAt: sortedOrders[sortedOrders.length - 1]?.created_at || null,
+      actualDurationMinutes: 0,
+      actualDurationLabel: '0h 0m',
+      inShiftOrders: 0,
+      inShiftPaidOrders: 0,
+      inShiftSales: 0,
+      outOfShiftOrders: 0,
+      outOfShiftPaidOrders: 0,
+      outOfShiftSales: 0,
+      days: [],
+    };
+
+    if (summary.firstOrderAt && summary.lastOrderAt) {
+      summary.actualDurationMinutes = Math.max(
+        0,
+        Math.round((new Date(summary.lastOrderAt) - new Date(summary.firstOrderAt)) / 60000)
+      );
+      summary.actualDurationLabel = this.formatDuration(summary.actualDurationMinutes);
+    }
+
+    const byDate = new Map();
+
+    sortedOrders.forEach((order) => {
+      const orderDate = new Date(order.created_at);
+      const dateKey = this.getBusinessDateKey(orderDate);
+      const inShift = this.isWithinShift(orderDate, openMinutes, closeMinutes);
+      const isPaidOrder = isFullyPaid(order);
+      const saleAmount = isRecognizedSale(order) ? Number(order.final_amount) || 0 : 0;
+      const day = byDate.get(dateKey) || {
+        date: dateKey,
+        firstOrderAt: null,
+        lastOrderAt: null,
+        totalOrders: 0,
+        inShiftOrders: 0,
+        inShiftSales: 0,
+        outOfShiftOrders: 0,
+        outOfShiftSales: 0,
+      };
+
+      day.totalOrders += 1;
+      day.firstOrderAt = day.firstOrderAt || order.created_at;
+      day.lastOrderAt = order.created_at;
+
+      if (inShift) {
+        summary.inShiftOrders += 1;
+        summary.inShiftSales += saleAmount;
+        day.inShiftOrders += 1;
+        day.inShiftSales += saleAmount;
+
+        if (isPaidOrder) {
+          summary.inShiftPaidOrders += 1;
+        }
+      } else {
+        summary.outOfShiftOrders += 1;
+        summary.outOfShiftSales += saleAmount;
+        day.outOfShiftOrders += 1;
+        day.outOfShiftSales += saleAmount;
+
+        if (isPaidOrder) {
+          summary.outOfShiftPaidOrders += 1;
+        }
+      }
+
+      byDate.set(dateKey, day);
+    });
+
+    summary.days = Array.from(byDate.values());
+
+    return summary;
+  }
+
   buildPaymentBreakdown(payments) {
     const paymentByMethod = {};
 
@@ -197,6 +332,7 @@ class ReportService {
     const orders = await OrderRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
     const payments = await PaymentRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
     const expenses = await ExpenseRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
+    const shifts = await ShiftRepository.findByDateRange(startDate.toISOString(), endDate.toISOString());
 
     const completedOrders = orders.filter((order) => isRecognizedSale(order));
     const paidOrders = orders.filter((order) => isFullyPaid(order));
@@ -208,6 +344,7 @@ class ReportService {
     const paymentByMethod = this.buildPaymentBreakdown(payments);
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
+    const shiftSummary = this.buildShiftSummary(orders);
     const { allItems, categorySales } = await this.getTopBottomItems(orders);
     const orderSummaries = await this.getOrderSummaries(orders);
 
@@ -227,6 +364,8 @@ class ReportService {
       profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
       averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
+      shiftSummary,
+      shifts,
       allItems,
       categorySales,
       orders: orderSummaries,
@@ -243,6 +382,7 @@ class ReportService {
     const orders = await OrderRepository.findByDateRange(start.toISOString(), end.toISOString());
     const payments = await PaymentRepository.findByDateRange(start.toISOString(), end.toISOString());
     const expenses = await ExpenseRepository.findByDateRange(start.toISOString(), end.toISOString());
+    const shifts = await ShiftRepository.findByDateRange(start.toISOString(), end.toISOString());
 
     const completedOrders = orders.filter((order) => isRecognizedSale(order));
     const paidOrders = orders.filter((order) => isFullyPaid(order));
@@ -254,6 +394,7 @@ class ReportService {
     const paymentByMethod = this.buildPaymentBreakdown(payments);
 
     const hourlyBreakdown = this.getHourlyBreakdown(orders);
+    const shiftSummary = this.buildShiftSummary(orders);
     const { allItems, categorySales } = await this.getTopBottomItems(orders);
     const orderSummaries = await this.getOrderSummaries(orders);
 
@@ -274,6 +415,8 @@ class ReportService {
       profitLoss: this.buildProfitLoss(totalSales, totalTax, totalDiscount, totalExpenses),
       averageOrderValue: completedOrders.length > 0 ? totalSales / completedOrders.length : 0,
       hourlyBreakdown,
+      shiftSummary,
+      shifts,
       allItems,
       categorySales,
       orders: orderSummaries,

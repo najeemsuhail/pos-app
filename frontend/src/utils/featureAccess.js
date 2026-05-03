@@ -6,6 +6,7 @@ export const CONFIGURABLE_ADMIN_FEATURES = [
   { key: 'expenseManagement', label: 'Operating Expenses', description: 'Manage operating expense entries and expense history.' },
   { key: 'attendanceManagement', label: 'Staff Attendance', description: 'Mark daily attendance and review attendance history for staff.' },
   { key: 'purchaseManagement', label: 'Purchases', description: 'Manage suppliers, purchases, and supplier dues.' },
+  { key: 'shiftManagement', label: 'Shifts', description: 'Open shifts, close shifts, and review cash differences.' },
   { key: 'userManagement', label: 'Users', description: 'Create users, delete users, and reset passwords.' },
   { key: 'backupManagement', label: 'Backup', description: 'Create, restore, upload, and download backups.' },
 ];

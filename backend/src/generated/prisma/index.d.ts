@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model Shift
+ * 
+ */
+export type Shift = $Result.DefaultSelection<Prisma.$ShiftPayload>
+/**
  * Model StaffAttendance
  * 
  */
@@ -231,6 +236,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs>;
+
+  /**
+   * `prisma.shift`: Exposes CRUD operations for the **Shift** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Shifts
+    * const shifts = await prisma.shift.findMany()
+    * ```
+    */
+  get shift(): Prisma.ShiftDelegate<ExtArgs>;
 
   /**
    * `prisma.staffAttendance`: Exposes CRUD operations for the **StaffAttendance** model.
@@ -833,6 +848,7 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+    Shift: 'Shift',
     StaffAttendance: 'StaffAttendance',
     Category: 'Category',
     MenuItem: 'MenuItem',
@@ -864,7 +880,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "staffAttendance" | "category" | "menuItem" | "order" | "ingredient" | "menuItemIngredient" | "stockMovement" | "kotTicket" | "kotItem" | "billSequence" | "orderItem" | "payment" | "expense" | "supplier" | "purchase" | "purchaseItem"
+      modelProps: "user" | "shift" | "staffAttendance" | "category" | "menuItem" | "order" | "ingredient" | "menuItemIngredient" | "stockMovement" | "kotTicket" | "kotItem" | "billSequence" | "orderItem" | "payment" | "expense" | "supplier" | "purchase" | "purchaseItem"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -935,6 +951,76 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      Shift: {
+        payload: Prisma.$ShiftPayload<ExtArgs>
+        fields: Prisma.ShiftFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ShiftFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ShiftFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          findFirst: {
+            args: Prisma.ShiftFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ShiftFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          findMany: {
+            args: Prisma.ShiftFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+          }
+          create: {
+            args: Prisma.ShiftCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          createMany: {
+            args: Prisma.ShiftCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ShiftCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>[]
+          }
+          delete: {
+            args: Prisma.ShiftDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          update: {
+            args: Prisma.ShiftUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          deleteMany: {
+            args: Prisma.ShiftDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ShiftUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ShiftUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ShiftPayload>
+          }
+          aggregate: {
+            args: Prisma.ShiftAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateShift>
+          }
+          groupBy: {
+            args: Prisma.ShiftGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ShiftGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ShiftCountArgs<ExtArgs>
+            result: $Utils.Optional<ShiftCountAggregateOutputType> | number
           }
         }
       }
@@ -2220,10 +2306,14 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     attendances: number
+    openedShifts: number
+    closedShifts: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     attendances?: boolean | UserCountOutputTypeCountAttendancesArgs
+    openedShifts?: boolean | UserCountOutputTypeCountOpenedShiftsArgs
+    closedShifts?: boolean | UserCountOutputTypeCountClosedShiftsArgs
   }
 
   // Custom InputTypes
@@ -2242,6 +2332,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAttendancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StaffAttendanceWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountOpenedShiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShiftWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountClosedShiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShiftWhereInput
   }
 
 
@@ -2718,6 +2822,8 @@ export namespace Prisma {
     featureAccessOverrides?: boolean
     createdAt?: boolean
     attendances?: boolean | User$attendancesArgs<ExtArgs>
+    openedShifts?: boolean | User$openedShiftsArgs<ExtArgs>
+    closedShifts?: boolean | User$closedShiftsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2741,6 +2847,8 @@ export namespace Prisma {
 
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     attendances?: boolean | User$attendancesArgs<ExtArgs>
+    openedShifts?: boolean | User$openedShiftsArgs<ExtArgs>
+    closedShifts?: boolean | User$closedShiftsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2749,6 +2857,8 @@ export namespace Prisma {
     name: "User"
     objects: {
       attendances: Prisma.$StaffAttendancePayload<ExtArgs>[]
+      openedShifts: Prisma.$ShiftPayload<ExtArgs>[]
+      closedShifts: Prisma.$ShiftPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -3122,6 +3232,8 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     attendances<T extends User$attendancesArgs<ExtArgs> = {}>(args?: Subset<T, User$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffAttendancePayload<ExtArgs>, T, "findMany"> | Null>
+    openedShifts<T extends User$openedShiftsArgs<ExtArgs> = {}>(args?: Subset<T, User$openedShiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany"> | Null>
+    closedShifts<T extends User$closedShiftsArgs<ExtArgs> = {}>(args?: Subset<T, User$closedShiftsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3489,6 +3601,46 @@ export namespace Prisma {
   }
 
   /**
+   * User.openedShifts
+   */
+  export type User$openedShiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    where?: ShiftWhereInput
+    orderBy?: ShiftOrderByWithRelationInput | ShiftOrderByWithRelationInput[]
+    cursor?: ShiftWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ShiftScalarFieldEnum | ShiftScalarFieldEnum[]
+  }
+
+  /**
+   * User.closedShifts
+   */
+  export type User$closedShiftsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    where?: ShiftWhereInput
+    orderBy?: ShiftOrderByWithRelationInput | ShiftOrderByWithRelationInput[]
+    cursor?: ShiftWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ShiftScalarFieldEnum | ShiftScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3500,6 +3652,1204 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Shift
+   */
+
+  export type AggregateShift = {
+    _count: ShiftCountAggregateOutputType | null
+    _avg: ShiftAvgAggregateOutputType | null
+    _sum: ShiftSumAggregateOutputType | null
+    _min: ShiftMinAggregateOutputType | null
+    _max: ShiftMaxAggregateOutputType | null
+  }
+
+  export type ShiftAvgAggregateOutputType = {
+    id: number | null
+    openedByUserId: number | null
+    closedByUserId: number | null
+    openingCash: Decimal | null
+    closingCash: Decimal | null
+    cashTotal: Decimal | null
+    cardTotal: Decimal | null
+    upiTotal: Decimal | null
+    otherTotal: Decimal | null
+    totalPayments: Decimal | null
+    expectedCash: Decimal | null
+    difference: Decimal | null
+  }
+
+  export type ShiftSumAggregateOutputType = {
+    id: number | null
+    openedByUserId: number | null
+    closedByUserId: number | null
+    openingCash: Decimal | null
+    closingCash: Decimal | null
+    cashTotal: Decimal | null
+    cardTotal: Decimal | null
+    upiTotal: Decimal | null
+    otherTotal: Decimal | null
+    totalPayments: Decimal | null
+    expectedCash: Decimal | null
+    difference: Decimal | null
+  }
+
+  export type ShiftMinAggregateOutputType = {
+    id: number | null
+    status: string | null
+    openedByUserId: number | null
+    closedByUserId: number | null
+    openingCash: Decimal | null
+    closingCash: Decimal | null
+    cashTotal: Decimal | null
+    cardTotal: Decimal | null
+    upiTotal: Decimal | null
+    otherTotal: Decimal | null
+    totalPayments: Decimal | null
+    expectedCash: Decimal | null
+    difference: Decimal | null
+    openingNotes: string | null
+    closingNotes: string | null
+    openedAt: Date | null
+    closedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShiftMaxAggregateOutputType = {
+    id: number | null
+    status: string | null
+    openedByUserId: number | null
+    closedByUserId: number | null
+    openingCash: Decimal | null
+    closingCash: Decimal | null
+    cashTotal: Decimal | null
+    cardTotal: Decimal | null
+    upiTotal: Decimal | null
+    otherTotal: Decimal | null
+    totalPayments: Decimal | null
+    expectedCash: Decimal | null
+    difference: Decimal | null
+    openingNotes: string | null
+    closingNotes: string | null
+    openedAt: Date | null
+    closedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ShiftCountAggregateOutputType = {
+    id: number
+    status: number
+    openedByUserId: number
+    closedByUserId: number
+    openingCash: number
+    closingCash: number
+    cashTotal: number
+    cardTotal: number
+    upiTotal: number
+    otherTotal: number
+    totalPayments: number
+    expectedCash: number
+    difference: number
+    openingNotes: number
+    closingNotes: number
+    openedAt: number
+    closedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ShiftAvgAggregateInputType = {
+    id?: true
+    openedByUserId?: true
+    closedByUserId?: true
+    openingCash?: true
+    closingCash?: true
+    cashTotal?: true
+    cardTotal?: true
+    upiTotal?: true
+    otherTotal?: true
+    totalPayments?: true
+    expectedCash?: true
+    difference?: true
+  }
+
+  export type ShiftSumAggregateInputType = {
+    id?: true
+    openedByUserId?: true
+    closedByUserId?: true
+    openingCash?: true
+    closingCash?: true
+    cashTotal?: true
+    cardTotal?: true
+    upiTotal?: true
+    otherTotal?: true
+    totalPayments?: true
+    expectedCash?: true
+    difference?: true
+  }
+
+  export type ShiftMinAggregateInputType = {
+    id?: true
+    status?: true
+    openedByUserId?: true
+    closedByUserId?: true
+    openingCash?: true
+    closingCash?: true
+    cashTotal?: true
+    cardTotal?: true
+    upiTotal?: true
+    otherTotal?: true
+    totalPayments?: true
+    expectedCash?: true
+    difference?: true
+    openingNotes?: true
+    closingNotes?: true
+    openedAt?: true
+    closedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShiftMaxAggregateInputType = {
+    id?: true
+    status?: true
+    openedByUserId?: true
+    closedByUserId?: true
+    openingCash?: true
+    closingCash?: true
+    cashTotal?: true
+    cardTotal?: true
+    upiTotal?: true
+    otherTotal?: true
+    totalPayments?: true
+    expectedCash?: true
+    difference?: true
+    openingNotes?: true
+    closingNotes?: true
+    openedAt?: true
+    closedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ShiftCountAggregateInputType = {
+    id?: true
+    status?: true
+    openedByUserId?: true
+    closedByUserId?: true
+    openingCash?: true
+    closingCash?: true
+    cashTotal?: true
+    cardTotal?: true
+    upiTotal?: true
+    otherTotal?: true
+    totalPayments?: true
+    expectedCash?: true
+    difference?: true
+    openingNotes?: true
+    closingNotes?: true
+    openedAt?: true
+    closedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ShiftAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Shift to aggregate.
+     */
+    where?: ShiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shifts to fetch.
+     */
+    orderBy?: ShiftOrderByWithRelationInput | ShiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ShiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Shifts
+    **/
+    _count?: true | ShiftCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ShiftAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ShiftSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ShiftMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ShiftMaxAggregateInputType
+  }
+
+  export type GetShiftAggregateType<T extends ShiftAggregateArgs> = {
+        [P in keyof T & keyof AggregateShift]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateShift[P]>
+      : GetScalarType<T[P], AggregateShift[P]>
+  }
+
+
+
+
+  export type ShiftGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ShiftWhereInput
+    orderBy?: ShiftOrderByWithAggregationInput | ShiftOrderByWithAggregationInput[]
+    by: ShiftScalarFieldEnum[] | ShiftScalarFieldEnum
+    having?: ShiftScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ShiftCountAggregateInputType | true
+    _avg?: ShiftAvgAggregateInputType
+    _sum?: ShiftSumAggregateInputType
+    _min?: ShiftMinAggregateInputType
+    _max?: ShiftMaxAggregateInputType
+  }
+
+  export type ShiftGroupByOutputType = {
+    id: number
+    status: string
+    openedByUserId: number
+    closedByUserId: number | null
+    openingCash: Decimal
+    closingCash: Decimal | null
+    cashTotal: Decimal
+    cardTotal: Decimal
+    upiTotal: Decimal
+    otherTotal: Decimal
+    totalPayments: Decimal
+    expectedCash: Decimal | null
+    difference: Decimal | null
+    openingNotes: string | null
+    closingNotes: string | null
+    openedAt: Date
+    closedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ShiftCountAggregateOutputType | null
+    _avg: ShiftAvgAggregateOutputType | null
+    _sum: ShiftSumAggregateOutputType | null
+    _min: ShiftMinAggregateOutputType | null
+    _max: ShiftMaxAggregateOutputType | null
+  }
+
+  type GetShiftGroupByPayload<T extends ShiftGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ShiftGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ShiftGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ShiftGroupByOutputType[P]>
+            : GetScalarType<T[P], ShiftGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ShiftSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    openedByUserId?: boolean
+    closedByUserId?: boolean
+    openingCash?: boolean
+    closingCash?: boolean
+    cashTotal?: boolean
+    cardTotal?: boolean
+    upiTotal?: boolean
+    otherTotal?: boolean
+    totalPayments?: boolean
+    expectedCash?: boolean
+    difference?: boolean
+    openingNotes?: boolean
+    closingNotes?: boolean
+    openedAt?: boolean
+    closedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    openedBy?: boolean | UserDefaultArgs<ExtArgs>
+    closedBy?: boolean | Shift$closedByArgs<ExtArgs>
+  }, ExtArgs["result"]["shift"]>
+
+  export type ShiftSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    openedByUserId?: boolean
+    closedByUserId?: boolean
+    openingCash?: boolean
+    closingCash?: boolean
+    cashTotal?: boolean
+    cardTotal?: boolean
+    upiTotal?: boolean
+    otherTotal?: boolean
+    totalPayments?: boolean
+    expectedCash?: boolean
+    difference?: boolean
+    openingNotes?: boolean
+    closingNotes?: boolean
+    openedAt?: boolean
+    closedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    openedBy?: boolean | UserDefaultArgs<ExtArgs>
+    closedBy?: boolean | Shift$closedByArgs<ExtArgs>
+  }, ExtArgs["result"]["shift"]>
+
+  export type ShiftSelectScalar = {
+    id?: boolean
+    status?: boolean
+    openedByUserId?: boolean
+    closedByUserId?: boolean
+    openingCash?: boolean
+    closingCash?: boolean
+    cashTotal?: boolean
+    cardTotal?: boolean
+    upiTotal?: boolean
+    otherTotal?: boolean
+    totalPayments?: boolean
+    expectedCash?: boolean
+    difference?: boolean
+    openingNotes?: boolean
+    closingNotes?: boolean
+    openedAt?: boolean
+    closedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ShiftInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    openedBy?: boolean | UserDefaultArgs<ExtArgs>
+    closedBy?: boolean | Shift$closedByArgs<ExtArgs>
+  }
+  export type ShiftIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    openedBy?: boolean | UserDefaultArgs<ExtArgs>
+    closedBy?: boolean | Shift$closedByArgs<ExtArgs>
+  }
+
+  export type $ShiftPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Shift"
+    objects: {
+      openedBy: Prisma.$UserPayload<ExtArgs>
+      closedBy: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      status: string
+      openedByUserId: number
+      closedByUserId: number | null
+      openingCash: Prisma.Decimal
+      closingCash: Prisma.Decimal | null
+      cashTotal: Prisma.Decimal
+      cardTotal: Prisma.Decimal
+      upiTotal: Prisma.Decimal
+      otherTotal: Prisma.Decimal
+      totalPayments: Prisma.Decimal
+      expectedCash: Prisma.Decimal | null
+      difference: Prisma.Decimal | null
+      openingNotes: string | null
+      closingNotes: string | null
+      openedAt: Date
+      closedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["shift"]>
+    composites: {}
+  }
+
+  type ShiftGetPayload<S extends boolean | null | undefined | ShiftDefaultArgs> = $Result.GetResult<Prisma.$ShiftPayload, S>
+
+  type ShiftCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ShiftFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ShiftCountAggregateInputType | true
+    }
+
+  export interface ShiftDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Shift'], meta: { name: 'Shift' } }
+    /**
+     * Find zero or one Shift that matches the filter.
+     * @param {ShiftFindUniqueArgs} args - Arguments to find a Shift
+     * @example
+     * // Get one Shift
+     * const shift = await prisma.shift.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ShiftFindUniqueArgs>(args: SelectSubset<T, ShiftFindUniqueArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Shift that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ShiftFindUniqueOrThrowArgs} args - Arguments to find a Shift
+     * @example
+     * // Get one Shift
+     * const shift = await prisma.shift.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ShiftFindUniqueOrThrowArgs>(args: SelectSubset<T, ShiftFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Shift that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftFindFirstArgs} args - Arguments to find a Shift
+     * @example
+     * // Get one Shift
+     * const shift = await prisma.shift.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ShiftFindFirstArgs>(args?: SelectSubset<T, ShiftFindFirstArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Shift that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftFindFirstOrThrowArgs} args - Arguments to find a Shift
+     * @example
+     * // Get one Shift
+     * const shift = await prisma.shift.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ShiftFindFirstOrThrowArgs>(args?: SelectSubset<T, ShiftFindFirstOrThrowArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Shifts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Shifts
+     * const shifts = await prisma.shift.findMany()
+     * 
+     * // Get first 10 Shifts
+     * const shifts = await prisma.shift.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const shiftWithIdOnly = await prisma.shift.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ShiftFindManyArgs>(args?: SelectSubset<T, ShiftFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Shift.
+     * @param {ShiftCreateArgs} args - Arguments to create a Shift.
+     * @example
+     * // Create one Shift
+     * const Shift = await prisma.shift.create({
+     *   data: {
+     *     // ... data to create a Shift
+     *   }
+     * })
+     * 
+     */
+    create<T extends ShiftCreateArgs>(args: SelectSubset<T, ShiftCreateArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Shifts.
+     * @param {ShiftCreateManyArgs} args - Arguments to create many Shifts.
+     * @example
+     * // Create many Shifts
+     * const shift = await prisma.shift.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ShiftCreateManyArgs>(args?: SelectSubset<T, ShiftCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Shifts and returns the data saved in the database.
+     * @param {ShiftCreateManyAndReturnArgs} args - Arguments to create many Shifts.
+     * @example
+     * // Create many Shifts
+     * const shift = await prisma.shift.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Shifts and only return the `id`
+     * const shiftWithIdOnly = await prisma.shift.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ShiftCreateManyAndReturnArgs>(args?: SelectSubset<T, ShiftCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Shift.
+     * @param {ShiftDeleteArgs} args - Arguments to delete one Shift.
+     * @example
+     * // Delete one Shift
+     * const Shift = await prisma.shift.delete({
+     *   where: {
+     *     // ... filter to delete one Shift
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ShiftDeleteArgs>(args: SelectSubset<T, ShiftDeleteArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Shift.
+     * @param {ShiftUpdateArgs} args - Arguments to update one Shift.
+     * @example
+     * // Update one Shift
+     * const shift = await prisma.shift.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ShiftUpdateArgs>(args: SelectSubset<T, ShiftUpdateArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Shifts.
+     * @param {ShiftDeleteManyArgs} args - Arguments to filter Shifts to delete.
+     * @example
+     * // Delete a few Shifts
+     * const { count } = await prisma.shift.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ShiftDeleteManyArgs>(args?: SelectSubset<T, ShiftDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Shifts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Shifts
+     * const shift = await prisma.shift.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ShiftUpdateManyArgs>(args: SelectSubset<T, ShiftUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Shift.
+     * @param {ShiftUpsertArgs} args - Arguments to update or create a Shift.
+     * @example
+     * // Update or create a Shift
+     * const shift = await prisma.shift.upsert({
+     *   create: {
+     *     // ... data to create a Shift
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Shift we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ShiftUpsertArgs>(args: SelectSubset<T, ShiftUpsertArgs<ExtArgs>>): Prisma__ShiftClient<$Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Shifts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftCountArgs} args - Arguments to filter Shifts to count.
+     * @example
+     * // Count the number of Shifts
+     * const count = await prisma.shift.count({
+     *   where: {
+     *     // ... the filter for the Shifts we want to count
+     *   }
+     * })
+    **/
+    count<T extends ShiftCountArgs>(
+      args?: Subset<T, ShiftCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ShiftCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Shift.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ShiftAggregateArgs>(args: Subset<T, ShiftAggregateArgs>): Prisma.PrismaPromise<GetShiftAggregateType<T>>
+
+    /**
+     * Group by Shift.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ShiftGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ShiftGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ShiftGroupByArgs['orderBy'] }
+        : { orderBy?: ShiftGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ShiftGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetShiftGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Shift model
+   */
+  readonly fields: ShiftFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Shift.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ShiftClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    openedBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    closedBy<T extends Shift$closedByArgs<ExtArgs> = {}>(args?: Subset<T, Shift$closedByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Shift model
+   */ 
+  interface ShiftFieldRefs {
+    readonly id: FieldRef<"Shift", 'Int'>
+    readonly status: FieldRef<"Shift", 'String'>
+    readonly openedByUserId: FieldRef<"Shift", 'Int'>
+    readonly closedByUserId: FieldRef<"Shift", 'Int'>
+    readonly openingCash: FieldRef<"Shift", 'Decimal'>
+    readonly closingCash: FieldRef<"Shift", 'Decimal'>
+    readonly cashTotal: FieldRef<"Shift", 'Decimal'>
+    readonly cardTotal: FieldRef<"Shift", 'Decimal'>
+    readonly upiTotal: FieldRef<"Shift", 'Decimal'>
+    readonly otherTotal: FieldRef<"Shift", 'Decimal'>
+    readonly totalPayments: FieldRef<"Shift", 'Decimal'>
+    readonly expectedCash: FieldRef<"Shift", 'Decimal'>
+    readonly difference: FieldRef<"Shift", 'Decimal'>
+    readonly openingNotes: FieldRef<"Shift", 'String'>
+    readonly closingNotes: FieldRef<"Shift", 'String'>
+    readonly openedAt: FieldRef<"Shift", 'DateTime'>
+    readonly closedAt: FieldRef<"Shift", 'DateTime'>
+    readonly createdAt: FieldRef<"Shift", 'DateTime'>
+    readonly updatedAt: FieldRef<"Shift", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Shift findUnique
+   */
+  export type ShiftFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * Filter, which Shift to fetch.
+     */
+    where: ShiftWhereUniqueInput
+  }
+
+  /**
+   * Shift findUniqueOrThrow
+   */
+  export type ShiftFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * Filter, which Shift to fetch.
+     */
+    where: ShiftWhereUniqueInput
+  }
+
+  /**
+   * Shift findFirst
+   */
+  export type ShiftFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * Filter, which Shift to fetch.
+     */
+    where?: ShiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shifts to fetch.
+     */
+    orderBy?: ShiftOrderByWithRelationInput | ShiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Shifts.
+     */
+    cursor?: ShiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Shifts.
+     */
+    distinct?: ShiftScalarFieldEnum | ShiftScalarFieldEnum[]
+  }
+
+  /**
+   * Shift findFirstOrThrow
+   */
+  export type ShiftFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * Filter, which Shift to fetch.
+     */
+    where?: ShiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shifts to fetch.
+     */
+    orderBy?: ShiftOrderByWithRelationInput | ShiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Shifts.
+     */
+    cursor?: ShiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Shifts.
+     */
+    distinct?: ShiftScalarFieldEnum | ShiftScalarFieldEnum[]
+  }
+
+  /**
+   * Shift findMany
+   */
+  export type ShiftFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * Filter, which Shifts to fetch.
+     */
+    where?: ShiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Shifts to fetch.
+     */
+    orderBy?: ShiftOrderByWithRelationInput | ShiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Shifts.
+     */
+    cursor?: ShiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Shifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Shifts.
+     */
+    skip?: number
+    distinct?: ShiftScalarFieldEnum | ShiftScalarFieldEnum[]
+  }
+
+  /**
+   * Shift create
+   */
+  export type ShiftCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Shift.
+     */
+    data: XOR<ShiftCreateInput, ShiftUncheckedCreateInput>
+  }
+
+  /**
+   * Shift createMany
+   */
+  export type ShiftCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Shifts.
+     */
+    data: ShiftCreateManyInput | ShiftCreateManyInput[]
+  }
+
+  /**
+   * Shift createManyAndReturn
+   */
+  export type ShiftCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Shifts.
+     */
+    data: ShiftCreateManyInput | ShiftCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Shift update
+   */
+  export type ShiftUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Shift.
+     */
+    data: XOR<ShiftUpdateInput, ShiftUncheckedUpdateInput>
+    /**
+     * Choose, which Shift to update.
+     */
+    where: ShiftWhereUniqueInput
+  }
+
+  /**
+   * Shift updateMany
+   */
+  export type ShiftUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Shifts.
+     */
+    data: XOR<ShiftUpdateManyMutationInput, ShiftUncheckedUpdateManyInput>
+    /**
+     * Filter which Shifts to update
+     */
+    where?: ShiftWhereInput
+  }
+
+  /**
+   * Shift upsert
+   */
+  export type ShiftUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Shift to update in case it exists.
+     */
+    where: ShiftWhereUniqueInput
+    /**
+     * In case the Shift found by the `where` argument doesn't exist, create a new Shift with this data.
+     */
+    create: XOR<ShiftCreateInput, ShiftUncheckedCreateInput>
+    /**
+     * In case the Shift was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ShiftUpdateInput, ShiftUncheckedUpdateInput>
+  }
+
+  /**
+   * Shift delete
+   */
+  export type ShiftDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
+    /**
+     * Filter which Shift to delete.
+     */
+    where: ShiftWhereUniqueInput
+  }
+
+  /**
+   * Shift deleteMany
+   */
+  export type ShiftDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Shifts to delete
+     */
+    where?: ShiftWhereInput
+  }
+
+  /**
+   * Shift.closedBy
+   */
+  export type Shift$closedByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Shift without action
+   */
+  export type ShiftDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Shift
+     */
+    select?: ShiftSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ShiftInclude<ExtArgs> | null
   }
 
 
@@ -19899,6 +21249,31 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+  export const ShiftScalarFieldEnum: {
+    id: 'id',
+    status: 'status',
+    openedByUserId: 'openedByUserId',
+    closedByUserId: 'closedByUserId',
+    openingCash: 'openingCash',
+    closingCash: 'closingCash',
+    cashTotal: 'cashTotal',
+    cardTotal: 'cardTotal',
+    upiTotal: 'upiTotal',
+    otherTotal: 'otherTotal',
+    totalPayments: 'totalPayments',
+    expectedCash: 'expectedCash',
+    difference: 'difference',
+    openingNotes: 'openingNotes',
+    closingNotes: 'closingNotes',
+    openedAt: 'openedAt',
+    closedAt: 'closedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof ShiftScalarFieldEnum]
+
+
   export const StaffAttendanceScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
@@ -20167,16 +21542,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
+   * Reference to a field of type 'Decimal'
    */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
     
 
 
   /**
-   * Reference to a field of type 'Decimal'
+   * Reference to a field of type 'Boolean'
    */
-  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -20201,6 +21576,8 @@ export namespace Prisma {
     featureAccessOverrides?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     attendances?: StaffAttendanceListRelationFilter
+    openedShifts?: ShiftListRelationFilter
+    closedShifts?: ShiftListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -20211,6 +21588,8 @@ export namespace Prisma {
     featureAccessOverrides?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     attendances?: StaffAttendanceOrderByRelationAggregateInput
+    openedShifts?: ShiftOrderByRelationAggregateInput
+    closedShifts?: ShiftOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -20224,6 +21603,8 @@ export namespace Prisma {
     featureAccessOverrides?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     attendances?: StaffAttendanceListRelationFilter
+    openedShifts?: ShiftListRelationFilter
+    closedShifts?: ShiftListRelationFilter
   }, "id" | "name">
 
   export type UserOrderByWithAggregationInput = {
@@ -20250,6 +21631,136 @@ export namespace Prisma {
     password?: StringWithAggregatesFilter<"User"> | string
     featureAccessOverrides?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type ShiftWhereInput = {
+    AND?: ShiftWhereInput | ShiftWhereInput[]
+    OR?: ShiftWhereInput[]
+    NOT?: ShiftWhereInput | ShiftWhereInput[]
+    id?: IntFilter<"Shift"> | number
+    status?: StringFilter<"Shift"> | string
+    openedByUserId?: IntFilter<"Shift"> | number
+    closedByUserId?: IntNullableFilter<"Shift"> | number | null
+    openingCash?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    closingCash?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    expectedCash?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    difference?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: StringNullableFilter<"Shift"> | string | null
+    closingNotes?: StringNullableFilter<"Shift"> | string | null
+    openedAt?: DateTimeFilter<"Shift"> | Date | string
+    closedAt?: DateTimeNullableFilter<"Shift"> | Date | string | null
+    createdAt?: DateTimeFilter<"Shift"> | Date | string
+    updatedAt?: DateTimeFilter<"Shift"> | Date | string
+    openedBy?: XOR<UserRelationFilter, UserWhereInput>
+    closedBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+  }
+
+  export type ShiftOrderByWithRelationInput = {
+    id?: SortOrder
+    status?: SortOrder
+    openedByUserId?: SortOrder
+    closedByUserId?: SortOrderInput | SortOrder
+    openingCash?: SortOrder
+    closingCash?: SortOrderInput | SortOrder
+    cashTotal?: SortOrder
+    cardTotal?: SortOrder
+    upiTotal?: SortOrder
+    otherTotal?: SortOrder
+    totalPayments?: SortOrder
+    expectedCash?: SortOrderInput | SortOrder
+    difference?: SortOrderInput | SortOrder
+    openingNotes?: SortOrderInput | SortOrder
+    closingNotes?: SortOrderInput | SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    openedBy?: UserOrderByWithRelationInput
+    closedBy?: UserOrderByWithRelationInput
+  }
+
+  export type ShiftWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: ShiftWhereInput | ShiftWhereInput[]
+    OR?: ShiftWhereInput[]
+    NOT?: ShiftWhereInput | ShiftWhereInput[]
+    status?: StringFilter<"Shift"> | string
+    openedByUserId?: IntFilter<"Shift"> | number
+    closedByUserId?: IntNullableFilter<"Shift"> | number | null
+    openingCash?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    closingCash?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    expectedCash?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    difference?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: StringNullableFilter<"Shift"> | string | null
+    closingNotes?: StringNullableFilter<"Shift"> | string | null
+    openedAt?: DateTimeFilter<"Shift"> | Date | string
+    closedAt?: DateTimeNullableFilter<"Shift"> | Date | string | null
+    createdAt?: DateTimeFilter<"Shift"> | Date | string
+    updatedAt?: DateTimeFilter<"Shift"> | Date | string
+    openedBy?: XOR<UserRelationFilter, UserWhereInput>
+    closedBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type ShiftOrderByWithAggregationInput = {
+    id?: SortOrder
+    status?: SortOrder
+    openedByUserId?: SortOrder
+    closedByUserId?: SortOrderInput | SortOrder
+    openingCash?: SortOrder
+    closingCash?: SortOrderInput | SortOrder
+    cashTotal?: SortOrder
+    cardTotal?: SortOrder
+    upiTotal?: SortOrder
+    otherTotal?: SortOrder
+    totalPayments?: SortOrder
+    expectedCash?: SortOrderInput | SortOrder
+    difference?: SortOrderInput | SortOrder
+    openingNotes?: SortOrderInput | SortOrder
+    closingNotes?: SortOrderInput | SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ShiftCountOrderByAggregateInput
+    _avg?: ShiftAvgOrderByAggregateInput
+    _max?: ShiftMaxOrderByAggregateInput
+    _min?: ShiftMinOrderByAggregateInput
+    _sum?: ShiftSumOrderByAggregateInput
+  }
+
+  export type ShiftScalarWhereWithAggregatesInput = {
+    AND?: ShiftScalarWhereWithAggregatesInput | ShiftScalarWhereWithAggregatesInput[]
+    OR?: ShiftScalarWhereWithAggregatesInput[]
+    NOT?: ShiftScalarWhereWithAggregatesInput | ShiftScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"Shift"> | number
+    status?: StringWithAggregatesFilter<"Shift"> | string
+    openedByUserId?: IntWithAggregatesFilter<"Shift"> | number
+    closedByUserId?: IntNullableWithAggregatesFilter<"Shift"> | number | null
+    openingCash?: DecimalWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    closingCash?: DecimalNullableWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    expectedCash?: DecimalNullableWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    difference?: DecimalNullableWithAggregatesFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: StringNullableWithAggregatesFilter<"Shift"> | string | null
+    closingNotes?: StringNullableWithAggregatesFilter<"Shift"> | string | null
+    openedAt?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
+    closedAt?: DateTimeNullableWithAggregatesFilter<"Shift"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Shift"> | Date | string
   }
 
   export type StaffAttendanceWhereInput = {
@@ -21445,6 +22956,8 @@ export namespace Prisma {
     featureAccessOverrides?: string | null
     createdAt?: Date | string
     attendances?: StaffAttendanceCreateNestedManyWithoutUserInput
+    openedShifts?: ShiftCreateNestedManyWithoutOpenedByInput
+    closedShifts?: ShiftCreateNestedManyWithoutClosedByInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -21455,6 +22968,8 @@ export namespace Prisma {
     featureAccessOverrides?: string | null
     createdAt?: Date | string
     attendances?: StaffAttendanceUncheckedCreateNestedManyWithoutUserInput
+    openedShifts?: ShiftUncheckedCreateNestedManyWithoutOpenedByInput
+    closedShifts?: ShiftUncheckedCreateNestedManyWithoutClosedByInput
   }
 
   export type UserUpdateInput = {
@@ -21464,6 +22979,8 @@ export namespace Prisma {
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     attendances?: StaffAttendanceUpdateManyWithoutUserNestedInput
+    openedShifts?: ShiftUpdateManyWithoutOpenedByNestedInput
+    closedShifts?: ShiftUpdateManyWithoutClosedByNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -21474,6 +22991,8 @@ export namespace Prisma {
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     attendances?: StaffAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    openedShifts?: ShiftUncheckedUpdateManyWithoutOpenedByNestedInput
+    closedShifts?: ShiftUncheckedUpdateManyWithoutClosedByNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -21500,6 +23019,155 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftCreateInput = {
+    status?: string
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    openedBy: UserCreateNestedOneWithoutOpenedShiftsInput
+    closedBy?: UserCreateNestedOneWithoutClosedShiftsInput
+  }
+
+  export type ShiftUncheckedCreateInput = {
+    id?: number
+    status?: string
+    openedByUserId: number
+    closedByUserId?: number | null
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftUpdateInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    openedBy?: UserUpdateOneRequiredWithoutOpenedShiftsNestedInput
+    closedBy?: UserUpdateOneWithoutClosedShiftsNestedInput
+  }
+
+  export type ShiftUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    openedByUserId?: IntFieldUpdateOperationsInput | number
+    closedByUserId?: NullableIntFieldUpdateOperationsInput | number | null
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftCreateManyInput = {
+    id?: number
+    status?: string
+    openedByUserId: number
+    closedByUserId?: number | null
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftUpdateManyMutationInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    openedByUserId?: IntFieldUpdateOperationsInput | number
+    closedByUserId?: NullableIntFieldUpdateOperationsInput | number | null
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StaffAttendanceCreateInput = {
@@ -22784,12 +24452,22 @@ export namespace Prisma {
     none?: StaffAttendanceWhereInput
   }
 
+  export type ShiftListRelationFilter = {
+    every?: ShiftWhereInput
+    some?: ShiftWhereInput
+    none?: ShiftWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
   export type StaffAttendanceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ShiftOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -22892,9 +24570,216 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type UserRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
+  }
+
+  export type UserNullableRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type ShiftCountOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    openedByUserId?: SortOrder
+    closedByUserId?: SortOrder
+    openingCash?: SortOrder
+    closingCash?: SortOrder
+    cashTotal?: SortOrder
+    cardTotal?: SortOrder
+    upiTotal?: SortOrder
+    otherTotal?: SortOrder
+    totalPayments?: SortOrder
+    expectedCash?: SortOrder
+    difference?: SortOrder
+    openingNotes?: SortOrder
+    closingNotes?: SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftAvgOrderByAggregateInput = {
+    id?: SortOrder
+    openedByUserId?: SortOrder
+    closedByUserId?: SortOrder
+    openingCash?: SortOrder
+    closingCash?: SortOrder
+    cashTotal?: SortOrder
+    cardTotal?: SortOrder
+    upiTotal?: SortOrder
+    otherTotal?: SortOrder
+    totalPayments?: SortOrder
+    expectedCash?: SortOrder
+    difference?: SortOrder
+  }
+
+  export type ShiftMaxOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    openedByUserId?: SortOrder
+    closedByUserId?: SortOrder
+    openingCash?: SortOrder
+    closingCash?: SortOrder
+    cashTotal?: SortOrder
+    cardTotal?: SortOrder
+    upiTotal?: SortOrder
+    otherTotal?: SortOrder
+    totalPayments?: SortOrder
+    expectedCash?: SortOrder
+    difference?: SortOrder
+    openingNotes?: SortOrder
+    closingNotes?: SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftMinOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    openedByUserId?: SortOrder
+    closedByUserId?: SortOrder
+    openingCash?: SortOrder
+    closingCash?: SortOrder
+    cashTotal?: SortOrder
+    cardTotal?: SortOrder
+    upiTotal?: SortOrder
+    otherTotal?: SortOrder
+    totalPayments?: SortOrder
+    expectedCash?: SortOrder
+    difference?: SortOrder
+    openingNotes?: SortOrder
+    closingNotes?: SortOrder
+    openedAt?: SortOrder
+    closedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ShiftSumOrderByAggregateInput = {
+    id?: SortOrder
+    openedByUserId?: SortOrder
+    closedByUserId?: SortOrder
+    openingCash?: SortOrder
+    closingCash?: SortOrder
+    cashTotal?: SortOrder
+    cardTotal?: SortOrder
+    upiTotal?: SortOrder
+    otherTotal?: SortOrder
+    totalPayments?: SortOrder
+    expectedCash?: SortOrder
+    difference?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type StaffAttendanceUserIdAttendanceDateCompoundUniqueInput = {
@@ -23000,17 +24885,6 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type DecimalFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-  }
-
   export type CategoryRelationFilter = {
     is?: CategoryWhereInput
     isNot?: CategoryWhereInput
@@ -23079,33 +24953,6 @@ export namespace Prisma {
     id?: SortOrder
     price?: SortOrder
     categoryId?: SortOrder
-  }
-
-  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedDecimalFilter<$PrismaModel>
-    _sum?: NestedDecimalFilter<$PrismaModel>
-    _min?: NestedDecimalFilter<$PrismaModel>
-    _max?: NestedDecimalFilter<$PrismaModel>
-  }
-
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type PaymentListRelationFilter = {
@@ -23198,22 +25045,6 @@ export namespace Prisma {
     discountAmount?: SortOrder
     taxAmount?: SortOrder
     finalAmount?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type StockMovementListRelationFilter = {
@@ -23378,17 +25209,6 @@ export namespace Prisma {
     referenceId?: SortOrder
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type OrderRelationFilter = {
     is?: OrderWhereInput
     isNot?: OrderWhereInput
@@ -23439,20 +25259,6 @@ export namespace Prisma {
   export type KotTicketSumOrderByAggregateInput = {
     id?: SortOrder
     orderId?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type KotTicketRelationFilter = {
@@ -23877,11 +25683,39 @@ export namespace Prisma {
     connect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
   }
 
+  export type ShiftCreateNestedManyWithoutOpenedByInput = {
+    create?: XOR<ShiftCreateWithoutOpenedByInput, ShiftUncheckedCreateWithoutOpenedByInput> | ShiftCreateWithoutOpenedByInput[] | ShiftUncheckedCreateWithoutOpenedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutOpenedByInput | ShiftCreateOrConnectWithoutOpenedByInput[]
+    createMany?: ShiftCreateManyOpenedByInputEnvelope
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+  }
+
+  export type ShiftCreateNestedManyWithoutClosedByInput = {
+    create?: XOR<ShiftCreateWithoutClosedByInput, ShiftUncheckedCreateWithoutClosedByInput> | ShiftCreateWithoutClosedByInput[] | ShiftUncheckedCreateWithoutClosedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutClosedByInput | ShiftCreateOrConnectWithoutClosedByInput[]
+    createMany?: ShiftCreateManyClosedByInputEnvelope
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+  }
+
   export type StaffAttendanceUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<StaffAttendanceCreateWithoutUserInput, StaffAttendanceUncheckedCreateWithoutUserInput> | StaffAttendanceCreateWithoutUserInput[] | StaffAttendanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: StaffAttendanceCreateOrConnectWithoutUserInput | StaffAttendanceCreateOrConnectWithoutUserInput[]
     createMany?: StaffAttendanceCreateManyUserInputEnvelope
     connect?: StaffAttendanceWhereUniqueInput | StaffAttendanceWhereUniqueInput[]
+  }
+
+  export type ShiftUncheckedCreateNestedManyWithoutOpenedByInput = {
+    create?: XOR<ShiftCreateWithoutOpenedByInput, ShiftUncheckedCreateWithoutOpenedByInput> | ShiftCreateWithoutOpenedByInput[] | ShiftUncheckedCreateWithoutOpenedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutOpenedByInput | ShiftCreateOrConnectWithoutOpenedByInput[]
+    createMany?: ShiftCreateManyOpenedByInputEnvelope
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+  }
+
+  export type ShiftUncheckedCreateNestedManyWithoutClosedByInput = {
+    create?: XOR<ShiftCreateWithoutClosedByInput, ShiftUncheckedCreateWithoutClosedByInput> | ShiftCreateWithoutClosedByInput[] | ShiftUncheckedCreateWithoutClosedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutClosedByInput | ShiftCreateOrConnectWithoutClosedByInput[]
+    createMany?: ShiftCreateManyClosedByInputEnvelope
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -23910,6 +25744,34 @@ export namespace Prisma {
     deleteMany?: StaffAttendanceScalarWhereInput | StaffAttendanceScalarWhereInput[]
   }
 
+  export type ShiftUpdateManyWithoutOpenedByNestedInput = {
+    create?: XOR<ShiftCreateWithoutOpenedByInput, ShiftUncheckedCreateWithoutOpenedByInput> | ShiftCreateWithoutOpenedByInput[] | ShiftUncheckedCreateWithoutOpenedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutOpenedByInput | ShiftCreateOrConnectWithoutOpenedByInput[]
+    upsert?: ShiftUpsertWithWhereUniqueWithoutOpenedByInput | ShiftUpsertWithWhereUniqueWithoutOpenedByInput[]
+    createMany?: ShiftCreateManyOpenedByInputEnvelope
+    set?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    disconnect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    delete?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    update?: ShiftUpdateWithWhereUniqueWithoutOpenedByInput | ShiftUpdateWithWhereUniqueWithoutOpenedByInput[]
+    updateMany?: ShiftUpdateManyWithWhereWithoutOpenedByInput | ShiftUpdateManyWithWhereWithoutOpenedByInput[]
+    deleteMany?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
+  }
+
+  export type ShiftUpdateManyWithoutClosedByNestedInput = {
+    create?: XOR<ShiftCreateWithoutClosedByInput, ShiftUncheckedCreateWithoutClosedByInput> | ShiftCreateWithoutClosedByInput[] | ShiftUncheckedCreateWithoutClosedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutClosedByInput | ShiftCreateOrConnectWithoutClosedByInput[]
+    upsert?: ShiftUpsertWithWhereUniqueWithoutClosedByInput | ShiftUpsertWithWhereUniqueWithoutClosedByInput[]
+    createMany?: ShiftCreateManyClosedByInputEnvelope
+    set?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    disconnect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    delete?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    update?: ShiftUpdateWithWhereUniqueWithoutClosedByInput | ShiftUpdateWithWhereUniqueWithoutClosedByInput[]
+    updateMany?: ShiftUpdateManyWithWhereWithoutClosedByInput | ShiftUpdateManyWithWhereWithoutClosedByInput[]
+    deleteMany?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -23930,6 +25792,92 @@ export namespace Prisma {
     update?: StaffAttendanceUpdateWithWhereUniqueWithoutUserInput | StaffAttendanceUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: StaffAttendanceUpdateManyWithWhereWithoutUserInput | StaffAttendanceUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: StaffAttendanceScalarWhereInput | StaffAttendanceScalarWhereInput[]
+  }
+
+  export type ShiftUncheckedUpdateManyWithoutOpenedByNestedInput = {
+    create?: XOR<ShiftCreateWithoutOpenedByInput, ShiftUncheckedCreateWithoutOpenedByInput> | ShiftCreateWithoutOpenedByInput[] | ShiftUncheckedCreateWithoutOpenedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutOpenedByInput | ShiftCreateOrConnectWithoutOpenedByInput[]
+    upsert?: ShiftUpsertWithWhereUniqueWithoutOpenedByInput | ShiftUpsertWithWhereUniqueWithoutOpenedByInput[]
+    createMany?: ShiftCreateManyOpenedByInputEnvelope
+    set?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    disconnect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    delete?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    update?: ShiftUpdateWithWhereUniqueWithoutOpenedByInput | ShiftUpdateWithWhereUniqueWithoutOpenedByInput[]
+    updateMany?: ShiftUpdateManyWithWhereWithoutOpenedByInput | ShiftUpdateManyWithWhereWithoutOpenedByInput[]
+    deleteMany?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
+  }
+
+  export type ShiftUncheckedUpdateManyWithoutClosedByNestedInput = {
+    create?: XOR<ShiftCreateWithoutClosedByInput, ShiftUncheckedCreateWithoutClosedByInput> | ShiftCreateWithoutClosedByInput[] | ShiftUncheckedCreateWithoutClosedByInput[]
+    connectOrCreate?: ShiftCreateOrConnectWithoutClosedByInput | ShiftCreateOrConnectWithoutClosedByInput[]
+    upsert?: ShiftUpsertWithWhereUniqueWithoutClosedByInput | ShiftUpsertWithWhereUniqueWithoutClosedByInput[]
+    createMany?: ShiftCreateManyClosedByInputEnvelope
+    set?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    disconnect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    delete?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    connect?: ShiftWhereUniqueInput | ShiftWhereUniqueInput[]
+    update?: ShiftUpdateWithWhereUniqueWithoutClosedByInput | ShiftUpdateWithWhereUniqueWithoutClosedByInput[]
+    updateMany?: ShiftUpdateManyWithWhereWithoutClosedByInput | ShiftUpdateManyWithWhereWithoutClosedByInput[]
+    deleteMany?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutOpenedShiftsInput = {
+    create?: XOR<UserCreateWithoutOpenedShiftsInput, UserUncheckedCreateWithoutOpenedShiftsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOpenedShiftsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutClosedShiftsInput = {
+    create?: XOR<UserCreateWithoutClosedShiftsInput, UserUncheckedCreateWithoutClosedShiftsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutClosedShiftsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type UserUpdateOneRequiredWithoutOpenedShiftsNestedInput = {
+    create?: XOR<UserCreateWithoutOpenedShiftsInput, UserUncheckedCreateWithoutOpenedShiftsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutOpenedShiftsInput
+    upsert?: UserUpsertWithoutOpenedShiftsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutOpenedShiftsInput, UserUpdateWithoutOpenedShiftsInput>, UserUncheckedUpdateWithoutOpenedShiftsInput>
+  }
+
+  export type UserUpdateOneWithoutClosedShiftsNestedInput = {
+    create?: XOR<UserCreateWithoutClosedShiftsInput, UserUncheckedCreateWithoutClosedShiftsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutClosedShiftsInput
+    upsert?: UserUpsertWithoutClosedShiftsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutClosedShiftsInput, UserUpdateWithoutClosedShiftsInput>, UserUncheckedUpdateWithoutClosedShiftsInput>
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type UserCreateNestedOneWithoutAttendancesInput = {
@@ -24024,14 +25972,6 @@ export namespace Prisma {
     connectOrCreate?: MenuItemIngredientCreateOrConnectWithoutMenuItemInput | MenuItemIngredientCreateOrConnectWithoutMenuItemInput[]
     createMany?: MenuItemIngredientCreateManyMenuItemInputEnvelope
     connect?: MenuItemIngredientWhereUniqueInput | MenuItemIngredientWhereUniqueInput[]
-  }
-
-  export type DecimalFieldUpdateOperationsInput = {
-    set?: Decimal | DecimalJsLike | number | string
-    increment?: Decimal | DecimalJsLike | number | string
-    decrement?: Decimal | DecimalJsLike | number | string
-    multiply?: Decimal | DecimalJsLike | number | string
-    divide?: Decimal | DecimalJsLike | number | string
   }
 
   export type CategoryUpdateOneRequiredWithoutMenuItemsNestedInput = {
@@ -24138,14 +26078,6 @@ export namespace Prisma {
     connectOrCreate?: KotTicketCreateOrConnectWithoutOrderInput | KotTicketCreateOrConnectWithoutOrderInput[]
     createMany?: KotTicketCreateManyOrderInputEnvelope
     connect?: KotTicketWhereUniqueInput | KotTicketWhereUniqueInput[]
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type OrderItemUpdateManyWithoutOrderNestedInput = {
@@ -24418,10 +26350,6 @@ export namespace Prisma {
     connectOrCreate?: KotItemCreateOrConnectWithoutTicketInput | KotItemCreateOrConnectWithoutTicketInput[]
     createMany?: KotItemCreateManyTicketInputEnvelope
     connect?: KotItemWhereUniqueInput | KotItemWhereUniqueInput[]
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type OrderUpdateOneRequiredWithoutKotTicketsNestedInput = {
@@ -24780,19 +26708,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
   export type NestedDecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[]
@@ -24804,20 +26719,26 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
-  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
     lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedDecimalFilter<$PrismaModel>
-    _sum?: NestedDecimalFilter<$PrismaModel>
-    _min?: NestedDecimalFilter<$PrismaModel>
-    _max?: NestedDecimalFilter<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -24847,15 +26768,36 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[]
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -24870,6 +26812,19 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type StaffAttendanceCreateWithoutUserInput = {
@@ -24900,6 +26855,106 @@ export namespace Prisma {
 
   export type StaffAttendanceCreateManyUserInputEnvelope = {
     data: StaffAttendanceCreateManyUserInput | StaffAttendanceCreateManyUserInput[]
+  }
+
+  export type ShiftCreateWithoutOpenedByInput = {
+    status?: string
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    closedBy?: UserCreateNestedOneWithoutClosedShiftsInput
+  }
+
+  export type ShiftUncheckedCreateWithoutOpenedByInput = {
+    id?: number
+    status?: string
+    closedByUserId?: number | null
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftCreateOrConnectWithoutOpenedByInput = {
+    where: ShiftWhereUniqueInput
+    create: XOR<ShiftCreateWithoutOpenedByInput, ShiftUncheckedCreateWithoutOpenedByInput>
+  }
+
+  export type ShiftCreateManyOpenedByInputEnvelope = {
+    data: ShiftCreateManyOpenedByInput | ShiftCreateManyOpenedByInput[]
+  }
+
+  export type ShiftCreateWithoutClosedByInput = {
+    status?: string
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    openedBy: UserCreateNestedOneWithoutOpenedShiftsInput
+  }
+
+  export type ShiftUncheckedCreateWithoutClosedByInput = {
+    id?: number
+    status?: string
+    openedByUserId: number
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftCreateOrConnectWithoutClosedByInput = {
+    where: ShiftWhereUniqueInput
+    create: XOR<ShiftCreateWithoutClosedByInput, ShiftUncheckedCreateWithoutClosedByInput>
+  }
+
+  export type ShiftCreateManyClosedByInputEnvelope = {
+    data: ShiftCreateManyClosedByInput | ShiftCreateManyClosedByInput[]
   }
 
   export type StaffAttendanceUpsertWithWhereUniqueWithoutUserInput = {
@@ -24933,12 +26988,187 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"StaffAttendance"> | Date | string
   }
 
+  export type ShiftUpsertWithWhereUniqueWithoutOpenedByInput = {
+    where: ShiftWhereUniqueInput
+    update: XOR<ShiftUpdateWithoutOpenedByInput, ShiftUncheckedUpdateWithoutOpenedByInput>
+    create: XOR<ShiftCreateWithoutOpenedByInput, ShiftUncheckedCreateWithoutOpenedByInput>
+  }
+
+  export type ShiftUpdateWithWhereUniqueWithoutOpenedByInput = {
+    where: ShiftWhereUniqueInput
+    data: XOR<ShiftUpdateWithoutOpenedByInput, ShiftUncheckedUpdateWithoutOpenedByInput>
+  }
+
+  export type ShiftUpdateManyWithWhereWithoutOpenedByInput = {
+    where: ShiftScalarWhereInput
+    data: XOR<ShiftUpdateManyMutationInput, ShiftUncheckedUpdateManyWithoutOpenedByInput>
+  }
+
+  export type ShiftScalarWhereInput = {
+    AND?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
+    OR?: ShiftScalarWhereInput[]
+    NOT?: ShiftScalarWhereInput | ShiftScalarWhereInput[]
+    id?: IntFilter<"Shift"> | number
+    status?: StringFilter<"Shift"> | string
+    openedByUserId?: IntFilter<"Shift"> | number
+    closedByUserId?: IntNullableFilter<"Shift"> | number | null
+    openingCash?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    closingCash?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFilter<"Shift"> | Decimal | DecimalJsLike | number | string
+    expectedCash?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    difference?: DecimalNullableFilter<"Shift"> | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: StringNullableFilter<"Shift"> | string | null
+    closingNotes?: StringNullableFilter<"Shift"> | string | null
+    openedAt?: DateTimeFilter<"Shift"> | Date | string
+    closedAt?: DateTimeNullableFilter<"Shift"> | Date | string | null
+    createdAt?: DateTimeFilter<"Shift"> | Date | string
+    updatedAt?: DateTimeFilter<"Shift"> | Date | string
+  }
+
+  export type ShiftUpsertWithWhereUniqueWithoutClosedByInput = {
+    where: ShiftWhereUniqueInput
+    update: XOR<ShiftUpdateWithoutClosedByInput, ShiftUncheckedUpdateWithoutClosedByInput>
+    create: XOR<ShiftCreateWithoutClosedByInput, ShiftUncheckedCreateWithoutClosedByInput>
+  }
+
+  export type ShiftUpdateWithWhereUniqueWithoutClosedByInput = {
+    where: ShiftWhereUniqueInput
+    data: XOR<ShiftUpdateWithoutClosedByInput, ShiftUncheckedUpdateWithoutClosedByInput>
+  }
+
+  export type ShiftUpdateManyWithWhereWithoutClosedByInput = {
+    where: ShiftScalarWhereInput
+    data: XOR<ShiftUpdateManyMutationInput, ShiftUncheckedUpdateManyWithoutClosedByInput>
+  }
+
+  export type UserCreateWithoutOpenedShiftsInput = {
+    name: string
+    role: string
+    password: string
+    featureAccessOverrides?: string | null
+    createdAt?: Date | string
+    attendances?: StaffAttendanceCreateNestedManyWithoutUserInput
+    closedShifts?: ShiftCreateNestedManyWithoutClosedByInput
+  }
+
+  export type UserUncheckedCreateWithoutOpenedShiftsInput = {
+    id?: number
+    name: string
+    role: string
+    password: string
+    featureAccessOverrides?: string | null
+    createdAt?: Date | string
+    attendances?: StaffAttendanceUncheckedCreateNestedManyWithoutUserInput
+    closedShifts?: ShiftUncheckedCreateNestedManyWithoutClosedByInput
+  }
+
+  export type UserCreateOrConnectWithoutOpenedShiftsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutOpenedShiftsInput, UserUncheckedCreateWithoutOpenedShiftsInput>
+  }
+
+  export type UserCreateWithoutClosedShiftsInput = {
+    name: string
+    role: string
+    password: string
+    featureAccessOverrides?: string | null
+    createdAt?: Date | string
+    attendances?: StaffAttendanceCreateNestedManyWithoutUserInput
+    openedShifts?: ShiftCreateNestedManyWithoutOpenedByInput
+  }
+
+  export type UserUncheckedCreateWithoutClosedShiftsInput = {
+    id?: number
+    name: string
+    role: string
+    password: string
+    featureAccessOverrides?: string | null
+    createdAt?: Date | string
+    attendances?: StaffAttendanceUncheckedCreateNestedManyWithoutUserInput
+    openedShifts?: ShiftUncheckedCreateNestedManyWithoutOpenedByInput
+  }
+
+  export type UserCreateOrConnectWithoutClosedShiftsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutClosedShiftsInput, UserUncheckedCreateWithoutClosedShiftsInput>
+  }
+
+  export type UserUpsertWithoutOpenedShiftsInput = {
+    update: XOR<UserUpdateWithoutOpenedShiftsInput, UserUncheckedUpdateWithoutOpenedShiftsInput>
+    create: XOR<UserCreateWithoutOpenedShiftsInput, UserUncheckedCreateWithoutOpenedShiftsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutOpenedShiftsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutOpenedShiftsInput, UserUncheckedUpdateWithoutOpenedShiftsInput>
+  }
+
+  export type UserUpdateWithoutOpenedShiftsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendances?: StaffAttendanceUpdateManyWithoutUserNestedInput
+    closedShifts?: ShiftUpdateManyWithoutClosedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutOpenedShiftsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendances?: StaffAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    closedShifts?: ShiftUncheckedUpdateManyWithoutClosedByNestedInput
+  }
+
+  export type UserUpsertWithoutClosedShiftsInput = {
+    update: XOR<UserUpdateWithoutClosedShiftsInput, UserUncheckedUpdateWithoutClosedShiftsInput>
+    create: XOR<UserCreateWithoutClosedShiftsInput, UserUncheckedCreateWithoutClosedShiftsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutClosedShiftsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutClosedShiftsInput, UserUncheckedUpdateWithoutClosedShiftsInput>
+  }
+
+  export type UserUpdateWithoutClosedShiftsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendances?: StaffAttendanceUpdateManyWithoutUserNestedInput
+    openedShifts?: ShiftUpdateManyWithoutOpenedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutClosedShiftsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendances?: StaffAttendanceUncheckedUpdateManyWithoutUserNestedInput
+    openedShifts?: ShiftUncheckedUpdateManyWithoutOpenedByNestedInput
+  }
+
   export type UserCreateWithoutAttendancesInput = {
     name: string
     role: string
     password: string
     featureAccessOverrides?: string | null
     createdAt?: Date | string
+    openedShifts?: ShiftCreateNestedManyWithoutOpenedByInput
+    closedShifts?: ShiftCreateNestedManyWithoutClosedByInput
   }
 
   export type UserUncheckedCreateWithoutAttendancesInput = {
@@ -24948,6 +27178,8 @@ export namespace Prisma {
     password: string
     featureAccessOverrides?: string | null
     createdAt?: Date | string
+    openedShifts?: ShiftUncheckedCreateNestedManyWithoutOpenedByInput
+    closedShifts?: ShiftUncheckedCreateNestedManyWithoutClosedByInput
   }
 
   export type UserCreateOrConnectWithoutAttendancesInput = {
@@ -24972,6 +27204,8 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    openedShifts?: ShiftUpdateManyWithoutOpenedByNestedInput
+    closedShifts?: ShiftUpdateManyWithoutClosedByNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAttendancesInput = {
@@ -24981,6 +27215,8 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     featureAccessOverrides?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    openedShifts?: ShiftUncheckedUpdateManyWithoutOpenedByNestedInput
+    closedShifts?: ShiftUncheckedUpdateManyWithoutClosedByNestedInput
   }
 
   export type MenuItemCreateWithoutCategoryInput = {
@@ -26482,6 +28718,48 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ShiftCreateManyOpenedByInput = {
+    id?: number
+    status?: string
+    closedByUserId?: number | null
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ShiftCreateManyClosedByInput = {
+    id?: number
+    status?: string
+    openedByUserId: number
+    openingCash?: Decimal | DecimalJsLike | number | string
+    closingCash?: Decimal | DecimalJsLike | number | string | null
+    cashTotal?: Decimal | DecimalJsLike | number | string
+    cardTotal?: Decimal | DecimalJsLike | number | string
+    upiTotal?: Decimal | DecimalJsLike | number | string
+    otherTotal?: Decimal | DecimalJsLike | number | string
+    totalPayments?: Decimal | DecimalJsLike | number | string
+    expectedCash?: Decimal | DecimalJsLike | number | string | null
+    difference?: Decimal | DecimalJsLike | number | string | null
+    openingNotes?: string | null
+    closingNotes?: string | null
+    openedAt?: Date | string
+    closedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type StaffAttendanceUpdateWithoutUserInput = {
     attendanceDate?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
@@ -26510,6 +28788,130 @@ export namespace Prisma {
     checkIn?: NullableStringFieldUpdateOperationsInput | string | null
     checkOut?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftUpdateWithoutOpenedByInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedBy?: UserUpdateOneWithoutClosedShiftsNestedInput
+  }
+
+  export type ShiftUncheckedUpdateWithoutOpenedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    closedByUserId?: NullableIntFieldUpdateOperationsInput | number | null
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftUncheckedUpdateManyWithoutOpenedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    closedByUserId?: NullableIntFieldUpdateOperationsInput | number | null
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftUpdateWithoutClosedByInput = {
+    status?: StringFieldUpdateOperationsInput | string
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    openedBy?: UserUpdateOneRequiredWithoutOpenedShiftsNestedInput
+  }
+
+  export type ShiftUncheckedUpdateWithoutClosedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    openedByUserId?: IntFieldUpdateOperationsInput | number
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ShiftUncheckedUpdateManyWithoutClosedByInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    openedByUserId?: IntFieldUpdateOperationsInput | number
+    openingCash?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    closingCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cashTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    cardTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    upiTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    otherTotal?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    totalPayments?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    expectedCash?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    difference?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    openingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    closingNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    openedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    closedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -27023,6 +29425,10 @@ export namespace Prisma {
      * @deprecated Use UserDefaultArgs instead
      */
     export type UserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ShiftDefaultArgs instead
+     */
+    export type ShiftArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ShiftDefaultArgs<ExtArgs>
     /**
      * @deprecated Use StaffAttendanceDefaultArgs instead
      */

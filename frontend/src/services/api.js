@@ -124,6 +124,14 @@ export const reportService = {
     api.get('/reports/expenses', { params: { startDate, endDate } }),
 };
 
+export const shiftService = {
+  getOpen: () => api.get('/shifts/open'),
+  getAll: (startDate, endDate) => api.get('/shifts', { params: { startDate, endDate } }),
+  open: (data) => api.post('/shifts/open', data),
+  getClosePreview: (id) => api.get(`/shifts/${id}/close-preview`),
+  close: (id, data) => api.post(`/shifts/${id}/close`, data),
+};
+
 export const expenseService = {
   getAll: (startDate, endDate, options = {}) => api.get('/expenses', { params: { startDate, endDate, ...options } }),
   getUniqueNotes: () => api.get('/expenses/notes'),

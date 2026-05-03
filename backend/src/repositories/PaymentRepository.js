@@ -78,6 +78,22 @@ class PaymentRepository {
     });
     return payments.map(mapPayment);
   }
+
+  async findSettledByDateRange(startDate, endDate) {
+    const payments = await prisma.payment.findMany({
+      where: {
+        createdAt: {
+          gte: new Date(startDate),
+          lt: new Date(endDate),
+        },
+        settledAmount: {
+          gt: 0,
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    return payments.map(mapPayment);
+  }
 }
 
 module.exports = new PaymentRepository();

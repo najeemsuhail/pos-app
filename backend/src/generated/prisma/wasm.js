@@ -128,6 +128,28 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ShiftScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  openedByUserId: 'openedByUserId',
+  closedByUserId: 'closedByUserId',
+  openingCash: 'openingCash',
+  closingCash: 'closingCash',
+  cashTotal: 'cashTotal',
+  cardTotal: 'cardTotal',
+  upiTotal: 'upiTotal',
+  otherTotal: 'otherTotal',
+  totalPayments: 'totalPayments',
+  expectedCash: 'expectedCash',
+  difference: 'difference',
+  openingNotes: 'openingNotes',
+  closingNotes: 'closingNotes',
+  openedAt: 'openedAt',
+  closedAt: 'closedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.StaffAttendanceScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -318,6 +340,7 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Shift: 'Shift',
   StaffAttendance: 'StaffAttendance',
   Category: 'Category',
   MenuItem: 'MenuItem',

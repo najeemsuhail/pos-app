@@ -6,6 +6,7 @@ const CONFIGURABLE_FEATURES = [
   'expenseManagement',
   'attendanceManagement',
   'purchaseManagement',
+  'shiftManagement',
   'userManagement',
   'backupManagement',
 ];

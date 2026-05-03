@@ -20,9 +20,41 @@ model User {
   featureAccessOverrides String?  @map("feature_access_overrides")
   createdAt              DateTime @default(now()) @map("created_at")
 
-  attendances StaffAttendance[]
+  attendances  StaffAttendance[]
+  openedShifts Shift[]           @relation("ShiftOpenedBy")
+  closedShifts Shift[]           @relation("ShiftClosedBy")
 
   @@map("users")
+}
+
+model Shift {
+  id             Int       @id @default(autoincrement())
+  status         String    @default("open")
+  openedByUserId Int       @map("opened_by_user_id")
+  closedByUserId Int?      @map("closed_by_user_id")
+  openingCash    Decimal   @default(0) @map("opening_cash")
+  closingCash    Decimal?  @map("closing_cash")
+  cashTotal      Decimal   @default(0) @map("cash_total")
+  cardTotal      Decimal   @default(0) @map("card_total")
+  upiTotal       Decimal   @default(0) @map("upi_total")
+  otherTotal     Decimal   @default(0) @map("other_total")
+  totalPayments  Decimal   @default(0) @map("total_payments")
+  expectedCash   Decimal?  @map("expected_cash")
+  difference     Decimal?  @map("difference")
+  openingNotes   String?   @map("opening_notes")
+  closingNotes   String?   @map("closing_notes")
+  openedAt       DateTime  @default(now()) @map("opened_at")
+  closedAt       DateTime? @map("closed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  openedBy User  @relation("ShiftOpenedBy", fields: [openedByUserId], references: [id])
+  closedBy User? @relation("ShiftClosedBy", fields: [closedByUserId], references: [id])
+
+  @@index([status])
+  @@index([openedAt])
+  @@index([closedAt])
+  @@map("shifts")
 }
 
 model StaffAttendance {

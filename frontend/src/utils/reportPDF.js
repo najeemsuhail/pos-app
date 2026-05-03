@@ -16,6 +16,7 @@ export const generatePDF = async (report, reportType) => {
 };
 
 const money = (value) => `Rs. ${parseFloat(value || 0).toFixed(2)}`;
+const formatDateTime = (value) => (value ? new Date(value).toLocaleString() : '-');
 const orderTypeLabels = {
   dine_in: 'Dine-in/Table',
   takeaway: 'Takeaway',
@@ -182,6 +183,103 @@ const createReportHTML = (report, reportType) => {
     `;
   }
 
+  let shiftTimeHTML = '';
+  if (report.shiftSummary) {
+    const shift = report.shiftSummary;
+    const recordedShiftRows = (report.shifts || []).map((item) => `
+      <tr>
+        <td style="padding: 7px; border: 1px solid #ddd;">${item.status}</td>
+        <td style="padding: 7px; border: 1px solid #ddd;">${item.opened_by?.name || '-'}</td>
+        <td style="padding: 7px; border: 1px solid #ddd;">${formatDateTime(item.opened_at)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd;">${item.closed_by?.name || '-'}</td>
+        <td style="padding: 7px; border: 1px solid #ddd;">${formatDateTime(item.closed_at)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(item.opening_cash)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${item.closing_cash === null ? '-' : money(item.closing_cash)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(item.cash_total)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(item.card_total)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(item.upi_total)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${item.difference === null ? '-' : money(item.difference)}</td>
+      </tr>
+    `).join('');
+    const shiftDays = (shift.days || []).map((day) => `
+      <tr>
+        <td style="padding: 7px; border: 1px solid #ddd;">${day.date}</td>
+        <td style="padding: 7px; border: 1px solid #ddd;">${formatDateTime(day.firstOrderAt)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd;">${formatDateTime(day.lastOrderAt)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${day.totalOrders}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${day.inShiftOrders}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(day.inShiftSales)}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${day.outOfShiftOrders}</td>
+        <td style="padding: 7px; border: 1px solid #ddd; text-align: right;">${money(day.outOfShiftSales)}</td>
+      </tr>
+    `).join('');
+
+    shiftTimeHTML = `
+      <div style="margin-bottom: 30px; page-break-inside: avoid;">
+        <h2 style="color: #2c3e50; border-bottom: 2px solid #0f766e; padding-bottom: 10px;">Shift Time Report</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+          <tbody>
+            <tr style="background-color: #f5f5f5;">
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Configured Hours</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${shift.openingTime} - ${shift.closingTime}</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Scheduled Duration</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${shift.scheduledDurationLabel}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>First Order</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${formatDateTime(shift.firstOrderAt)}</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Last Order</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${formatDateTime(shift.lastOrderAt)}</td>
+            </tr>
+            <tr style="background-color: #f5f5f5;">
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Inside Shift</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${shift.inShiftOrders} orders / ${money(shift.inShiftSales)}</td>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Outside Shift</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${shift.outOfShiftOrders} orders / ${money(shift.outOfShiftSales)}</td>
+            </tr>
+          </tbody>
+        </table>
+        ${recordedShiftRows ? `
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 9px;">
+            <thead>
+              <tr style="background-color: #0f766e; color: white;">
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">Status</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">Opened By</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">Opened At</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">Closed By</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">Closed At</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Opening</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Closing</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Cash</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Card</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">UPI</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Diff</th>
+              </tr>
+            </thead>
+            <tbody>${recordedShiftRows}</tbody>
+          </table>
+        ` : ''}
+        ${shiftDays ? `
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10px;">
+            <thead>
+              <tr style="background-color: #0f766e; color: white;">
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">Date</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">First Order</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: left;">Last Order</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Orders</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">In Shift</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">In Sales</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Out Shift</th>
+                <th style="padding: 7px; border: 1px solid #ddd; text-align: right;">Out Sales</th>
+              </tr>
+            </thead>
+            <tbody>${shiftDays}</tbody>
+          </table>
+        ` : ''}
+      </div>
+    `;
+  }
+
   let allItemsHTML = '';
   if (report.allItems && report.allItems.length > 0) {
     const totalQty = report.allItems.reduce((s, i) => s + i.quantity, 0);
@@ -307,6 +405,6 @@ const createReportHTML = (report, reportType) => {
     </div>
   `;
 
-  div.innerHTML = header + summary + orderTypes + profitLoss + hourlyHTML + allItemsHTML + categorySalesHTML + payment + footer;
+  div.innerHTML = header + summary + orderTypes + profitLoss + shiftTimeHTML + hourlyHTML + allItemsHTML + categorySalesHTML + payment + footer;
   return div;
 };

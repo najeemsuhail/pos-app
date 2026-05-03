@@ -454,6 +454,32 @@
   border-color: var(--text-primary);
 }
 
+.btn-danger {
+  background: linear-gradient(135deg, var(--danger-color) 0%, #b91c1c 100%);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  min-width: 130px;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-danger:disabled,
+.btn-secondary:disabled,
+.btn-success:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+}
+
 .btn-edit {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   color: white;
@@ -1026,6 +1052,82 @@
   scroll-margin-top: 72px;
 }
 
+.shift-close-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, 0.7fr) auto;
+  gap: 16px;
+  align-items: end;
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.shift-close-fields {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.7fr) minmax(220px, 1fr);
+  gap: 14px;
+}
+
+.shift-close-fields label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.shift-close-fields .date-input {
+  width: 100%;
+}
+
+.shift-close-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.shift-close-summary div {
+  min-height: 62px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+
+.shift-close-summary span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.shift-close-summary strong {
+  color: var(--text-primary);
+  font-size: 18px;
+}
+
+.shift-close-summary strong.positive {
+  color: var(--success-color);
+}
+
+.shift-close-summary strong.negative {
+  color: var(--danger-color);
+}
+
+.shift-close-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.shift-total-table {
+  overflow-x: auto;
+}
+
 .compact-admin-shell {
   max-width: 980px;
   margin: 0 auto;
@@ -1383,6 +1485,21 @@
   }
 
   .report-filters > div {
+    width: 100%;
+  }
+
+  .shift-close-panel,
+  .shift-close-fields,
+  .shift-close-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .shift-close-actions {
+    flex-direction: column;
+  }
+
+  .shift-close-actions .btn-secondary,
+  .shift-close-actions .btn-danger {
     width: 100%;
   }
 

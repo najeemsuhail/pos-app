@@ -13,13 +13,13 @@ import SettingsTab from '../components/admin/SettingsTab';
 
 export const adminTabs = [
   { key: 'reports', label: 'Reports', Component: ReportsTab, enabled: true },
-  { key: 'orders', label: 'Order History', Component: OrderHistoryTab, enabled: true },
-  { key: 'expenses', label: 'Operating Expenses', Component: ExpenseManagementTab, enabled: true },
+  { key: 'orders', label: 'Orders', Component: OrderHistoryTab, enabled: true },
+  { key: 'expenses', label: 'Expenses', Component: ExpenseManagementTab, enabled: true },
   { key: 'purchases', label: 'Purchases', Component: PurchaseManagementTab, enabled: true },
   { key: 'shifts', label: 'Shifts', Component: ShiftManagementTab, enabled: true },
-  { key: 'menu', label: 'Menu Items', Component: MenuManagementTab, enabled: true },
+  { key: 'menu', label: 'Menu', Component: MenuManagementTab, enabled: true },
   { key: 'ingredients', label: 'Ingredients', Component: IngredientsManagementTab, enabled: true },
-  { key: 'attendance', label: 'Staff Attendance', Component: AttendanceManagementTab, enabled: true },
+  { key: 'attendance', label: 'Attendance', Component: AttendanceManagementTab, enabled: true },
   { key: 'categories', label: 'Categories', Component: CategoryManagementTab, enabled: true },
   { key: 'users', label: 'Users', Component: UserManagementTab, enabled: true },
   { key: 'backup', label: 'Backup', Component: BackupTab, enabled: true },

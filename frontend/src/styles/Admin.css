@@ -84,27 +84,33 @@
 /* ========== TABS ========== */
 .admin-tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 30px;
+  gap: 6px;
+  margin-bottom: 22px;
   background: var(--card-bg);
-  padding: 12px;
-  border-radius: 14px;
+  padding: 8px;
+  border-radius: 12px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   backdrop-filter: blur(10px);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .tab-btn {
-  padding: 12px 20px;
+  flex: 1 1 0;
+  min-width: fit-content;
+  padding: 9px 10px;
   background: var(--bg-tertiary);
   border: 2px solid transparent;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  
+  font-size: 12px;
+  font-weight: 800;
   color: var(--text-secondary);
+  white-space: nowrap;
+  text-align: center;
 }
 
 .tab-btn:hover {
@@ -1431,8 +1437,8 @@
   .admin-tabs {
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding: 8px;
-    gap: 8px;
+    padding: 6px;
+    gap: 6px;
     margin-bottom: 14px;
     border-radius: 10px;
     -webkit-overflow-scrolling: touch;
@@ -1441,8 +1447,8 @@
   .tab-btn {
     width: auto;
     flex: 0 0 auto;
-    min-width: 112px;
-    padding: 10px 12px;
+    min-width: 92px;
+    padding: 9px 10px;
     white-space: nowrap;
   }
 

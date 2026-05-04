@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('posDesktop', {
   getPrinters: () => ipcRenderer.invoke('desktop:get-printers'),
   printReceipt: (html, printerName) => ipcRenderer.invoke('desktop:print-receipt', html, printerName),
   printCurrentWindow: (printerName) => ipcRenderer.invoke('desktop:print-current-window', printerName),
+  openCurrentWindowPdf: () => ipcRenderer.invoke('desktop:open-current-window-pdf'),
   saveCurrentWindowPdf: () => ipcRenderer.invoke('desktop:save-current-window-pdf'),
   closeCurrentWindow: () => ipcRenderer.invoke('desktop:close-current-window'),
 

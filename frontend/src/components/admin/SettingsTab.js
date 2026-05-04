@@ -514,7 +514,7 @@ const SettingsTab = () => {
                 {/* Hint when no printers are detected */}
                 {!isLoadingPrinters && printers.length === 0 && (
                   <small style={{ color: 'var(--text-secondary)', marginTop: '8px', display: 'block' }}>
-                    No printers detected. Receipts will use the browser print dialog until a printer is connected.
+                    No printers detected. Receipts will use the print dialog until a printer is connected.
                   </small>
                 )}
               </div>

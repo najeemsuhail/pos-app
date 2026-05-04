@@ -57,6 +57,10 @@ function clearReceiptPrinterSetting() {
   localStorage.removeItem('receiptPrinter');
 }
 
+function isDesktopPrintAvailable() {
+  return window.posDesktop && typeof window.posDesktop.printReceipt === 'function';
+}
+
 function openBrowserPrintDialog(htmlContent) {
   const popup = window.open('', '_blank', 'width=430,height=760');
 
@@ -159,6 +163,7 @@ export function buildReceiptPrintHtml(receipt, documentLabel = 'Receipt') {
 export async function printReceiptContent(receipt, documentLabel = 'Receipt') {
   let printerName = getReceiptPrinterSetting();
   const htmlContent = buildReceiptPrintHtml(receipt, documentLabel);
+  const isDesktopApp = isDesktopPrintAvailable();
 
   if (window.posDesktop?.getPrinters && printerName !== 'browser-default') {
     try {
@@ -166,9 +171,9 @@ export async function printReceiptContent(receipt, documentLabel = 'Receipt') {
       const printerExists = availablePrinters.some((printer) => printer.name === printerName);
 
       if (!printerExists) {
-        console.warn(`Printer "${printerName}" not found. Using browser print dialog.`);
-        printerName = 'browser-default';
+        console.warn(`Printer "${printerName}" not found. Using print dialog.`);
         clearReceiptPrinterSetting();
+        printerName = 'browser-default';
       }
     } catch (err) {
       console.error('Error detecting printers:', err);
@@ -178,26 +183,37 @@ export async function printReceiptContent(receipt, documentLabel = 'Receipt') {
 
   const usesSilentPrinter = printerName !== 'browser-default' && !requiresVisiblePrintDialog(printerName);
 
-  if (!usesSilentPrinter) {
-    openBrowserPrintDialog(htmlContent);
-    return;
-  }
-
-  if (window.posDesktop && typeof window.posDesktop.printReceipt === 'function') {
-
+  if (isDesktopApp) {
     try {
       const result = await withTimeout(
         window.posDesktop.printReceipt(htmlContent, printerName),
-        25000,
-        'Printer did not respond within 25 seconds'
+        usesSilentPrinter ? 25000 : 125000,
+        usesSilentPrinter
+          ? 'Printer did not respond within 25 seconds'
+          : 'Print dialog did not respond within 125 seconds'
       );
 
       if (result.success || isCancelledPrint(result)) return;
 
       console.warn('Desktop printing failed:', result.errorType);
+
+      if (usesSilentPrinter) {
+        printerName = 'browser-default';
+      } else {
+        throw new Error(result.errorType || 'Print dialog failed');
+      }
     } catch (err) {
       console.error('Desktop print error:', err.message);
+
+      if (!usesSilentPrinter) {
+        throw err;
+      }
     }
+  }
+
+  if (!usesSilentPrinter) {
+    openBrowserPrintDialog(htmlContent);
+    return;
   }
 
   const existingIframe = document.getElementById('print-iframe');

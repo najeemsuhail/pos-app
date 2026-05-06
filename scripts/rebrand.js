@@ -8,7 +8,7 @@ if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
 }
 
-const NEW_NAME = process.env.DESKTOP_APP_NAME || 'Chewbiecafe POS';
+const NEW_NAME = process.env.DESKTOP_APP_NAME || 'ServeStack';
 const SYSTEM_NAME = NEW_NAME.toLowerCase().replace(/\s+/g, '-');
 const APP_ID = `com.${SYSTEM_NAME.replace(/-/g, '.')}.app`;
 

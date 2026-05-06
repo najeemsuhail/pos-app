@@ -1,6 +1,6 @@
-# POS App
+# ServeStack
 
-Chewbiecafe POS app prepared for:
+ServeStack POS app prepared for:
 
 - Vercel frontend + API deployment
 - Supabase Postgres database
@@ -80,14 +80,16 @@ The desktop runtime now starts the backend locally. The backend defaults to a lo
 
 Desktop app data is stored in the user profile instead of the repo:
 
-- Windows: `%APPDATA%\\POS App\\data`
-- macOS: `~/Library/Application Support/POS App/data`
-- Linux: `~/.local/share/POS App/data`
+- Windows: `%APPDATA%\\ServeStack\\data`
+- macOS: `~/Library/Application Support/ServeStack/data`
+- Linux: `~/.local/share/ServeStack/data`
 
 That data directory contains:
 
 - `pos-app.db`
 - `uploads/`
+
+Existing installs that already have a legacy desktop data folder keep using that folder so local orders, settings, and license files are not lost during rebranding.
 
 If Cloudinary credentials are not set, menu image uploads are stored locally in that desktop data directory.
 
@@ -105,12 +107,14 @@ Server-side Vercel env vars:
 - `LICENSE_LEDGER_SUPABASE_URL`
 - `LICENSE_LEDGER_SUPABASE_SERVICE_ROLE_KEY`
 - `LICENSE_LEDGER_SHARED_SECRET`
+- optional: `LICENSE_TRIAL_DAYS` defaults to `7`
 - optional: `LICENSE_ACTIVATION_SALT`
 
 Desktop/local backend env vars:
 
 - `LICENSE_LEDGER_URL`
 - `LICENSE_LEDGER_SHARED_SECRET`
+- optional: `LICENSE_TRIAL_DAYS` defaults to `7`
 
 Important:
 

@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { getTrialDurationDays } = require('../config/licenseConfig');
 const { desktopDataRoot, desktopDataDir, desktopBackupsDir, ensureDir } = require('../db/paths');
 
 const SECRET_SALT = 'HOPE_PRIVATE_POS_SALT_123';
@@ -19,9 +20,8 @@ const TRIAL_BACKUP_FILE_PATH = path.join(desktopBackupsDir, '.trial.json');
 const TAMPER_FILE_PATH = path.join(desktopDataRoot, 'trial-tampered.json');
 const TAMPER_MIRROR_FILE_PATH = path.join(desktopDataDir, '.trial-tampered.json');
 const TAMPER_BACKUP_FILE_PATH = path.join(desktopBackupsDir, '.trial-tampered.json');
-const TRIAL_DURATION_DAYS = 7;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-const TRIAL_REGISTRY_KEY = 'HKCU\\Software\\Hope\\ChewbiecafePOS';
+const TRIAL_REGISTRY_KEY = 'HKCU\\Software\\Hope\\ServeStack';
 const TRIAL_STARTED_AT_VALUE = 'TrialStartedAt';
 const TRIAL_SIGNATURE_VALUE = 'TrialSignature';
 const TRIAL_TAMPERED_VALUE = 'TrialTampered';
@@ -509,12 +509,13 @@ class LicenseService {
   }
 
   getTrialStatus() {
+    const trialDurationDays = getTrialDurationDays();
     const tamperStatus = this.getTamperStatus();
     if (tamperStatus) {
       return {
         startedAt: null,
         expiresAt: null,
-        durationDays: TRIAL_DURATION_DAYS,
+        durationDays: trialDurationDays,
         expired: true,
         daysLeft: 0,
         tampered: true,
@@ -528,7 +529,7 @@ class LicenseService {
       return {
         startedAt: null,
         expiresAt: null,
-        durationDays: TRIAL_DURATION_DAYS,
+        durationDays: trialDurationDays,
         expired: true,
         daysLeft: 0,
         tampered: true,
@@ -541,7 +542,7 @@ class LicenseService {
       return {
         startedAt: null,
         expiresAt: null,
-        durationDays: TRIAL_DURATION_DAYS,
+        durationDays: trialDurationDays,
         expired: true,
         daysLeft: 0,
         tampered: true,
@@ -550,7 +551,7 @@ class LicenseService {
     }
 
     const startedAtMs = new Date(trialRecord.startedAt).getTime();
-    const expiresAtMs = startedAtMs + (TRIAL_DURATION_DAYS * MS_PER_DAY);
+    const expiresAtMs = startedAtMs + (trialDurationDays * MS_PER_DAY);
     const nowMs = Date.now();
     const remainingMs = expiresAtMs - nowMs;
     const expired = remainingMs <= 0;
@@ -559,7 +560,7 @@ class LicenseService {
     return {
       startedAt: new Date(startedAtMs).toISOString(),
       expiresAt: new Date(expiresAtMs).toISOString(),
-      durationDays: TRIAL_DURATION_DAYS,
+      durationDays: trialDurationDays,
       expired,
       daysLeft,
       tampered: false,

@@ -4,6 +4,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import { isMobileBrowser } from '../utils/device';
 import { hasAdminDashboardAccess, normalizeUserFeatureAccessOverrides } from '../utils/featureAccess';
 import { getVisibleAdminTabs } from '../config/adminTabs';
+import { APP_NAME } from '../config/appInfo';
 import '../styles/Admin.css';
 
 const AdminPage = () => {
@@ -56,7 +57,7 @@ const AdminPage = () => {
       <div className="admin-header">
         <div className="admin-title">
           <h1>Admin Dashboard</h1>
-          <p>Chewbiecafe Management System</p>
+          <p>{APP_NAME} Management System</p>
         </div>
         <div className="admin-user-info">
           <span>Welcome, {user.name}</span>

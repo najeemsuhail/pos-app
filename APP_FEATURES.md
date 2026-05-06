@@ -1,8 +1,8 @@
-# Chewbie Cafe POS - App Features
+# ServeStack - App Features
 
 ## What a restaurant owner gets
 
-Chewbie Cafe POS gives a restaurant owner a simple daily operating system for billing, kitchen tickets, table orders, menu management, payments, reports, and backups. It is designed for quick counter use: staff can select a table or order type, add items, send KOT to the kitchen, take payment, and print the final receipt with fewer steps.
+ServeStack gives a restaurant owner a simple daily operating system for billing, kitchen tickets, table orders, menu management, payments, reports, and backups. It is designed for quick counter use: staff can select a table or order type, add items, send KOT to the kitchen, take payment, and print the final receipt with fewer steps.
 
 For the owner, the main benefit is control and visibility. Orders are organized by table and order type, menu items can be managed from the admin area, receipts and KOTs are printable, and reports show sales, payments, expenses, and net performance. The app also supports desktop use with local data, backups, and printer settings, so the restaurant can keep running in a practical shop environment.
 
@@ -32,7 +32,7 @@ For the owner, the main benefit is control and visibility. Orders are organized 
 ## Receipt printing
 
 - Receipt print output has no logo.
-- Extra printed heading `Chewbie Cafe / Receipt` was removed.
+- Extra printed store/receipt heading was removed.
 - Receipt content starts directly from the generated bill text.
 - Browser print preview cleanup was improved to avoid JavaScript errors when preview is closed.
 - Electron print preview cancellation is handled gracefully.

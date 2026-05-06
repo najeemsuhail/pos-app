@@ -1,4 +1,4 @@
-const TRIAL_DURATION_DAYS = 7;
+const { getTrialDurationDays } = require('../config/licenseConfig');
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const SECRET_SALT = process.env.LICENSE_ACTIVATION_SALT || 'HOPE_PRIVATE_POS_SALT_123';
 
@@ -20,11 +20,13 @@ function getNowIso() {
 }
 
 function buildTrialStatus(startedAt, tampered = false, tamperReason = null) {
+  const trialDurationDays = getTrialDurationDays();
+
   if (tampered) {
     return {
       startedAt: normalizeIsoDate(startedAt),
       expiresAt: null,
-      durationDays: TRIAL_DURATION_DAYS,
+      durationDays: trialDurationDays,
       expired: true,
       daysLeft: 0,
       tampered: true,
@@ -34,7 +36,7 @@ function buildTrialStatus(startedAt, tampered = false, tamperReason = null) {
 
   const normalizedStartedAt = normalizeIsoDate(startedAt) || getNowIso();
   const startedAtMs = new Date(normalizedStartedAt).getTime();
-  const expiresAtMs = startedAtMs + (TRIAL_DURATION_DAYS * MS_PER_DAY);
+  const expiresAtMs = startedAtMs + (trialDurationDays * MS_PER_DAY);
   const nowMs = Date.now();
   const remainingMs = expiresAtMs - nowMs;
   const expired = remainingMs <= 0;
@@ -43,7 +45,7 @@ function buildTrialStatus(startedAt, tampered = false, tamperReason = null) {
   return {
     startedAt: normalizedStartedAt,
     expiresAt: new Date(expiresAtMs).toISOString(),
-    durationDays: TRIAL_DURATION_DAYS,
+    durationDays: trialDurationDays,
     expired,
     daysLeft,
     tampered: false,

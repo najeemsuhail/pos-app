@@ -5,6 +5,7 @@ import {
   hasAdminDashboardAccess,
   normalizeUserFeatureAccessOverrides,
 } from '../utils/featureAccess';
+import { APP_NAME } from '../config/appInfo';
 import '../styles/Header.css';
 
 const Header = ({ user, onLogout }) => {
@@ -28,7 +29,7 @@ const Header = ({ user, onLogout }) => {
   return (
     <header className="header">
       <div className="header-left">
-        <h1>Chewbiecafe</h1>
+        <h1>{APP_NAME}</h1>
       </div>
 
       <div className="header-right">

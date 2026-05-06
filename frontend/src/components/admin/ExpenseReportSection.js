@@ -4,6 +4,7 @@ import { parseDateStr, formatDateStr } from '../../utils/dateUtils';
 import { expenseService } from '../../services/api';
 import { loadHtml2Pdf } from '../../utils/html2pdfLoader';
 import { downloadExcelWorkbook } from '../../utils/excelExport';
+import { APP_NAME } from '../../config/appInfo';
 
 const money = (v) => `Rs. ${parseFloat(v || 0).toFixed(2)}`;
 
@@ -137,7 +138,7 @@ const ExpenseReportSection = ({ headerAction = null }) => {
 
     div.innerHTML = `
       <div style="text-align:center; margin-bottom:24px; border-bottom:2px solid #333; padding-bottom:16px;">
-        <h1 style="margin:0; color:#2c3e50;">Chewbiecafe — Operating Expense Report</h1>
+        <h1 style="margin:0; color:#2c3e50;">${APP_NAME} - Operating Expense Report</h1>
         <p style="margin:6px 0; color:#666;">${periodLabel}</p>
         <p style="margin:4px 0; color:#999; font-size:12px;">Generated: ${new Date().toLocaleString()}</p>
       </div>
@@ -178,7 +179,7 @@ const ExpenseReportSection = ({ headerAction = null }) => {
         </tfoot>
       </table>
       <div style="margin-top:40px; padding-top:16px; border-top:1px solid #ddd; text-align:center; color:#999; font-size:11px;">
-        Computer-generated operating expense report — Chewbiecafe POS System
+        Computer-generated operating expense report - ${APP_NAME}
       </div>`;
 
     const filename = `Expense-Report-${periodLabel.replace(/[^a-z0-9]/gi, '-')}.pdf`;

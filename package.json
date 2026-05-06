@@ -1,8 +1,8 @@
 {
-  "name": "Chewbiecafe-pos",
+  "name": "servestack",
   "version": "2.0.0",
   "private": true,
-  "description": "Offline desktop Chewbiecafe POS application",
+  "description": "Offline desktop ServeStack POS application",
   "author": "Hope",
   "workspaces": [
     "backend",
@@ -42,8 +42,8 @@
     "wait-on": "^8.0.3"
   },
   "build": {
-    "appId": "com.Chewbiecafe.pos.app",
-    "productName": "Chewbiecafe POS",
+    "appId": "com.servestack.pos.app",
+    "productName": "ServeStack",
     "icon": "assets/icon.png",
     "files": [
       "assets/**/*",

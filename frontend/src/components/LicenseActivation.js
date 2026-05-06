@@ -8,6 +8,7 @@ const LicenseActivation = ({ onActivated, licenseStatus }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [trialInfo, setTrialInfo] = useState(null);
+  const trialDurationDays = trialInfo?.durationDays ?? 7;
 
   useEffect(() => {
     if (licenseStatus) {
@@ -73,7 +74,7 @@ const LicenseActivation = ({ onActivated, licenseStatus }) => {
             {trialInfo?.tampered
               ? 'Trial tampering was detected on this machine. Please provide your Machine ID to the developer to receive an unlock key.'
               : trialInfo?.expired
-                ? 'Your 7-day trial has ended. Please provide your Machine ID to the developer to receive an unlock key.'
+                ? `Your ${trialDurationDays}-day trial has ended. Please provide your Machine ID to the developer to receive an unlock key.`
                 : 'Please provide your Machine ID to the developer to receive an unlock key.'}
           </p>
         </div>

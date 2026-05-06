@@ -71,9 +71,9 @@ function normalizeShopTime(value, fallback) {
 }
 
 const defaultSettings = {
-  storeName: 'CHEWBIE CAFE',
-  storeAddressLocality: 'Panaji, Goa',
-  storePhone: '9876543210',
+  storeName: 'MY STORE',
+  storeAddressLocality: '',
+  storePhone: '',
   taxRate: 5,
   billNumberPrefix: DEFAULT_BILL_NUMBER_PREFIX,
   shopOpeningTime: DEFAULT_SHOP_OPENING_TIME,

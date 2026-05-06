@@ -684,7 +684,7 @@ ipcMain.handle('desktop:open-current-window-pdf', async (event) => {
 
   try {
     const pdfBuffer = await createReceiptPdfBufferFromWindow(targetWindow);
-    const tempDir = ensureDir(path.join(app.getPath('temp'), 'Chewbiecafe POS'));
+    const tempDir = ensureDir(path.join(app.getPath('temp'), app.getName() || 'ServeStack'));
     const pdfPath = path.join(tempDir, `receipt-${Date.now()}.pdf`);
 
     fs.writeFileSync(pdfPath, pdfBuffer);

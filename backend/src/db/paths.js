@@ -2,7 +2,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const APP_FOLDER_NAME = process.env.DESKTOP_APP_NAME || 'Chewbiecafe POS';
+const APP_FOLDER_NAME = process.env.DESKTOP_APP_NAME || 'ServeStack Restaurant POS';
+const LEGACY_APP_FOLDER_NAMES = ['ServeStack Restaurant POS', 'POS App'];
 
 function getDesktopDataRoot() {
   if (process.env.DESKTOP_DATA_DIR) {
@@ -10,14 +11,32 @@ function getDesktopDataRoot() {
   }
 
   if (process.platform === 'win32') {
-    return path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), APP_FOLDER_NAME);
+    const appDataRoot = process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming');
+    const preferredPath = path.join(appDataRoot, APP_FOLDER_NAME);
+    const legacyPath = LEGACY_APP_FOLDER_NAMES
+      .map((folderName) => path.join(appDataRoot, folderName))
+      .find((candidatePath) => fs.existsSync(candidatePath));
+
+    return fs.existsSync(preferredPath) ? preferredPath : (legacyPath || preferredPath);
   }
 
   if (process.platform === 'darwin') {
-    return path.join(os.homedir(), 'Library', 'Application Support', APP_FOLDER_NAME);
+    const appSupportRoot = path.join(os.homedir(), 'Library', 'Application Support');
+    const preferredPath = path.join(appSupportRoot, APP_FOLDER_NAME);
+    const legacyPath = LEGACY_APP_FOLDER_NAMES
+      .map((folderName) => path.join(appSupportRoot, folderName))
+      .find((candidatePath) => fs.existsSync(candidatePath));
+
+    return fs.existsSync(preferredPath) ? preferredPath : (legacyPath || preferredPath);
   }
 
-  return path.join(process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share'), APP_FOLDER_NAME);
+  const dataRoot = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
+  const preferredPath = path.join(dataRoot, APP_FOLDER_NAME);
+  const legacyPath = LEGACY_APP_FOLDER_NAMES
+    .map((folderName) => path.join(dataRoot, folderName))
+    .find((candidatePath) => fs.existsSync(candidatePath));
+
+  return fs.existsSync(preferredPath) ? preferredPath : (legacyPath || preferredPath);
 }
 
 function ensureDir(dirPath) {

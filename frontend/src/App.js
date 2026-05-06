@@ -8,7 +8,7 @@ import SyncStatusIndicator from './components/SyncStatusIndicator';
 import api from './services/api';
 import { OrderProvider } from './context/OrderContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { APP_VERSION } from './config/appInfo';
+import { APP_NAME, APP_VERSION } from './config/appInfo';
 import { isMobileBrowser } from './utils/device';
 import './styles/themes.css';
 import './styles/index.css';
@@ -44,7 +44,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = process.env.REACT_APP_NAME || 'Chewbiecafe POS';
+    document.title = APP_NAME;
 
     const checkLicense = async () => {
       try {

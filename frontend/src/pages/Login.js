@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 import { isMobileBrowser } from '../utils/device';
+import { APP_NAME } from '../config/appInfo';
 import '../styles/Login.css';
 
 const Login = () => {
@@ -31,7 +32,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1>Chewbiecafe</h1>
+        <h1>{APP_NAME}</h1>
         <form onSubmit={handleLogin}>
           <div className="form-group">
             <label>Username</label>

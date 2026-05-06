@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 import { isMobileBrowser } from '../utils/device';
-import { APP_NAME } from '../config/appInfo';
+import BrandLogo from '../components/BrandLogo';
 import '../styles/Login.css';
 
 const Login = () => {
@@ -32,7 +32,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1>{APP_NAME}</h1>
+        <BrandLogo className="login-brand" size="large" />
         <form onSubmit={handleLogin}>
           <div className="form-group">
             <label>Username</label>

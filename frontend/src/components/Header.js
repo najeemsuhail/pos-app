@@ -5,7 +5,7 @@ import {
   hasAdminDashboardAccess,
   normalizeUserFeatureAccessOverrides,
 } from '../utils/featureAccess';
-import { APP_NAME } from '../config/appInfo';
+import BrandLogo from './BrandLogo';
 import '../styles/Header.css';
 
 const Header = ({ user, onLogout }) => {
@@ -29,7 +29,7 @@ const Header = ({ user, onLogout }) => {
   return (
     <header className="header">
       <div className="header-left">
-        <h1>{APP_NAME}</h1>
+        <BrandLogo className="header-brand" size="small" />
       </div>
 
       <div className="header-right">

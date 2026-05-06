@@ -37,6 +37,10 @@
   font-weight: 500;
 }
 
+.admin-title {
+  min-width: 0;
+}
+
 .admin-user-info {
   display: flex;
   align-items: center;

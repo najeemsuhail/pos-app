@@ -25,6 +25,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+}
+
+.header-brand {
+  max-width: min(48vw, 460px);
+}
+
+.header-brand .brand-logo-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-right {
@@ -202,6 +212,10 @@
 
   .header h1 {
     font-size: 20px;
+  }
+
+  .header-brand {
+    max-width: 100%;
   }
 
   .header-right {

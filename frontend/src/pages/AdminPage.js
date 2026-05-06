@@ -4,7 +4,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import { isMobileBrowser } from '../utils/device';
 import { hasAdminDashboardAccess, normalizeUserFeatureAccessOverrides } from '../utils/featureAccess';
 import { getVisibleAdminTabs } from '../config/adminTabs';
-import { APP_NAME } from '../config/appInfo';
+import BrandLogo from '../components/BrandLogo';
 import '../styles/Admin.css';
 
 const AdminPage = () => {
@@ -56,8 +56,7 @@ const AdminPage = () => {
     <div className="admin-container">
       <div className="admin-header">
         <div className="admin-title">
-          <h1>Admin Dashboard</h1>
-          <p>{APP_NAME} Management System</p>
+          <BrandLogo size="medium" subtitle="Admin Dashboard" />
         </div>
         <div className="admin-user-info">
           <span>Welcome, {user.name}</span>

@@ -70,10 +70,19 @@ function normalizeShopTime(value, fallback) {
   return match ? trimmed : fallback;
 }
 
+function normalizeGstin(value) {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  return value.trim().toUpperCase().replace(/\s+/g, '');
+}
+
 const defaultSettings = {
   storeName: 'MY STORE',
   storeAddressLocality: '',
   storePhone: '',
+  storeGstin: '',
   taxRate: 5,
   billNumberPrefix: DEFAULT_BILL_NUMBER_PREFIX,
   shopOpeningTime: DEFAULT_SHOP_OPENING_TIME,
@@ -92,6 +101,7 @@ class SettingService {
         return {
           ...defaultSettings,
           ...safeParsed,
+          storeGstin: normalizeGstin(safeParsed.storeGstin),
           taxRate: Number.isFinite(Number(safeParsed.taxRate)) ? Number(safeParsed.taxRate) : defaultSettings.taxRate,
           billNumberPrefix: normalizeBillNumberPrefix(safeParsed.billNumberPrefix),
           shopOpeningTime: normalizeShopTime(safeParsed.shopOpeningTime, DEFAULT_SHOP_OPENING_TIME),
@@ -116,6 +126,7 @@ class SettingService {
     const updated = {
       ...current,
       ...safeNewSettings,
+      storeGstin: normalizeGstin(safeNewSettings.storeGstin ?? current.storeGstin),
       taxRate: Number.isFinite(Number(safeNewSettings.taxRate ?? current.taxRate)) ? Number(safeNewSettings.taxRate ?? current.taxRate) : defaultSettings.taxRate,
       billNumberPrefix: normalizeBillNumberPrefix(safeNewSettings.billNumberPrefix ?? current.billNumberPrefix),
       shopOpeningTime: normalizeShopTime(

@@ -34,13 +34,13 @@ const ReceiptModal = ({ receipt, billNumber, onClose, onPrint }) => {
     if (trimmed === 'PAYMENT BREAKDOWN') {
       return 'receipt-line section-title';
     }
-    if (trimmed.startsWith('TOTAL:')) {
+    if (/^TOTAL(?:\s*:)?/.test(trimmed)) {
       return 'receipt-line total';
     }
-    if (/^(Subtotal:|Discount:|Tax \([^)]+\):)/.test(trimmed)) {
+    if (/^(Subtotal|Discount|Taxable(?: Value)?|(?:CGST|SGST|IGST) @ [^:]+)(?:\s*:)?/.test(trimmed)) {
       return 'receipt-line summary';
     }
-    if (/^(Bill No|Date|Time|Table|Customer|Phone|Order|Payment)\s*:/.test(trimmed)) {
+    if (/^(Bill No|Date|Time|Table|Customer|Phone|Order|Payment|Type|Hours|GSTIN)\s*:/.test(trimmed)) {
       return 'receipt-line meta';
     }
     if (trimmed === 'Thank you! Please visit again.') {

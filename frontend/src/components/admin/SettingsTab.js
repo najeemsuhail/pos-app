@@ -34,6 +34,11 @@ const normalizeShopTime = (value, fallback) => {
   return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value.trim()) ? value.trim() : fallback;
 };
 
+const normalizeGstin = (value) => {
+  if (typeof value !== 'string') return '';
+  return value.trim().toUpperCase().replace(/\s+/g, '');
+};
+
 const SettingsTab = () => {
   const defaultTableNames = useMemo(() => buildDefaultTableNames(), []);
   const [resetConfirm, setResetConfirm] = useState('');
@@ -50,6 +55,7 @@ const SettingsTab = () => {
     storeName: '',
     storeAddressLocality: '',
     storePhone: '',
+    storeGstin: '',
     taxRate: 5,
     billNumberPrefix: DEFAULT_BILL_NUMBER_PREFIX,
     shopOpeningTime: DEFAULT_SHOP_OPENING_TIME,
@@ -120,6 +126,7 @@ const SettingsTab = () => {
     settingService.getAll()
       .then((res) => setStoreSettings({
         ...res.data,
+        storeGstin: normalizeGstin(res.data.storeGstin),
         billNumberPrefix: normalizeBillNumberPrefix(res.data.billNumberPrefix),
         shopOpeningTime: normalizeShopTime(res.data.shopOpeningTime, DEFAULT_SHOP_OPENING_TIME),
         shopClosingTime: normalizeShopTime(res.data.shopClosingTime, DEFAULT_SHOP_CLOSING_TIME),
@@ -227,6 +234,7 @@ const SettingsTab = () => {
       }
       setStoreSettings({
         ...response.data,
+        storeGstin: normalizeGstin(response.data.storeGstin),
         billNumberPrefix: normalizeBillNumberPrefix(response.data.billNumberPrefix),
         shopOpeningTime: normalizeShopTime(response.data.shopOpeningTime, DEFAULT_SHOP_OPENING_TIME),
         shopClosingTime: normalizeShopTime(response.data.shopClosingTime, DEFAULT_SHOP_CLOSING_TIME),
@@ -317,7 +325,7 @@ const SettingsTab = () => {
         {/* Store Information */}
         <div className="settings-section" style={{ marginBottom: '30px' }}>
           <h3>Store Information</h3>
-          <p>These details will appear on the receipts.</p>
+          <p>These details will appear on the receipt header and GST summary.</p>
           <div className="setting-card" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
             <div style={{ width: '100%', marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Store Name</label>
@@ -349,6 +357,20 @@ const SettingsTab = () => {
                 disabled={isSavingSettings}
               />
             </div>
+            <div style={{ width: '100%', marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px' }}>GSTIN</label>
+              <input
+                type="text"
+                className="settings-input"
+                value={storeSettings.storeGstin}
+                onChange={(e) => setStoreSettings({ ...storeSettings, storeGstin: normalizeGstin(e.target.value) })}
+                placeholder="22AAAAA0000A1Z5"
+                disabled={isSavingSettings}
+              />
+              <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-secondary)' }}>
+                Optional. This is printed on restaurant receipts and tax bills.
+              </small>
+            </div>
             <div className="shop-hours-grid" style={{ width: '100%', marginBottom: '15px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px' }}>Opening Time</label>
@@ -375,7 +397,7 @@ const SettingsTab = () => {
               </small>
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px' }}>Tax Rate (%)</label>
+              <label style={{ display: 'block', marginBottom: '5px' }}>GST Rate (%)</label>
               <input
                 type="number"
                 className="settings-input"
@@ -385,6 +407,9 @@ const SettingsTab = () => {
                 onChange={(e) => setStoreSettings({ ...storeSettings, taxRate: Number(e.target.value) })}
                 disabled={isSavingSettings}
               />
+              <small style={{ display: 'block', marginTop: '6px', color: 'var(--text-secondary)' }}>
+                Restaurant bills will show this as CGST and SGST split evenly.
+              </small>
             </div>
             <div style={{ width: '100%', marginBottom: '15px' }}>
               <label style={{ display: 'block', marginBottom: '5px' }}>Bill Prefix</label>

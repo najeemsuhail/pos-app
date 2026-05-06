@@ -7,6 +7,7 @@ import Loader from '../components/Loader';
 import { categoryService, menuItemService, orderService, settingService } from '../services/api';
 import { useOrder } from '../hooks/useOrder';
 import { printReceiptContent } from '../utils/receiptPrint';
+import { calculateTax, roundCurrency, splitTaxAmount } from '../utils/helpers';
 import '../styles/POS.css';
 
 const DEFAULT_TABLE_COUNT = 12;
@@ -396,15 +397,21 @@ const POSPage = () => {
   const baseTotals = calculateTotals();
   const totals = useMemo(() => {
     const subtotal = Number(baseTotals.subtotal || 0);
-    const discountAmount = Math.round(subtotal * Number(discount || 0)) / 100;
-    const taxableAmount = subtotal - discountAmount;
-    const tax = Math.round(taxableAmount * Number(taxRate || 0)) / 100;
-    const total = taxableAmount + tax;
+    const discountAmount = roundCurrency(subtotal * Number(discount || 0) / 100);
+    const taxableAmount = roundCurrency(subtotal - discountAmount);
+    const normalizedTaxRate = Number(taxRate || 0);
+    const tax = calculateTax(taxableAmount, normalizedTaxRate);
+    const { cgst, sgst } = splitTaxAmount(tax);
+    const total = roundCurrency(taxableAmount + tax);
 
     return {
       subtotal,
       discount: discountAmount,
+      taxableAmount,
       tax,
+      cgst,
+      sgst,
+      splitTaxRate: Number.parseFloat((normalizedTaxRate / 2).toFixed(2)),
       total,
     };
   }, [baseTotals, discount, taxRate]);
@@ -426,7 +433,6 @@ const POSPage = () => {
         onSendKot={handleSendKot}
         totals={totals}
         discount={discount}
-        taxRate={taxRate}
         onDiscountChange={setDiscount}
         cartItems={items}
         onRemoveItem={removeItem}

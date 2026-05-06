@@ -8,7 +8,6 @@ const POSLayout = ({
   onFinalizeOrder,
   totals,
   discount,
-  taxRate,
   onSendKot,
   onDiscountChange,
   cartItems,
@@ -648,10 +647,22 @@ const POSLayout = ({
                 <span>Discount Amount:</span>
                 <span>Rs {categoryTotals.discount?.toFixed(2) || '0.00'}</span>
               </div>
-              <div className="summary-line">
-                <span>Tax ({taxRate}%):</span>
-                <span>Rs {categoryTotals.tax?.toFixed(2) || '0.00'}</span>
-              </div>
+              {Number(categoryTotals.tax || 0) > 0 && (
+                <>
+                  <div className="summary-line">
+                    <span>Taxable Amount:</span>
+                    <span>Rs {categoryTotals.taxableAmount?.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="summary-line">
+                    <span>CGST @ {categoryTotals.splitTaxRate}%:</span>
+                    <span>Rs {categoryTotals.cgst?.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="summary-line">
+                    <span>SGST @ {categoryTotals.splitTaxRate}%:</span>
+                    <span>Rs {categoryTotals.sgst?.toFixed(2) || '0.00'}</span>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

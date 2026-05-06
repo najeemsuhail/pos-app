@@ -13,9 +13,9 @@ function getReceiptLineClassName(line) {
   if (/^=+$/.test(trimmed)) return 'receipt-line separator';
   if (trimmed === 'PAYMENT BREAKDOWN') return 'receipt-line section-title';
   if (trimmed === 'KITCHEN ORDER TICKET') return 'receipt-line section-title';
-  if (trimmed.startsWith('TOTAL:')) return 'receipt-line total';
-  if (/^(Subtotal:|Discount:|Tax \([^)]+\):)/.test(trimmed)) return 'receipt-line summary';
-  if (/^(KOT No|Bill No|Date|Time|Table|Customer|Phone|Order|Payment|Type|Hours)\s*:/.test(trimmed)) {
+  if (/^TOTAL(?:\s*:)?/.test(trimmed)) return 'receipt-line total';
+  if (/^(Subtotal|Discount|Taxable(?: Value)?|(?:CGST|SGST|IGST) @ [^:]+)(?:\s*:)?/.test(trimmed)) return 'receipt-line summary';
+  if (/^(KOT No|Bill No|Date|Time|Table|Customer|Phone|Order|Payment|Type|Hours|GSTIN)\s*:/.test(trimmed)) {
     return 'receipt-line meta';
   }
   if (trimmed === 'Thank you! Please visit again.') return 'receipt-line footer';

@@ -1,5 +1,6 @@
 const SettingService = require('../services/SettingService');
 const { getOrderTypeLabel } = require('./orderTypes');
+const { formatTaxRate, roundCurrency, splitTaxAmount } = require('./billing');
 
 const wrapText = (value, maxWidth) => {
   const text = String(value || '').trim();
@@ -91,7 +92,7 @@ const generateThermalReceipt = (order, items, payments) => {
   const qtyWidth = 4;
   const amountWidth = width - itemWidth - qtyWidth;
   const line = '='.repeat(width);
-  const taxRate = Number(settings.taxRate) || 0;
+  const configuredTaxRate = Number(settings.taxRate) || 0;
   const tableLabel = order.table_id
     ? settings.tableNames?.[Number(order.table_id) - 1] || `Table ${order.table_id}`
     : null;
@@ -103,6 +104,12 @@ const generateThermalReceipt = (order, items, payments) => {
   const discountAmount = parseFloat(order.discount_amount) || 0;
   const taxAmount = parseFloat(order.tax_amount) || 0;
   const finalAmount = parseFloat(order.final_amount) || 0;
+  const taxableValue = roundCurrency(subtotal - discountAmount);
+  const taxRate = taxableValue > 0 && taxAmount > 0
+    ? roundCurrency((taxAmount / taxableValue) * 100)
+    : configuredTaxRate;
+  const splitTaxRate = formatTaxRate(taxRate / 2);
+  const { cgstAmount, sgstAmount } = splitTaxAmount(taxAmount);
 
   let receipt = '';
   
@@ -116,6 +123,10 @@ const generateThermalReceipt = (order, items, payments) => {
   if (settings.storePhone) {
     const phoneStr = `Ph: ${settings.storePhone}`;
     receipt += phoneStr.padStart(Math.floor((width + phoneStr.length) / 2)).slice(0, width) + '\n';
+  }
+  if (settings.storeGstin) {
+    const gstinStr = `GSTIN: ${settings.storeGstin}`;
+    receipt += gstinStr.padStart(Math.floor((width + gstinStr.length) / 2)).slice(0, width) + '\n';
   }
   if (shopHours) {
     const hoursStr = `Hours: ${shopHours}`;
@@ -166,7 +177,9 @@ const generateThermalReceipt = (order, items, payments) => {
     receipt += `${formatKeyValueLine('Discount', `-Rs. ${discountAmount.toFixed(2)}`, width)}\n`;
   }
   if (taxAmount > 0) {
-    receipt += `${formatKeyValueLine(`Tax (${taxRate}%)`, `Rs. ${taxAmount.toFixed(2)}`, width)}\n`;
+    receipt += `${formatKeyValueLine('Taxable Value', `Rs. ${taxableValue.toFixed(2)}`, width)}\n`;
+    receipt += `${formatKeyValueLine(`CGST @ ${splitTaxRate}%`, `Rs. ${cgstAmount.toFixed(2)}`, width)}\n`;
+    receipt += `${formatKeyValueLine(`SGST @ ${splitTaxRate}%`, `Rs. ${sgstAmount.toFixed(2)}`, width)}\n`;
   }
   receipt += line + '\n';
   receipt += `${formatKeyValueLine('TOTAL', `Rs. ${finalAmount.toFixed(2)}`, width)}\n`;
